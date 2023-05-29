@@ -73,7 +73,6 @@ public:
 	bool usesegwit;
 	char commitment[128];
 	char witness_magic[16];
-
 	YAAMP_JOB *job;
 //	YAAMP_JOB_TEMPLATE *templ;
 };

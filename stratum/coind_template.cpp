@@ -250,13 +250,13 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	}
 
 	json_value *json_result = json_get_object(json, "result");
-	if(!json_result || json_is_null(json_result))
+/**	if(!json_result || json_is_null(json_result))
 	{
 		coind_error(coind, "getblocktemplate result");
 		json_value_free(json);
 		return NULL;
 	}
-
+*/
 	// segwit rule
 	json_value *json_rules = json_get_array(json_result, "rules");
 	if(json_rules && !strlen(coind->witness_magic) && json_rules->u.array.length) {
@@ -278,13 +278,13 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	}
 
 	json_value *json_tx = json_get_array(json_result, "transactions");
-	if(!json_tx)
+/**	if(!json_tx)
 	{
 		coind_error(coind, "getblocktemplate transactions");
 		json_value_free(json);
 		return NULL;
 	}
-
+*/
 	json_value *json_coinbaseaux = json_get_object(json_result, "coinbaseaux");
 	if(!json_coinbaseaux && coind->isaux)
 	{
