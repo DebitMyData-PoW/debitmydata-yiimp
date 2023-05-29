@@ -21,6 +21,36 @@ bool client_suggest_target(YAAMP_CLIENT *client, json_value *json_params)
 	client_send_result(client, "true");
 	return true;
 }
+const uint32_t maxmask = 0x1fffe000;
+
+bool client_configure(YAAMP_CLIENT *client, json_value *json_params)
+{
+        bool valid;
+        uint32_t mask;
+
+        valid = false;
+
+        if(json_params->u.array.length>1 && json_params->u.array.values[0]->u.array.values[0]->u.string.ptr)
+        {
+                if(!strcmp(json_params->u.array.values[0]->u.array.values[0]->u.string.ptr, "version-rolling"))
+                {
+                        if(!strcmp(json_params->u.array.values[1]->u.object.values[0].name, "version-rolling.mask"))
+                        {
+                                mask = strtol(json_params->u.array.values[1]->u.object.values[0].value->u.string.ptr, NULL, 16);
+                                valid = true;
+                        }
+                }
+        }
+
+        if (!valid)
+        {
+                return socket_send(client->sock, "{\"error\": null, \"id\": 1, \"result\": {\"version-rolling\": false}}\n");
+        }
+
+        return socket_send(client->sock, "{\"id\":0,\"result\":{\"version-rolling\":true,\"version-rolling.mask\":\"%08x\"},\"error\":null}\n", maxmask);
+}
+
+
 
 bool client_subscribe(YAAMP_CLIENT *client, json_value *json_params)
 {
@@ -47,16 +77,14 @@ bool client_subscribe(YAAMP_CLIENT *client, json_value *json_params)
 	{
 		if (json_params->u.array.values[0]->u.string.ptr)
 			strncpy(client->version, json_params->u.array.values[0]->u.string.ptr, 1023);
-
-
 		if (strstr(client->version, "NiceHash"))
       client->difficulty_actual = g_stratum_nicehash_difficulty;
 
 		if(strstr(client->version, "proxy") || strstr(client->version, "/3."))
       client->reconnectable = false;
 
-		//if(strstr(client->version, "NiceHash") || strstr(client->version, "proxy") || strstr(client->version, "/3."))
-			//client->reconnectable = false;
+	//	if(strstr(client->version, "NiceHash") || strstr(client->version, "proxy") || strstr(client->version, "/3."))
+	//		client->reconnectable = false;
 
 		if(strstr(client->version, "ccminer")) client->stats = true;
 		if(strstr(client->version, "cpuminer-multi")) client->stats = true;
@@ -599,6 +627,9 @@ void *client_thread(void *p)
 		bool b = false;
 		if(!strcmp(method, "mining.subscribe"))
 			b = client_subscribe(client, json_params);
+
+		else if(!strcmp(method, "mining.configure"))
+			b = client_configure(client, json_params); // ASICBOOST
 
 		else if(!strcmp(method, "mining.authorize"))
 			b = client_authorize(client, json_params);
