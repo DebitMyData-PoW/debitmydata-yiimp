@@ -61,6 +61,9 @@ struct YAAMP_JOB_TEMPLATE
 
 	int auxs_size;
 	YAAMP_COIND_AUX *auxs[MAX_AUXS];
+
+	char mweb[YAAMP_SMALLBUFSIZE];
+
 };
 
 #define YAAMP_JOB_MAXSUBIDS		200

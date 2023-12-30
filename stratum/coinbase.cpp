@@ -131,6 +131,10 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 
 	json_int_t available = templ->value;
 
+	if(coind->usemweb){
+		sprintf(templ->mweb,"01%s",json_get_string(json_result, "mweb"));
+	}
+
 	// sample coins using mandatory dev/foundation fees
 	if(strcmp(coind->symbol, "EGC") == 0) {
 		if (coind->charity_percent <= 0)

@@ -272,6 +272,8 @@ static void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VAL
 				snprintf(block_hex, block_size, "%s", hex);
 		}
 
+		if(coind->usemweb)	strcat(block_hex, templ->mweb);
+
 		bool b = coind_submit(coind, block_hex);
 		if(b)
 		{
