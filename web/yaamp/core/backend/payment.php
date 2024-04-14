@@ -65,7 +65,9 @@ function BackendCoinPayments($coin)
 			while($user->balance > $min_payout && $amount > $min_payout)
 			{
 				debuglog("$coin->symbol sendtoaddress $user->username $amount");
-				if($coin->symbol == 'MBC')
+				if($coin->symbol == 'FEC')
+				$tx = $remote->sendtoaddress($user->username, round($amount, 7));
+				else if($coin->symbol == 'MBC')
 				$tx = $remote->sendtoaddress($user->username, round($amount, 4));
 				else
 				$tx = $remote->sendtoaddress($user->username, round($amount, 6));
@@ -105,8 +107,13 @@ function BackendCoinPayments($coin)
 	$total_to_pay = 0;
 	$addresses = array();
 
-	
-	if($coin->symbol == 'MBC')
+	if($coin->symbol == 'FEC')
+	foreach($users as $user)
+	{
+		$total_to_pay -= round($user->balance, 7);
+		$addresses[$user->username] = round($user->balance, 7); //allow payments to only use 6 digit decimals
+	}
+	else if($coin->symbol == 'MBC')
 	foreach($users as $user)
 	{
 		$total_to_pay -= round($user->balance, 4);
