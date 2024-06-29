@@ -106,6 +106,7 @@ function yaamp_get_algos()
 		'yespowerTIDE',
 		'zr5',
 		'kawpow',
+		'randomx',
 	);
 }
 
@@ -121,6 +122,7 @@ function yaamp_algo_mBTC_factor($algo)
 	case 'script':
 		return 1000000000;
 	case 'ghostrider':
+		return 0.001;
 	case 'sha256q':
 	case 'blake':
 	case 'blakecoin':
@@ -153,7 +155,7 @@ function yaamp_get_algo_norm($algo)
 		'argon2d-uis'	=> 1.0,
 		'blake'		=> 1.0,
 		'curvehash'	=> 1.0,
-		'ghostrider'	=> 1.0,
+		'ghostrider'	=> 0.001,
 		'keccak'	=> 1.0,
 		'lyra2'		=> 1.0,
 		'lyra2v2'	=> 1.0,
@@ -214,7 +216,7 @@ function getAlgoColors($algo)
 		'dmd-gr'	=> '#a0c0f0',
 		'exosis'	=> '#49CCFE',
 		'geek'		=> '#d0a0a0',
-		'ghostrider'	=> '#d0a0a0',
+		'ghostrider'	=> '#80a0d0',
 		'groestl'	=> '#d0a0a0',
 		'heavyhash'	=> '#d0a0a0',
 		'hex'		=> '#c0f0c0',
@@ -293,6 +295,7 @@ function getAlgoColors($algo)
 		'yespowerTIDE' 	=> '#e2d0d2',
 		'zr5'		=> '#d0b0d0',
 		'kawpow'        => '#d0bd00',
+		'randomx' 	=> '#e2d0d2',
 
 		'MN'		=> '#ffffff', // MasterNode Earnings
 		'PoS'		=> '#ffffff'  // Stake
@@ -410,6 +413,7 @@ function getAlgoPort($algo)
 		'yespowerTIDE'	=> 6243,
 		'zr5'		=> 5533,
 		'kawpow'        => 3635,
+		'randomx'	=> 8284,
 		//'groestl'	=> 5333,
 		// 5555 to 5683 reserved
 	);

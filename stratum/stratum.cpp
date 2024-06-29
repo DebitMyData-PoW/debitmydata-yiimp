@@ -114,6 +114,7 @@ static void neoscrypt_hash(const char* input, char* output, uint32_t len)
 YAAMP_ALGO g_algos[] =
 {
 	{"sha256", sha256_double_hash, 1, 0, 0},
+	{"sha256d", sha256_double_hash, 1, 0, 0},
 	{"scrypt", scrypt_hash, 0x10000, 0, 0},
 	{"scryptn", scryptn_hash, 0x10000, 0, 0},
 	{"neoscrypt", neoscrypt_hash, 0x10000, 0, 0},
@@ -159,6 +160,7 @@ YAAMP_ALGO g_algos[] =
 
 	{"deep", deep_hash, 1, 0, 0},
 	{"fresh", fresh_hash, 0x100, 0, 0},
+	{"ghostrider", gr_hash, 0x10000, 0, 0},
 	{"quark", quark_hash, 1, 0, 0},
 	{"nist5", nist5_hash, 1, 0, 0},
 	{"qubit", qubit_hash, 1, 0, 0},
