@@ -21,12 +21,6 @@ SOURCES=lyra2re.c lyra2v2.c lyra2v3.c Lyra2.c lyra2z.c Lyra2-z.c lyra2zz.c Lyra2
 	a5a.c a5amath.c m7m.c magimath.cpp velvet.c \
 	argon2a.c blake2/blake2b.c ar2/argon2.c ar2/core.c ar2/encoding.c ar2/opt.c ar2/thread.c ar2/ar2-scrypt-jane.c \
 	hive.c pomelo.c hex.c argon2d-dyn.c \
-
-	gr.c cryptonote/crypto/aesb.c  cryptonote/crypto/c_blake256.c  cryptonote/crypto/c_groestl.c  cryptonote/crypto/c_jh.c  cryptonote/crypto/c_keccak.c  cryptonote/crypto/c_skein.c  cryptonote/crypto/hash.c  cryptonote/crypto/oaes_lib.c \
-	cryptonote/cryptonight.c \
-	cryptonote/cryptonight_dark.c cryptonote/cryptonight_dark_lite.c cryptonote/cryptonight_fast.c \
-	cryptonote/cryptonight_lite.c cryptonote/cryptonight_soft_shell.c cryptonote/cryptonight_turtle.c \
-	cryptonote/cryptonight_turtle_lite.c gr.c
 	phi.c phi2.c polytimos.c rainforest.c skunk.c sib.c veltor.c gost.c aergo.c lbk3.c sha256csm.c phi1612.c
 
 OBJECTS=$(SOURCES:%.c=%.o) $(SOURCES:%.cpp=%.o)
@@ -50,10 +44,5 @@ clean:
 	rm -f *.o
 	rm -f ar2/*.o
 	rm -f blake2/*.o
-	rm -f blake2-ref/*.o
-	rm -f SWIFFTX/*.o
-	rm -f yespower/*.o
-	rm -f cryptonote/*.o
-	rm -f honeycomb/*.o
 	rm -f SWIFFTX/*.o
 	rm -f yespower/*.o

@@ -224,4 +224,3 @@ void sha256_double_hash_hex(const char *input, char *output, unsigned int len);
 #include "algos/argon2d-dyn.h"
 #include "algos/exosis.h"
 #include "algos/x21s.h"
-#include "algos/gr.h"
