@@ -153,8 +153,10 @@ bool coind_validate_address(YAAMP_COIND *coind)
 	const char *acc = json_get_string(json_result, "account");
 	if (acc) strcpy(coind->account, acc);
 
+/*
 	if (!base58_decode(coind->wallet, coind->script_pubkey))
 		stratumlog("Warning: unable to decode %s %s script pubkey\n", coind->symbol, coind->wallet);
+*/
 
 	coind->p2sh_address = json_get_bool(json_result, "isscript");
 
