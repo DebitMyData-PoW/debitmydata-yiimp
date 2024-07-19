@@ -329,6 +329,7 @@ void db_update_coinds(YAAMP_DB *db)
 			if (strcmp(coind->symbol, "URALS") == 0) coind->oldmasternodes = true;
 			if (strcmp(coind->symbol, "VSX") == 0) coind->oldmasternodes = true;
 			if (strcmp(coind->symbol, "XLR") == 0) coind->oldmasternodes = true;
+			if (strcmp(coind->symbol, "J6Q") == 0) coind->oldmasternodes = true;
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
