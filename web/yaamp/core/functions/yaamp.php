@@ -29,7 +29,7 @@ function yaamp_get_algos()
 		'equihash',
 		'groestl', // dmd-gr -m 256 (deprecated)
 		'geek',
-		'ghostrider',
+		'gr',
 		'heavyhash',
 		'hex',
 		'hmq1725',
@@ -121,7 +121,7 @@ function yaamp_algo_mBTC_factor($algo)
 	case 'sha256t':
 	case 'script':
 		return 1000000000;
-	case 'ghostrider':
+	case 'gr':
 		return 0.001;
 	case 'sha256q':
 	case 'blake':
@@ -155,7 +155,7 @@ function yaamp_get_algo_norm($algo)
 		'argon2d-uis'	=> 1.0,
 		'blake'		=> 1.0,
 		'curvehash'	=> 1.0,
-		'ghostrider'	=> 0.001,
+		'gr'	=> 0.001,
 		'keccak'	=> 1.0,
 		'lyra2'		=> 1.0,
 		'lyra2v2'	=> 1.0,
@@ -216,7 +216,7 @@ function getAlgoColors($algo)
 		'dmd-gr'	=> '#a0c0f0',
 		'exosis'	=> '#49CCFE',
 		'geek'		=> '#d0a0a0',
-		'ghostrider'	=> '#80a0d0',
+		'gr'	=> '#80a0d0',
 		'groestl'	=> '#d0a0a0',
 		'heavyhash'	=> '#d0a0a0',
 		'hex'		=> '#c0f0c0',
@@ -334,7 +334,7 @@ function getAlgoPort($algo)
 		'equihash' 	=> 8888,
 		'exosis'	=> 3557,
 		'geek'		=> 3692,
-		'ghostrider'	=> 7070,
+		'gr'	=> 7070,
 		'heavyhash'	=> 5136,
 		'hex'		=> 5135,
 		'hmq1725'	=> 3747,

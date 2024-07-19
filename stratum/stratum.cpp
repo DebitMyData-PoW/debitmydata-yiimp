@@ -160,7 +160,7 @@ YAAMP_ALGO g_algos[] =
 
 	{"deep", deep_hash, 1, 0, 0},
 	{"fresh", fresh_hash, 0x100, 0, 0},
-	{"ghostrider", gr_hash, 0x10000, 0, 0},
+	{"gr", gr_hash, 0x10000, 0, 0},
 	{"quark", quark_hash, 1, 0, 0},
 	{"nist5", nist5_hash, 1, 0, 0},
 	{"qubit", qubit_hash, 1, 0, 0},
