@@ -225,3 +225,5 @@ void sha256_double_hash_hex(const char *input, char *output, unsigned int len);
 #include "algos/exosis.h"
 #include "algos/x21s.h"
 #include "algos/gr.h"
+#include "algos/fortune.h"
+#include "algos/mike.h"
