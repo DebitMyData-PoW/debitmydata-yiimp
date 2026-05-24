@@ -324,8 +324,8 @@ int blake2s_final( blake2s_state *S, uint8_t *out, uint8_t outlen )
 
 int blake2s( uint8_t *out, const void *in, const void *key, const uint8_t outlen, const uint64_t inlen, uint8_t keylen )
 {
-	/* blake2s_state S[1]; */
-    blake2s_state S[1] __attribute__((aligned(64)));
+	blake2s_state S[1];
+
 	/* Verify parameters */
 	if ( NULL == in ) return -1;
 
