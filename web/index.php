@@ -1,8 +1,10 @@
 <?php
 
 //define('YII_DEBUG', true);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-require_once('serverconfig.php');
+require_once('/home/crypto-data/yiimp/site/configuration/serverconfig.php');
 require_once('yaamp/defaultconfig.php');
 require_once('yaamp/ui/app.php');
 
@@ -29,13 +31,9 @@ try
 
 catch(CException $e)
 {
-//	Javascript("window.history.go(-1)");
-//	mydump($e, 3);
-
-	debuglog("front end error ".$_SERVER['REMOTE_ADDR']);
-	debuglog($e->getMessage());
-
-//	send_email_alert('frontend', "frontend error", "a frontend error occured");
+	echo "<pre>";
+	print_r($e);
+	echo "</pre>";
+	die();
 }
-
 
