@@ -18,7 +18,8 @@
     { "src": "/images/app/icon-maskable-1024.png?v=3", "sizes": "1024x1024", "type": "image/png", "purpose": "maskable" }
   ],
   "related_applications": [
-    { "platform": "webapp", "url": "https://pool.debitmydata.io/manifest.json", "id": "https://pool.debitmydata.io/" }
+    { "platform": "webapp", "url": "https://pool.debitmydata.io/manifest.json", "id": "https://pool.debitmydata.io/" },
+    { "platform": "play", "id": "io.debitmydata.pool", "url": "https://play.google.com/store/apps/details?id=io.debitmydata.pool" }
   ],
   "prefer_related_applications": false
 }

@@ -10,7 +10,9 @@
  * The window works like id.debitmydata.io's: it offers itself on phones and tablets a moment after
  * a page opens, and on any device from the footer's "Get the app" (or a link ending in
  * #get-the-app). It is never offered by itself inside the app, nor when the browser says the
- * app is installed. Only "Not now" is remembered, in this browser, for 30 days.
+ * app is installed: the web app, or the Google Play app (io.debitmydata.pool, listed in
+ * manifest.json; Chrome and Edge on Android can tell). Only "Not now" is remembered, in this
+ * browser, for 30 days.
  * When the browser offers its own one-tap install (Chrome, Edge, Samsung Internet: once the site
  * has had a tap and about 30 seconds of use on that device), the window shows the Install button,
  * even if it was already open with the steps.
@@ -202,7 +204,7 @@ function dmd_app_dialog()
 		open();
 	}
 	var check = (canTell ? navigator.getInstalledRelatedApps().then(function (apps) {
-		return apps.some(function (app) { return app.platform === "webapp"; });
+		return apps.some(function (app) { return app.platform === "webapp" || app.platform === "play"; });
 	}, function () { return false; }) : Promise.resolve(false)).then(function (yes) { installed = yes; });
 	// Asked for: always opens, and forgets an earlier "Not now".
 	function ask() {

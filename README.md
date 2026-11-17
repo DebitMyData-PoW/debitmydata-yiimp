@@ -40,10 +40,17 @@ a launch screen, and no browser bars. There is nothing to download from a store.
   Screen. On Android, the browser's menu, then Install app. Where the browser installs it in one
   tap (Chrome, Edge, Samsung Internet), an Install button.
 - **It doesn't insist.** It is never offered inside the app, nor once the browser says the app is
-  installed, and "Not now" is remembered for 30 days.
+  installed (the web app, or the Google Play version below), and "Not now" is remembered for 30
+  days.
 - **Notifications.** The bell turns on notices for new blocks and payouts. On an iPhone, they work
   in the app added to the Home Screen.
 - **Light and dark**, remembered on each device.
+
+**The Google Play version** (a Bubblewrap app, package `io.debitmydata.pool`) is listed in
+`web/manifest.json`: in Chrome and Edge on Android, the page sees it once it is installed and
+does not offer the browser version. To publish it, the app's signing key goes in
+`web/.well-known/assetlinks.json` (the package name and the SHA-256 fingerprint of the Play app
+signing key, from Play Console, App integrity), so that it opens without the browser's bar.
 
 <p align="center">
   <img src="docs/images/pool-phone-light.jpg" alt="The pool on a phone, in the light theme" width="260">
