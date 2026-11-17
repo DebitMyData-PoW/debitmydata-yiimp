@@ -190,7 +190,9 @@ function showPageHeader()
     echo dmd_link('https://mempool.debitmydata.io/', 'Explorer ' . dmd_icon('out'));
     if (controller()->admin) {
         $admin = dmd_admin_current() !== '';	// any admin page (core/functions/admin.php)
-        echo '<a href="/site/coin?id=2"' . ($admin ? ' class="on" aria-current="page"' : '') . '>Admin</a>';
+        $dmd = dmd_coin();	// the admin opens on the DMD coin's page, or on the coins without it
+        $adminUrl = $dmd ? '/site/coin?id=' . (int) $dmd->id : '/coin';
+        echo '<a href="' . $adminUrl . '"' . ($admin ? ' class="on" aria-current="page"' : '') . '>Admin</a>';
     }
     echo dmd_link('https://debitmydata.io/#mining', 'How to mine ' . dmd_icon('out'), 'dmd-cta');
     echo '</nav></div></header>';

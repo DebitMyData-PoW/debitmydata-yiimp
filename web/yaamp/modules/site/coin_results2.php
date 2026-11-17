@@ -250,7 +250,7 @@ else
 
 echo '<td>'.altcoinvaluetoa($balance).'</td>';
 
-$btc = bitcoinvaluetoa($balance*$coin->price);
+$btc = bitcoinvaluetoa((float) $balance * $coin->price);
 echo "<td>$btc</td>";
 if ($PoS) echo '<td>'.$stake.'</td>';
 else if ($DCR) {

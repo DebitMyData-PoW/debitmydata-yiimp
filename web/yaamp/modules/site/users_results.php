@@ -9,7 +9,7 @@ $search = getparam('search'); // Retrieve the search term if any
 $searchCondition = $search ? "AND username LIKE :search" : ""; // Add search condition only if search term exists
 $users = getdbolist('db_accounts', "
     id IN (SELECT DISTINCT userid FROM workers) $searchCondition
-", [':search' => "%$search%"]);
+", $search ? [':search' => "%$search%"] : []);
 
 // Map coinid to symbol
 $coins = getdbolist('db_coins', "");

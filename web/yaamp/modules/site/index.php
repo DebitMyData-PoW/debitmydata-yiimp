@@ -18,9 +18,10 @@ $fee_pool = '0.5%';
 $fee_solo = '1%';
 
 // "All blocks in the explorer": the pool's address (master_wallet) in the coin's explorer
-// (block_explorer), both from the coins table, coin id 2. The explorer is given /address/<address>.
+// (block_explorer), both from the DMD coin's row in the coins table. The explorer is given
+// /address/<address>.
 $explorer_url = 'https://mempool.debitmydata.io/';
-$explorer_coin = getdbo('db_coins', 2);
+$explorer_coin = dmd_coin();
 if ($explorer_coin) {
     $explorer_base = trim((string) $explorer_coin->block_explorer);
     if (preg_match('#^https?://[^\s"<>]+$#i', $explorer_base)) $explorer_url = $explorer_base;

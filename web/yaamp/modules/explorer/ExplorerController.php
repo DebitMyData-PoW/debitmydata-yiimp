@@ -37,7 +37,18 @@ class ExplorerController extends CommonController
 	// Hide coin id from explorer links... created by createUrl()
 	public function createUrl($route,$params=array(),$ampersand='&')
 	{
-		if ($route == '/explorer' && isset($params['id'])) {
+		if ($route == '/explorer' && isset($params['id']))
+			return self::explorerUrl($params, $ampersand);
+		return parent::createUrl($route, $params, $ampersand);
+	}
+
+	// The explorer's address for a coin: /explorer/<symbol>?<params> for a visible coin,
+	// /explorer?id=<id>&... otherwise. Static, so that the coins' model can use it without a
+	// controller (PHP 8 refuses createUrl() called statically).
+	public static function explorerUrl($params=array(), $ampersand='&')
+	{
+		$route = '/explorer';
+		if (isset($params['id'])) {
 			$coin = getdbo('db_coins', intval($params['id']));
 			if ($coin && $coin->visible && !is_numeric($coin->symbol)) {
 				unset($params['id']);
@@ -45,7 +56,7 @@ class ExplorerController extends CommonController
 				$params = array();
 			}
 		}
-		return parent::createUrl($route, $params, $ampersand);
+		return Yii::app()->createUrl(trim($route,'/'), $params, $ampersand);
 	}
 
 	/////////////////////////////////////////////////

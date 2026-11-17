@@ -24,11 +24,22 @@ this repository.
 
 ## Running it
 
-It installs on **Ubuntu 24.04 with PHP 7.4**, with the multipool installer's layout
-(`/home/crypto-data/yiimp/site`). PHP 8.x support is being worked on in the `ubuntu-24.04`
-branch.
+It runs on **Ubuntu 24.04 with PHP 8.3** (Ubuntu's own), MariaDB 10.11 and nginx, in the
+multipool installer's layout (`/home/crypto-data/yiimp/site`). The installer,
+[DebitMyData-PoW/Multi-Pool-Installer](https://github.com/DebitMyData-PoW/Multi-Pool-Installer),
+sets it all up on a fresh server: the website, the database, the stratum with the DMD port, and
+the notifications.
 
-The database changes in `sql/` run once each, in date order: `sudo mysql yiimpfrontend < file`.
+The website runs on Yii 1.1.32 (`web/framework`), with YiiMP's few changes to it.
+
+DebitMyData's database changes in `sql/` run once each, in this order (the second one makes the
+table that the third one changes), after YiiMP's own:
+
+```
+sudo mysql yiimpfrontend < sql/2026-11-12-pplns-coinbase.sql
+sudo mysql yiimpfrontend < sql/2026-11-13-push.sql
+sudo mysql yiimpfrontend < sql/2026-11-12-push-test.sql
+```
 
 ## Not in this repository
 

@@ -4,6 +4,8 @@ function round_difficulty($diff)
 {
 	// only keep 8/9 significant numbers
 	$sigdigits = 8;
+	$diff = (float) $diff;	// '' or null when the coin's node does not answer
+	if ($diff <= 0) return round($diff, $sigdigits);
 	return round($diff, (int) ceil(0 - log10($diff)) + $sigdigits);
 }
 
@@ -99,22 +101,22 @@ function GetMonthString($n)
 
 function bitcoinvaluetoa($v)
 {
-	return sprintf('%.8f', round($v, 8, PHP_ROUND_HALF_DOWN));
+	return sprintf('%.8f', round((float) $v, 8, PHP_ROUND_HALF_DOWN));
 }
 
 function mbitcoinvaluetoa($v)
 {
-	return sprintf('%.5f', round($v, 5, PHP_ROUND_HALF_DOWN));
+	return sprintf('%.5f', round((float) $v, 5, PHP_ROUND_HALF_DOWN));
 }
 
 function altcoinvaluetoa($v)
 {
-	return sprintf('%.6f', round($v, 6, PHP_ROUND_HALF_DOWN));
+	return sprintf('%.6f', round((float) $v, 6, PHP_ROUND_HALF_DOWN));
 }
 
 function percentvaluetoa($v)
 {
-	return sprintf('%.3f', round($v, 3, PHP_ROUND_HALF_DOWN));
+	return sprintf('%.3f', round((float) $v, 3, PHP_ROUND_HALF_DOWN));
 }
 
 function timestampfromstr($str)

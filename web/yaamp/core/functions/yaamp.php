@@ -1,5 +1,15 @@
 <?php
 
+// The DMD coin's row (coins table), found by its symbol: its id is whatever the admin gave it
+// (1 on a fresh install). Null until the coin is added. Once per request.
+function dmd_coin()
+{
+	static $coin = false;
+	if ($coin === false)
+		$coin = getdbosql('db_coins', "symbol='DMD'");
+	return $coin;
+}
+
 function yaamp_get_algos()
 {
 	/* Toggle Site Algos Here */

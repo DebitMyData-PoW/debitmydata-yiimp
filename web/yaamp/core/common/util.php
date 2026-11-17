@@ -343,18 +343,21 @@ class RecursiveDOMIterator implements RecursiveIterator
 		$this->_position = 0;
 		$this->_nodeList = $domNode->childNodes;
 	}
-	public function getChildren() { return new self($this->current()); }
+	// The return types PHP 8 expects (the attribute is a comment to PHP 7.4, which has no "mixed")
+	public function getChildren(): ?RecursiveIterator { return new self($this->current()); }
+	#[\ReturnTypeWillChange]
 	public function key()         { return $this->_position; }
-	public function next()        { $this->_position++; }
-	public function rewind()      { $this->_position = 0; }
-	public function valid()
+	public function next(): void  { $this->_position++; }
+	public function rewind(): void { $this->_position = 0; }
+	public function valid(): bool
 	{
 		return $this->_position < $this->_nodeList->length;
 	}
-	public function hasChildren()
+	public function hasChildren(): bool
 	{
 		return $this->current()->hasChildNodes();
 	}
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		return $this->_nodeList->item($this->_position);
