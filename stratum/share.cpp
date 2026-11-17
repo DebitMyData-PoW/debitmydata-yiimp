@@ -18,7 +18,8 @@ static YAAMP_WORKER *share_find_worker(YAAMP_CLIENT *client, YAAMP_JOB *job, boo
 
 		if(	worker->userid == client->userid &&
 			worker->workerid == client->workerid &&
-			worker->valid == valid)
+			worker->valid == valid &&
+			worker->solo == client->solo)
 		{
 			if(!job && !worker->coinid && !worker->remoteid)
 				return worker;
@@ -35,7 +36,7 @@ static YAAMP_WORKER *share_find_worker(YAAMP_CLIENT *client, YAAMP_JOB *job, boo
 	return NULL;
 }
 
-static void share_add_worker(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, char *ntime, double share_diff, int error_number)
+static void share_add_worker(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, char *ntime, double share_diff, int error_number, double credit_diff)
 {
 //	check_job(job);
 	g_list_worker.Enter();
@@ -51,6 +52,7 @@ static void share_add_worker(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, c
 		worker->coinid = job? (job->coind? job->coind->id: 0): 0;
 		worker->remoteid = job? (job->remote? job->remote->id: 0): 0;
 		worker->valid = valid;
+		worker->solo = client->solo;
 		worker->error_number = error_number;
 		sscanf(ntime, "%x", &worker->ntime);
 		worker->share_diff = share_diff;
@@ -65,8 +67,9 @@ static void share_add_worker(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, c
 
 	if(valid)
 	{
-		worker->difficulty += client->difficulty_actual / g_current_algo->diff_multiplier;
-		client->speed += client->difficulty_actual / g_current_algo->diff_multiplier * 42;
+		double diff = credit_diff > 0? credit_diff: client->difficulty_actual;
+		worker->difficulty += diff / g_current_algo->diff_multiplier;
+		client->speed += diff / g_current_algo->diff_multiplier * 42;
 	//	client->source->speed += client->difficulty_actual / g_current_algo->diff_multiplier * 42;
 	}
 
@@ -75,11 +78,11 @@ static void share_add_worker(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, c
 
 /////////////////////////////////////////////////////////////////////////
 
-void share_add(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, char *extranonce2, char *ntime, char *nonce, double share_diff, int error_number)
+void share_add(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, char *extranonce2, char *ntime, char *nonce, double share_diff, int error_number, double credit_diff)
 {
 //	check_job(job);
 	g_shares_counter++;
-	share_add_worker(client, job, valid, ntime, share_diff, error_number);
+	share_add_worker(client, job, valid, ntime, share_diff, error_number, credit_diff);
 
 	YAAMP_SHARE *share = new YAAMP_SHARE;
 	memset(share, 0, sizeof(YAAMP_SHARE));
@@ -120,7 +123,13 @@ void share_write(YAAMP_DB *db)
 	int count = 0;
 	int now = time(NULL);
 
-	char buffer[1024*1024] = "insert into shares (userid, workerid, coinid, jobid, pid, valid, extranonce1, difficulty, share_diff, time, algo, error) values ";
+	// the solo column comes with sql/2026-11-12-pplns-coinbase.sql
+	const char *columns = g_shares_solo_column?
+		"insert into shares (userid, workerid, coinid, jobid, pid, valid, extranonce1, difficulty, share_diff, time, algo, error, solo) values ":
+		"insert into shares (userid, workerid, coinid, jobid, pid, valid, extranonce1, difficulty, share_diff, time, algo, error) values ";
+
+	static char buffer[1024*1024];
+	strcpy(buffer, columns);
 	g_list_worker.Enter();
 
 	for(CLI li = g_list_worker.first; li; li = li->next)
@@ -134,9 +143,11 @@ void share_write(YAAMP_DB *db)
 		}
 
 		if(count) strcat(buffer, ",");
-		sprintf(buffer+strlen(buffer), "(%d, %d, %d, %d, %d, %d, %d, %f, %f, %d, '%s', %d)",
+		sprintf(buffer+strlen(buffer), "(%d, %d, %d, %d, %d, %d, %d, %f, %f, %d, '%s', %d",
 			worker->userid, worker->workerid, worker->coinid, worker->remoteid, pid,
 			worker->valid, worker->extranonce1, worker->difficulty, worker->share_diff, now, g_stratum_algo, worker->error_number);
+		if(g_shares_solo_column) sprintf(buffer+strlen(buffer), ", %d", worker->solo? 1: 0);
+		strcat(buffer, ")");
 
 		// todo: link max_ttf ?
 		if((now - worker->ntime) > 15*60 || worker->ntime > now) {
@@ -147,7 +158,7 @@ void share_write(YAAMP_DB *db)
 		{
 			db_query(db, buffer);
 
-			strcpy(buffer, "insert into shares (userid, workerid, coinid, jobid, pid, valid, extranonce1, difficulty, share_diff, time, algo, error) values ");
+			strcpy(buffer, columns);
 			count = 0;
 		}
 

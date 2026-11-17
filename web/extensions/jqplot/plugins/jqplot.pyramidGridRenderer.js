@@ -51,7 +51,7 @@
         };
         $.extend(true, this, options);
         // set the shadow renderer options
-        var sopts = {lineJoin:'miter', lineCap:'round', fill:false, isarc:false, angle:this.shadowAngle, offset:this.shadowOffset, alpha:this.shadowAlpha, depth:this.shadowDepth, lineWidth:this.shadowWidth, closePath:false, strokeStyle:this.shadowColor};
+        var sopts = {lineJoin:'miter', lineCap:'round', fill:true, isarc:false, angle:this.shadowAngle, offset:this.shadowOffset, alpha:this.shadowAlpha, depth:this.shadowDepth, lineWidth:this.shadowWidth, closePath:false, strokeStyle:this.shadowColor};
         this.renderer.shadowRenderer.init(sopts);
     };
     
@@ -215,7 +215,7 @@
                                     }
                                     // draw the shadow
                                     if (this.shadow) {
-                                        this.renderer.shadowRenderer.draw(ctx, [[pos,b],[pos,e]], {lineCap:'butt', lineWidth:this.gridLineWidth, offset:this.gridLineWidth*0.75, depth:2, fill:false, closePath:false});
+                                        this.renderer.shadowRenderer.draw(ctx, [[pos,b],[pos,e]], {lineCap:'butt', lineWidth:this.gridLineWidth, offset:this.gridLineWidth*0.75, depth:2, fill:true, closePath:false});
                                     }
                                     // draw the line
                                     drawLine(pos, b, pos, e);
@@ -252,7 +252,7 @@
                                             }
                                     // draw the shadow
                                     if (this.shadow) {
-                                        this.renderer.shadowRenderer.draw(ctx, [[b, pos], [e, pos]], {lineCap:'butt', lineWidth:this.gridLineWidth*1.5, offset:this.gridLineWidth*0.75, fill:false, closePath:false});
+                                        this.renderer.shadowRenderer.draw(ctx, [[b, pos], [e, pos]], {lineCap:'butt', lineWidth:this.gridLineWidth*1.5, offset:this.gridLineWidth*0.75, fill:true, closePath:false});
                                     }
                                     drawLine(b, pos, e, pos, {strokeStyle:axis.borderColor});
                                 }
@@ -273,7 +273,7 @@
                                     e = xp0 + s;
                                     // draw the shadow
                                     if (this.shadow) {
-                                        this.renderer.shadowRenderer.draw(ctx, [[b, pos], [e, pos]], {lineCap:'butt', lineWidth:this.gridLineWidth*1.5, offset:this.gridLineWidth*0.75, fill:false, closePath:false});
+                                        this.renderer.shadowRenderer.draw(ctx, [[b, pos], [e, pos]], {lineCap:'butt', lineWidth:this.gridLineWidth*1.5, offset:this.gridLineWidth*0.75, fill:true, closePath:false});
                                     }
                                     drawLine(b, pos, e, pos, {strokeStyle:axis.borderColor});
 
@@ -281,7 +281,7 @@
                                     e = xpn;
                                     // draw the shadow
                                     if (this.shadow) {
-                                        this.renderer.shadowRenderer.draw(ctx, [[b, pos], [e, pos]], {lineCap:'butt', lineWidth:this.gridLineWidth*1.5, offset:this.gridLineWidth*0.75, fill:false, closePath:false});
+                                        this.renderer.shadowRenderer.draw(ctx, [[b, pos], [e, pos]], {lineCap:'butt', lineWidth:this.gridLineWidth*1.5, offset:this.gridLineWidth*0.75, fill:true, closePath:false});
                                     }
                                     drawLine(b, pos, e, pos, {strokeStyle:axis.borderColor});
                                 }
@@ -317,7 +317,7 @@
                                             }
                                     // draw the shadow
                                     if (this.shadow) {
-                                        this.renderer.shadowRenderer.draw(ctx, [[pos,b],[pos,e]], {lineCap:'butt', lineWidth:this.gridLineWidth, offset:this.gridLineWidth*0.75, depth:2, fill:false, closePath:false});
+                                        this.renderer.shadowRenderer.draw(ctx, [[pos,b],[pos,e]], {lineCap:'butt', lineWidth:this.gridLineWidth, offset:this.gridLineWidth*0.75, depth:2, fill:true, closePath:false});
                                     }
                                     drawLine(pos, b, pos, e);
                                 }
@@ -353,7 +353,7 @@
                                             }
                                     // draw the shadow
                                     if (this.shadow) {
-                                        this.renderer.shadowRenderer.draw(ctx, [[b, pos], [e, pos]], {lineCap:'butt', lineWidth:this.gridLineWidth*1.5, offset:this.gridLineWidth*0.75, fill:false, closePath:false});
+                                        this.renderer.shadowRenderer.draw(ctx, [[b, pos], [e, pos]], {lineCap:'butt', lineWidth:this.gridLineWidth*1.5, offset:this.gridLineWidth*0.75, fill:true, closePath:false});
                                     }
                                     drawLine(b, pos, e, pos, {strokeStyle:axis.borderColor});
                                 }

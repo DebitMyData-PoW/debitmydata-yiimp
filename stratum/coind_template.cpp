@@ -500,6 +500,9 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	coinbase_create(coind, templ, json_result);
 	json_value_free(json);
 
+	// a coinbase paying miners directly is checked by the node first
+	pplns_check_template(coind, templ);
+
 	return templ;
 }
 
@@ -542,6 +545,7 @@ bool coind_create_job(YAAMP_COIND *coind, bool force)
 			templ->txsteps.clear();
 			templ->txdata.clear();
 		}
+		pplns_templ_free(templ);
 		delete templ;
 
 		CommonUnlock(&coind->mutex);

@@ -2,6 +2,25 @@
 
 $this->pageTitle = 'Botnets';
 
+
+echo <<<end
+<script>
+window.addEventListener("load", () => {
+  const loader = document.querySelector(".loader");
+
+  loader.classList.add("loader--hidden");
+
+  loader.addEventListener("transitionend", () => {
+    document.body.removeChild(loader);
+  //  loader.remove();
+  });
+});
+</script>
+
+<div class="loader"></div>
+end;
+
+
 echo getAdminSideBarLinks().'<br/><br/>';
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +90,7 @@ foreach($botnets as $botnet)
 	echo '<td>'.$coinimg.'</td>';
 	echo '<td>'.$coinsym.'</td>';
 	echo '<td>'.$botnet['algo'].'</td>';
-	echo '<td>'.CHtml::link($user->username, '/?address='.$user->username).'</td>';
+	echo '<td>'.CHtml::link($user->username, '/mywallet/?address='.$user->username).'</td>';
 	echo '<td data="'.$botnet['time'].'">'.$d.'</td>';
 	echo '<td>'.$botnet['pid'].'</td>';
 	echo '<td>'.$botnet['ips'].'</td>';

@@ -37,6 +37,7 @@ function BackendCoinsUpdate()
 		$remote = new WalletRPC($coin);
 
 		$info = $remote->getinfo();
+
 		if(!$info && $coin->enable)
 		{
 			debuglog("{$coin->symbol} no getinfo answer, retrying...");
@@ -81,14 +82,40 @@ function BackendCoinsUpdate()
 		$coin->txfee = isset($info['paytxfee'])? $info['paytxfee']: '';
 		$coin->connections = isset($info['connections'])? $info['connections']: '';
 		$coin->multialgos = (int) isset($info['pow_algo_id']);
-		$coin->balance = isset($info['balance'])? $info['balance']: 0;
+
+		//$coin->balance = isset($info['balance'])? $info['balance']: 0;
+		$btc_v30_forks = ['DMD', 'HSM', 'B30', 'HRC', 'AUR']; // Add your coin symbols here
+		if (in_array($coin->symbol, $btc_v30_forks)) {
+		    $balances = $remote->getbalances();
+		    $trusted  = floatval($balances['mine']['trusted'] ?? 0);
+		    $immature = floatval($balances['mine']['immature'] ?? 0);
+		    // Calculate how much is owed to miners
+		    $owed = dboscalar(
+		        "SELECT SUM(E.amount) FROM earnings E
+		         LEFT JOIN blocks B ON E.blockid = B.id
+		         WHERE E.status != 2 AND E.coinid = $coin->id"
+		    );
+		    $owed = floatval($owed);
+		    // True "available" to display in admin panel = all we have - all we owe
+		    $owned = $trusted + $immature - $owed;
+		    if ($owned < 0) $owned = 0;
+		    $coin->balance   = $trusted;  // Still usable/spendable
+		    $coin->available = $owned;    // What we truly own
+		    $coin->immature  = $immature;
+		    debuglog("$coin->symbol: trusted=$trusted, immature=$immature, owed=$owed, owned=$owned");
+		} else {
+		    $coin->balance = isset($info['balance']) ? $info['balance'] : 0;
+		}
+
 		$coin->stake = isset($info['stake'])? $info['stake'] : $coin->stake;
 		$coin->mint = dboscalar("select sum(amount) from blocks where coin_id=$coin->id and category='immature'");
 
 		if(empty($coin->master_wallet))
 		{
 			if ($coin->rpcencoding == 'DCR' && empty($coin->account)) $coin->account = 'default';
-			$coin->master_wallet = $remote->getaccountaddress($coin->account);
+		/*	$coin->master_wallet = $remote->getaccountaddress($coin->account);	*/
+			// Request a new bech32 address for the account
+			$coin->master_wallet = $remote->getnewaddress("", "bech32");
 		}
 
 		if(empty($coin->rpcencoding))
@@ -125,19 +152,50 @@ function BackendCoinsUpdate()
 				$coin->auxpow = true;
 		}
 
+//		if($coin->symbol != 'BTC')
+//		{
 
-        // Change for segwit
-        if ($coin->usesegwit) {
-            $template = $remote->getblocktemplate('{"rules":["segwit"]}');
-        } else {
-            $template = $remote->getblocktemplate('{}');
-        }
-	
-	if($coin->usemweb){
-		$template = $remote->getblocktemplate('{"rules":["mweb","segwit"]}');
-	}	
 
-        // Change for segwit end
+//	if($coin->symbol == 'FRC' && $coin->usesegwit) {
+//            $template = $remote->getblocktemplate('{"rules":["segwit", "auxpow", "finaltx"]}');
+//        }
+
+	if($coin->symbol == 'FRC' && $coin->usesegwit) {
+    	    $template = $remote->getblocktemplate([
+        	"rules" => ["segwit", "auxpow", "finaltx"]
+    	    ]);
+	}
+
+
+
+	if ($coin->symbol == 'BQC2') {
+    	    $template = $remote->getblocktemplate('{"rules":["auxpow"]}');
+
+	} else {
+
+	$rules = [];
+
+	if ($coin->usesegwit) {
+    	    $rules[] = "segwit";
+	}
+
+	if ($coin->usemweb) {
+    		// MWEB template requires BOTH rules present (as separate strings)
+    		if (!in_array("segwit", $rules, true)) $rules[] = "segwit";
+    	$rules[] = "mweb";
+	}
+
+	if ($coin->auxpow) {
+    	    $rules[] = "auxpow";
+	}
+
+	//if($coin->usemweb){
+	//	$template = $remote->getblocktemplate('{"rules":["segwit","mweb"]}');
+	//}
+
+	// Generate block template with the combined rules
+	$template = $remote->getblocktemplate(json_encode(["rules" => $rules]));
+	}
 
 
 			if($template && isset($template['coinbasevalue']))
@@ -180,6 +238,11 @@ function BackendCoinsUpdate()
 				else if(!empty($coin->charity_address)) {
 					if(!$coin->charity_amount)
 						$coin->reward -= $coin->reward * $coin->charity_percent / 100;
+				}
+
+				else if(!empty($coin->charity_address2)) {
+					if(!$coin->charity_amount2)
+						$coin->reward -= $coin->reward * $coin->charity_percent2 / 100;
 				}
 
 				if(isset($template['bits']))
@@ -270,14 +333,14 @@ function BackendCoinsUpdate()
 
 		$coin->version = substr($info['version'], 0, 32);
 		$coin->block_height = $info['blocks'];
-
+/**
 		if($coin->powend_height > 0 && $coin->block_height > $coin->powend_height) {
 			if ($coin->auto_ready) {
 				$coin->auto_ready = false;
 				$coin->errors = 'PoW end reached';
 			}
 		}
-
+*/
 		$coin->save();
 
 		if ($coin->available < 0 || $coin->cleared > $coin->balance) {
@@ -289,6 +352,10 @@ function BackendCoinsUpdate()
 	}
 
 	$coins = getdbolist('db_coins', "enable order by auxpow desc");
+	//$coins = getdbolist('db_coins', "enable order by (symbol = 'BQC2') desc, auxpow desc");
+	//$coins = getdbolist('db_coins', "enable order by (id = 179) DESC, auxpow DESC");
+
+
 	foreach($coins as $coin)
 	{
 		$coin = getdbo('db_coins', $coin->id);
@@ -322,13 +389,13 @@ function BackendCoinsUpdate()
 			file_put_contents(YAAMP_HTDOCS.$coin->image, $data);
 		}
 
+
+
 		$coin->save();
 	}
 
 	$d1 = microtime(true) - $t1;
 	controller()->memcache->add_monitoring_function(__METHOD__, $d1);
 }
-
-
 
 

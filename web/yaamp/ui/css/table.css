@@ -3,39 +3,71 @@ table.dataGrid
 {
 	border-collapse: collapse;
 	width: 100%;
-	color: #555;
+	color: #6F7177;
+	box-shadow:  0px 8px 12px 0px rgba(0, 0, 0, .10);
+	border: 1px solid #9699A1;
+	border-radius: 5px;
+	border-bottom: none;
+	border-left: none;
+	border-right: none;
+	backdrop-filter: blur(10px);
+
+
+
+}
+
+table.dataGrid a, table.dataGrid a:link
+{
+	color: #6F7177;
 }
 
 table.dataGrid a, table.dataGrid a:visited
 {
-	color: #306495;
+	color: #6F7177;
+}
+
+
+table.dataGrid a, table.dataGrid a:hover
+{
+	color: #BC9600;
 }
 
 table.dataGrid th, table.dataGrid td
 {
 	padding: 0.4em;
+
 }
 
 table.dataGrid th
 {
-	border-bottom: 1px solid #eee;
-	background-color: #eee;
+//	border-bottom: 1px solid #9699A1;
+//	background-color:  rgba(22, 22, 24, 1.00);
+//	background-color: #111113;
+//	background-color:  rgba(10, 11, 13, 0.25);
 	/*color: #555;*/
 }
 
 table.dataGrid tbody
 {
-	border: 1px solid #eee;
+//	border: 1px solid #9699A1;
+//	background-color:  rgba(33, 36, 40, 0.85);
+//	background-color: #111113;
+//	background-color:  rgba(10, 11, 13, 0.25);
+
 }
 
 table.dataGrid td
 {
-	border-bottom: 1px solid #eee;
+//	border-bottom: 1px solid #9699A1;
+//	background-color:  rgba(33, 36, 40, 0.85);
+//	background-color: #111113;
+	background-color:  rgba(10, 11, 13, 0.00);
+
 }
 
-table.dataGrid tr.bold
+table.dataGrid tr.normal
 {
-	font-weight: bold;
+	font-weight: normal;
 }
 
 table.dataGrid th.tablesorter-headerAsc,
@@ -50,12 +82,15 @@ table.dataGrid2
 {
 	border-collapse: collapse;
 	width: 100%;
-	color: #555;
+	color: #9699A1;
+	padding: 45px;
+//	display: block;
+//	border: 1px solid #9699A1;
 }
 
 /*table.dataGrid2 a, table.dataGrid2 a:visited
 {
-	color: #306495;
+	color: #4B4B4B;
 }*/
 
 table.dataGrid2 th, table.dataGrid2 td
@@ -70,12 +105,12 @@ table.dataGrid2 th
 
 table.dataGrid2 tbody
 {
-	border: 1px solid #eee;
+//	border: 1px solid #9699A1;
 }
 
 table.dataGrid2 td
 {
-	border-bottom: 1px solid #eee;
+//	border-bottom: 1px solid #9699A1;
 }
 
 table.dataGrid2 thead tr .header {
@@ -100,6 +135,727 @@ table.dataGrid2 th.tablesorter-headerDesc {
 }
 
 /**********************************************/
+
+
+/**********************************************/
+
+table.dataGrid4
+{
+	border-collapse: collapse;
+	width: 100%;
+	color: #9699A1;
+//	padding: 80px;
+//	border: 1px solid #515359;
+}
+
+/*table.dataGrid4 a, table.dataGrid4 a:visited
+{
+	color: #4B4B4B;
+}*/
+
+table.dataGrid4 th, table.dataGrid4 td
+{
+	padding: 0.4em;
+	margin: 0.1em;
+}
+
+table.dataGrid4 th
+{
+}
+
+table.dataGrid4 tbody
+{
+//	border: 1px solid #515359;
+}
+
+table.dataGrid4 tr
+{
+	border-top: 1px solid #38393e;
+	border-radius: 5px;
+	padding: 30px;
+	-webkit-box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, .10);
+	box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, .10);
+	display: block;
+	margin: 20px;
+	backdrop-filter: blur(10px);
+	position: relative;
+	z-index: 10;
+	background-color: rgba(255, 22, 22, 0.010);
+}
+
+table.dataGrid4 td
+{
+
+}
+
+table.dataGrid4 thead tr .header {
+/*	background-image: url(/images/ui/bg.gif);
+	background-repeat: no-repeat;
+	background-position: center right;*/
+	cursor: pointer;
+}
+
+table.dataGrid4 thead tr .headerSortUp {
+	background-image: url(/images/ui/asc.gif);
+}
+
+table.dataGrid4 thead tr .headerSortDown {
+	background-image: url(/images/ui/desc.gif);
+}
+
+table.dataGrid4 th.tablesorter-headerAsc,
+table.dataGrid4 th.tablesorter-headerDesc {
+	color: #306495;
+	/* background-color: #D2E3FB; */
+}
+
+/**********************************************/
+
+
+/**********************************************/
+
+
+table.dataGrid7
+{
+	border-collapse: collapse;
+//	width: 80%;
+	color: #9699A1;
+//	padding: 80px;
+//	border: 1px solid #515359;
+}
+
+/*table.dataGrid7 a, table.dataGrid7 a:visited
+{
+	color: #4B4B4B;
+}*/
+
+table.dataGrid7 th, table.dataGrid7 td
+{
+	padding: 0.4em;
+	margin: 0.1em;
+}
+
+table.dataGrid7 th
+{
+}
+
+table.dataGrid7 tbody
+{
+//	border: 1px solid #515359;
+}
+
+table.dataGrid7 tr
+{
+	border-top: 1px solid #515359;
+	border-radius: 5px;
+	padding: 45px;
+	-webkit-box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, .10);
+	box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, .10);
+	display: block;
+	margin: 20px;
+}
+
+table.dataGrid7 td
+{
+
+}
+
+table.dataGrid7 thead tr .header {
+/*	background-image: url(/images/ui/bg.gif);
+	background-repeat: no-repeat;
+	background-position: center right;*/
+	cursor: pointer;
+}
+
+table.dataGrid7 thead tr .headerSortUp {
+	background-image: url(/images/ui/asc.gif);
+}
+
+table.dataGrid7 thead tr .headerSortDown {
+	background-image: url(/images/ui/desc.gif);
+}
+
+table.dataGrid7 th.tablesorter-headerAsc,
+table.dataGrid7 th.tablesorter-headerDesc {
+	color: #306495;
+	/* background-color: #D2E3FB; */
+}
+
+/**********************************************/
+
+
+/**********************************************/
+
+table.dataGrid6
+{
+	border-collapse: collapse;
+	color: #9699A1;
+    //table-layout: fixed;
+   // width: 100%;
+	display:contents;
+}
+
+/*table.dataGrid6 a, table.dataGrid6 a:visited
+{
+	color: #4B4B4B;
+}*/
+
+table.dataGrid6 th, table.dataGrid6 td
+{
+	padding: 0.4em;
+	margin: 0.1em;
+}
+
+table.dataGrid6 th
+{
+}
+
+table.dataGrid6 tbody
+{
+}
+
+table.dataGrid6 tr
+{
+	border-top: 1px solid #38393e;
+	border-radius: 5px;
+	padding: 30px;
+	-webkit-box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, .10);
+	box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, .10);
+	display: block;
+	margin: 10px;
+	backdrop-filter: blur(10px);
+	position: relative;
+	z-index: 10;
+	background-color: rgba(255, 22, 22, 0.02);
+}
+
+table.dataGrid6 td
+{
+    text-align: center; /* Centering text horizontally */
+}
+
+table.dataGrid6 thead tr .header {
+/*	background-image: url(/images/ui/bg.gif);
+	background-repeat: no-repeat;
+	background-position: center right;*/
+	cursor: pointer;
+}
+
+table.dataGrid6 thead tr .headerSortUp {
+	background-image: url(/images/ui/asc.gif);
+}
+
+table.dataGrid6 thead tr .headerSortDown {
+	background-image: url(/images/ui/desc.gif);
+}
+
+table.dataGrid6 th.tablesorter-headerAsc,
+table.dataGrid6 th.tablesorter-headerDesc {
+	color: #306495;
+}
+
+/**********************************************/
+
+
+/**********************************************/
+
+table.dataGrid5
+{
+	border-collapse: collapse;
+	width: 100%;
+	color: #9699A1;
+	padding: 20px;
+}
+
+table.dataGrid5 tr.ssrow:hover
+{
+	background-color: rgba(255, 22, 22, 0.00);
+}
+
+table.dataGrid5 a, table.dataGrid5 a:visited
+{
+//	color: #4B4B4B;
+}
+
+table.dataGrid5 th, table.dataGrid5 td
+{
+	padding: 0.4em;
+	margin: 0.1em;
+}
+
+table.dataGrid5 th
+{
+}
+
+table.dataGrid5 tbody
+{
+//	border: 1px solid #9699A1;
+}
+
+table.dataGrid5 td
+{
+//	border-bottom: 1px solid #9699A1;
+}
+
+table.dataGrid5 thead tr .header {
+	cursor: pointer;
+}
+
+table.dataGrid5 thead tr .headerSortUp {
+	background-image: url(/images/ui/asc.gif);
+}
+
+table.dataGrid5 thead tr .headerSortDown {
+	background-image: url(/images/ui/desc.gif);
+}
+
+table.dataGrid5 th.tablesorter-headerAsc,
+table.dataGrid5 th.tablesorter-headerDesc {
+	color: #306495;
+}
+
+
+/**********************************************/
+
+
+/**********************************************/
+
+table.dataGrid8
+{
+//	border-collapse: collapse;
+	width: 100%;
+	color: #9699A1;
+	padding: 20px;
+//        display: block; 
+//	border: 1px solid #9699A1;
+}
+
+table.dataGrid8 a, table.dataGrid6 a:visited
+{
+//	color: #4B4B4B;
+}
+
+table.dataGrid8 th, table.dataGrid8 td
+{
+	padding: 0.4em;
+	margin: 0.1em;
+}
+
+table.dataGrid8 th
+{
+}
+
+table.dataGrid8 tbody
+{
+//	border: 1px solid #9699A1;
+}
+
+table.dataGrid8 td
+{
+//	border-bottom: 1px solid #9699A1;
+}
+
+table.dataGrid8 thead tr .header {
+	cursor: pointer;
+}
+
+table.dataGrid8 thead tr .headerSortUp {
+	background-image: url(/images/ui/asc.gif);
+}
+
+table.dataGrid8 thead tr .headerSortDown {
+	background-image: url(/images/ui/desc.gif);
+}
+
+table.dataGrid8 th.tablesorter-headerAsc,
+table.dataGrid8 th.tablesorter-headerDesc {
+	color: #306495;
+}
+
+/**********************************************/
+
+
+
+/**********************************************/
+
+table.dataGrid3
+{
+	border-collapse: collapse;
+	width: 100%;
+	color: #9699A1;
+	border: 0px solid #9699A1;
+}
+
+/*table.dataGrid3 a, table.dataGrid3 a:visited
+{
+	color: #4B4B4B;
+}*/
+
+table.dataGrid3 th, table.dataGrid3 td
+{
+	padding: 0.4em;
+	margin: 0.1em;
+}
+
+table.dataGrid3 th
+{
+}
+
+table.dataGrid3 tbody
+{
+	border: 0px solid #9699A1;
+}
+
+table.dataGrid3 td
+{
+//	border-bottom: 0px solid #9699A1;
+}
+
+table.dataGrid3 thead tr .header {
+/*	background-image: url(/images/ui/bg.gif);
+	background-repeat: no-repeat;
+	background-position: center right;*/
+	cursor: pointer;
+}
+
+table.dataGrid3 thead tr .headerSortUp {
+	background-image: url(/images/ui/asc.gif);
+}
+
+table.dataGrid3 thead tr .headerSortDown {
+	background-image: url(/images/ui/desc.gif);
+}
+
+table.dataGrid3 th.tablesorter-headerAsc,
+table.dataGrid3 th.tablesorter-headerDesc {
+	color: #306495;
+	/* background-color: #D2E3FB; */
+}
+
+/**********************************************/
+
+
+
+
+
+/**********************************************/
+
+table.dataGrid9
+{
+	border-collapse: collapse;
+	width: 90%;
+	color: #9699A1;
+//	padding: 80px;
+//	border: 1px solid #515359;
+
+}
+
+/*table.dataGrid9 a, table.dataGrid9 a:visited
+{
+	color: #4B4B4B;
+}*/
+
+table.dataGrid9 th, table.dataGrid9 td
+{
+	padding: 0.4em;
+	margin: 0.1em;
+}
+
+table.dataGrid9 th
+{
+}
+
+table.dataGrid9 tbody
+{
+//	border: 1px solid #515359;
+}
+
+table.dataGrid9 tr
+{
+	border-top: 1px solid #515359;
+	border-radius: 5px;
+	padding: 30px;
+//	-webkit-box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, .10);
+//	box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, .10);
+//	display: flex;
+//	margin: -10px 20px -10px 20px;
+	backdrop-filter: blur(10px);
+	position: relative;
+	z-index: 10;
+
+}
+
+table.dataGrid9 td
+{
+
+}
+
+table.dataGrid9 thead tr .header {
+/*	background-image: url(/images/ui/bg.gif);
+	background-repeat: no-repeat;
+	background-position: center right;*/
+	cursor: pointer;
+}
+
+table.dataGrid9 thead tr .headerSortUp {
+	background-image: url(/images/ui/asc.gif);
+}
+
+table.dataGrid9 thead tr .headerSortDown {
+	background-image: url(/images/ui/desc.gif);
+}
+
+table.dataGrid9 th.tablesorter-headerAsc,
+table.dataGrid9 th.tablesorter-headerDesc {
+	color: #306495;
+	/* background-color: #D2E3FB; */
+}
+
+/**********************************************/
+
+
+
+
+
+
+/**********************************************/
+
+@media (max-width: 768px) {
+  .dataGrid10 {
+    font-size: 18px;
+  }
+  
+  .ssrow td {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+  }
+}
+
+
+table.dataGrid10
+{
+	border-collapse: collapse;
+	width: 100%;
+	color: #9C9A92;
+}
+
+/*table.dataGrid10 a, table.dataGrid10 a:visited
+{
+	color: #4B4B4B;
+}*/
+
+table.dataGrid10 th, table.dataGrid10 td
+{
+	padding: 0.4em;
+	margin: 0.1em;
+}
+
+table.dataGrid10 th
+{
+}
+
+table.dataGrid10 tbody
+{
+//	border: 1px solid #515359;
+}
+
+table.dataGrid10 tr
+{
+	border-top: 1px solid #5D5D55;
+	border-radius: 5px;
+	padding: 30px;
+//	-webkit-box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, .10);
+//	box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, .10);
+//	display: flex;
+//	margin: -10px 20px -10px 20px;
+	backdrop-filter: blur(10px);
+	position: relative;
+	z-index: 10;
+	background-color: rgba(255, 255, 255, 0.01);
+}
+
+table.dataGrid10 td
+{
+
+}
+
+table.dataGrid10 thead tr .header {
+/*	background-image: url(/images/ui/bg.gif);
+	background-repeat: no-repeat;
+	background-position: center right;*/
+	cursor: pointer;
+}
+
+table.dataGrid10 thead tr .headerSortUp {
+	background-image: url(/images/ui/asc.gif);
+}
+
+table.dataGrid10 thead tr .headerSortDown {
+	background-image: url(/images/ui/desc.gif);
+}
+
+table.dataGrid10 th.tablesorter-headerAsc,
+table.dataGrid10 th.tablesorter-headerDesc {
+	color: #999031;
+	/* background-color: #D2E3FB; */
+}
+
+/**********************************************/
+
+
+
+/**********************************************/
+
+table.dataGrid11
+{
+	border-collapse: collapse;
+	width: 100%;
+	color: #9699A1;
+//	padding: 80px;
+//	border: 1px solid #515359;
+}
+
+/*table.dataGrid11 a, table.dataGrid11 a:visited
+{
+	color: #4B4B4B;
+}*/
+
+table.dataGrid11 th, table.dataGrid11 td
+{
+	padding: 0.4em;
+	margin: 0.1em;
+}
+
+table.dataGrid11 th
+{
+}
+
+table.dataGrid11 tbody
+{
+//	border: 1px solid #515359;
+}
+
+table.dataGrid11 tr
+{
+	border-top: 1px solid #3e3e45;
+	border-radius: 5px;
+	padding: 20px;
+	//-webkit-box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, .05);
+	//box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, .05);
+	display: block;
+	margin: 20px;
+	backdrop-filter: blur(10px);
+	position: relative;
+	z-index: 10;
+	background-color: rgba(255, 255, 255, 0.01);
+}
+
+table.dataGrid11 td
+{
+
+}
+
+table.dataGrid11 thead tr .header {
+/*	background-image: url(/images/ui/bg.gif);
+	background-repeat: no-repeat;
+	background-position: center right;*/
+	cursor: pointer;
+}
+
+table.dataGrid11 thead tr .headerSortUp {
+	background-image: url(/images/ui/asc.gif);
+}
+
+table.dataGrid11 thead tr .headerSortDown {
+	background-image: url(/images/ui/desc.gif);
+}
+
+table.dataGrid11 th.tablesorter-headerAsc,
+table.dataGrid11 th.tablesorter-headerDesc {
+	color: #306495;
+	/* background-color: #D2E3FB; */
+}
+
+/**********************************************/
+
+
+
+
+/**********************************************/
+
+table.dataGrid12
+{
+	border-collapse: collapse;
+	width: 100%;
+	color: #9699A1;
+//	padding: 80px;
+//	border: 1px solid #515359;
+}
+
+/*table.dataGrid12 a, table.dataGrid12 a:visited
+{
+	color: #4B4B4B;
+}*/
+
+table.dataGrid12 th, table.dataGrid12 td
+{
+	padding: 0.4em;
+	margin: 0.1em;
+}
+
+table.dataGrid12 th
+{
+}
+
+table.dataGrid12 tbody
+{
+//	border: 1px solid #515359;
+}
+
+table.dataGrid12 tr
+{
+	border-top: 1px solid #38393e;
+	border-radius: 5px;
+	padding: 30px;
+	//-webkit-box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, .05);
+	//box-shadow: 0px 8px 12px 0px rgba(0, 0, 0, .05);
+	display: block;
+	margin: 20px;
+	backdrop-filter: blur(10px);
+	position: relative;
+	z-index: 10;
+}
+
+table.dataGrid12 td
+{
+
+}
+
+table.dataGrid12 thead tr .header {
+/*	background-image: url(/images/ui/bg.gif);
+	background-repeat: no-repeat;
+	background-position: center right;*/
+	cursor: pointer;
+}
+
+table.dataGrid12 thead tr .headerSortUp {
+	background-image: url(/images/ui/asc.gif);
+}
+
+table.dataGrid12 thead tr .headerSortDown {
+	background-image: url(/images/ui/desc.gif);
+}
+
+table.dataGrid12 th.tablesorter-headerAsc,
+table.dataGrid12 th.tablesorter-headerDesc {
+	color: #306495;
+	/* background-color: #D2E3FB; */
+}
+
+/**********************************************/
+
+
 table.reportgrid1
 {
 	background: white;
@@ -124,20 +880,25 @@ table.reportgrid1 tr.odd
 	background: #f5f5f5;
 }
 
-table.reportgrid1 tr.bold
+table.reportgrid1 tr.normal
 {
-	font-weight: bold;
+	font-weight: normal;
 }
 
 /**********************************************/
 
 .ssrow:hover
 {
-	background-color: #e3f0f8;
+	background-color: rgba(255, 22, 22, 0.01);
+}
+
+.ssrow:selected
+{
+	background-color: rgba(255, 22, 22, 0.01);
 }
 
 .ssselected
 {
-	background-color: #d3e0e8;
+	background-color: rgba(212, 255, 255, 0.01);
 }
 

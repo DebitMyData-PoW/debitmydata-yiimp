@@ -1,5 +1,26 @@
 <?php
 
+
+echo <<<END
+<script>
+window.addEventListener("load", () => {
+  const loader = document.querySelector(".loader");
+
+  loader.classList.add("loader--hidden");
+
+  loader.addEventListener("transitionend", () => {
+    document.body.removeChild(loader);
+  //  loader.remove();
+  });
+});
+</script>
+
+<div class="loader"></div>
+END;
+
+
+
+
 JavascriptFile('/yaamp/ui/js/auto_refresh.js');
 
 echo "<div id='index_results'>";

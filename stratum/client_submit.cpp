@@ -6,15 +6,18 @@ uint64_t lyra2z_height = 0;
 //#define MERKLE_DEBUGLOG
 //#define DONTSUBMIT
 
+// versionbits/versionmask: ASICBoost version rolling (BIP310), versionbits 0 if none.
+// coinb2: the coinbase part 2 the miner was sent (a solo miner has its own, see pplns.cpp).
 void build_submit_values(YAAMP_JOB_VALUES *submitvalues, YAAMP_JOB_TEMPLATE *templ,
-//	const char *nonce1, const char *nonce2, const char *ntime, const char *nonce)
-	const char *nonce1, const char *nonce2, const char *ntime, const char *nonce, uint32_t versionbits)
+	const char *nonce1, const char *nonce2, const char *ntime, const char *nonce,
+	uint32_t versionbits, uint32_t versionmask, const char *coinb2)
 {
-	sprintf(submitvalues->coinbase, "%s%s%s%s", templ->coinb1, nonce1, nonce2, templ->coinb2);
+	if(!coinb2) coinb2 = templ->coinb2;
+	snprintf(submitvalues->coinbase, sizeof(submitvalues->coinbase), "%s%s%s%s", templ->coinb1, nonce1, nonce2, coinb2);
 	int coinbase_len = strlen(submitvalues->coinbase);
 
-	unsigned char coinbase_bin[1024];
-	memset(coinbase_bin, 0, 1024);
+	static __thread unsigned char coinbase_bin[YAAMP_COINBASE_HEXSIZE/2];
+	memset(coinbase_bin, 0, sizeof(coinbase_bin));
 	binlify(coinbase_bin, submitvalues->coinbase);
 
 	char doublehash[128];
@@ -42,8 +45,10 @@ void build_submit_values(YAAMP_JOB_VALUES *submitvalues, YAAMP_JOB_TEMPLATE *tem
 		ser_string_be(submitvalues->header, submitvalues->header_be, 36); // 80+64 / sizeof(u32)
 
 	} else if (versionbits != 0x00000000) {
+		// BIP310: the template's version with the rolled bits (miners send either the rolled
+		// bits only or the whole version, the mask keeps the right ones)
 		uint32_t old_version = strtoul(templ->version, NULL, 16);
-		uint32_t new_version = versionbits + old_version;
+		uint32_t new_version = (old_version & ~versionmask) | (versionbits & versionmask);
 		sprintf(submitvalues->header, "%08x%s%s%s%s%s", new_version, templ->prevhash_be, submitvalues->merkleroot_be,
 			ntime, templ->nbits, nonce);
 		ser_string_be(submitvalues->header, submitvalues->header_be, 20);
@@ -159,7 +164,7 @@ static void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VAL
 	uint64_t coin_target = decode_compact(templ->nbits);
 	if (templ->nbits && !coin_target) coin_target = 0xFFFF000000000000ULL;
 
-	int block_size = YAAMP_SMALLBUFSIZE;
+	int block_size = YAAMP_SMALLBUFSIZE + strlen(submitvalues->coinbase);
 	vector<string>::const_iterator i;
 
 	for(i = templ->txdata.begin(); i != templ->txdata.end(); ++i)
@@ -167,12 +172,6 @@ static void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VAL
 
 	char *block_hex = (char *)malloc(block_size);
 	if(!block_hex) return;
-
-	// reapply mask to template
-	if (versionmask != 0x00000000)
-	{
-		build_submit_values(submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce, versionmask);
-	}
 
 	// do aux first
 	for(int i=0; i<templ->auxs_size; i++)
@@ -305,6 +304,9 @@ static void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VAL
 				target_to_diff(coin_target), target_to_diff(hash_int),
 				hash1, submitvalues->hash_be, templ->has_segwit_txs);
 
+			// who this block pays (pplns.cpp)
+			pplns_block_found(coind, templ, client, templ->height, hash1);
+
 			if(!strcmp("DCR", coind->rpcencoding)) {
 				// delay between dcrd and dcrwallet
 				sleep(1);
@@ -334,7 +336,8 @@ static void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VAL
 	free(block_hex);
 }
 
-bool dump_submit_debug(const char *title, YAAMP_CLIENT *client, YAAMP_JOB *job, char *extranonce2, char *ntime, char *nonce)
+// (was "bool" without a return value: undefined, it crashes the stratum when [DEBUGLOG] hash=1)
+void dump_submit_debug(const char *title, YAAMP_CLIENT *client, YAAMP_JOB *job, char *extranonce2, char *ntime, char *nonce)
 {
 	debuglog("ERROR %s, %s subs %d, job %x, %s, id %x, %d, %s, %s %s\n",
 		title, client->sock->ip, client->extranonce_subscribe, job? job->id: 0, client->extranonce1,
@@ -398,7 +401,7 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	char vote[8] = { 0 };
 
 	char versionbits[32] = { 0 };
-	uint32_t versionmask = 0;
+	uint32_t versionmask = 0;	// the rolled version bits sent by the miner
 
 	if (strlen(json_params->u.array.values[1]->u.string.ptr) > 32) {
 		clientlog(client, "bad json, wrong jobid len");
@@ -423,10 +426,10 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 
 		} else if (strstr(g_stratum_algo, "sha256")) {
 			// get versionbits for asicboost
-			strncpy(versionbits, json_params->u.array.values[5]->u.string.ptr, 32);
+			strncpy(versionbits, json_params->u.array.values[5]->u.string.ptr, 31);
 			string_lower(versionbits);
 			versionmask = strtoul(versionbits, NULL, 16);
-			asicboost = true;
+			asicboost = versionmask != 0;
 
 		} else {
 			// heavycoin vote
@@ -523,13 +526,16 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	YAAMP_JOB_VALUES submitvalues;
 	memset(&submitvalues, 0, sizeof(submitvalues));
 
+	// the coinbase this miner was sent (a solo miner has its own)
+	const char *coinb2 = job->coind? pplns_coinb2(templ, client): templ->coinb2;
+	uint32_t rolling_mask = client->version_mask? client->version_mask: 0x1fffe000;
+
 	if(is_decred)
 		build_submit_values_decred(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce, vote, true);
 	else if(asicboost)
-		build_submit_values(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce, versionmask);
+		build_submit_values(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce, versionmask, rolling_mask, coinb2);
 	else
-//		build_submit_values(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce);
-		build_submit_values(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce, 0x00000000);
+		build_submit_values(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce, 0x00000000, 0, coinb2);
 
 	if (templ->height && !strcmp(g_current_algo->name,"lyra2z")) {
 		lyra2z_height = templ->height;
@@ -548,7 +554,9 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	}
 
 	uint64_t hash_int = get_hash_difficulty(submitvalues.hash_bin);
-	uint64_t user_target = diff_to_target(client->difficulty_actual);
+	// the difficulty this job was sent with (it may have changed since)
+	double job_difficulty = client_job_difficulty(client, job->id);
+	uint64_t user_target = diff_to_target(job_difficulty);
 	uint64_t coin_target = decode_compact(templ->nbits);
 	if (templ->nbits && !coin_target) coin_target = 0xFFFF000000000000ULL;
 
@@ -596,7 +604,7 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 				jobid, extranonce2, ntime, nonce, share_diff, client->difficulty_actual);
 	}
 
-	share_add(client, job, true, extranonce2, ntime, nonce, share_diff, 0);
+	share_add(client, job, true, extranonce2, ntime, nonce, share_diff, 0, job_difficulty);
 	object_unlock(job);
 
 	return true;

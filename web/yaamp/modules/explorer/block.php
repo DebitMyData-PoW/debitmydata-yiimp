@@ -1,4 +1,8 @@
 <?php
+/*
+ * Block explorer: one block (/explorer/<SYMBOL>?height= or ?hash= or ?txid=): its details, its
+ * transactions (click a transaction's hash for its raw data) and a search.
+ */
 
 if (!$coin) return;
 
@@ -9,6 +13,8 @@ $q = getparam('q');
 if (!empty($q) && ctype_xdigit($q)) $txid = $q;
 elseif (empty($txid)) $txid = 'txid not set'; // prevent highlight
 
+echo '<body oncontextmenu="return false;">';
+
 echo <<<END
 <script type="text/javascript">
 function toggleRaw(el) {
@@ -18,43 +24,10 @@ $(function() {
 	$('#favicon').remove();
 	$('head').append('<link href="{$coin->image}" id="favicon" rel="shortcut icon">');
 	$('span.txid').bind('click', function(el) { toggleRaw(el.target); });
-	$('span.txid:contains("{$txid}")').css('color','darkred');
+	$('span.txid:contains("{$txid}")').addClass('dmd-found');
 });
 </script>
-
-<style type="text/css">
-span.monospace { font-family: monospace; }
-span.txid { cursor: pointer; }
-tr.raw td { max-width: 1880px; }
-td.ntx { width: 8px; font-family: monospace; }
-th {
-	text-align: left;
-	box-shadow: 2px 2px 2px #c0c0c0, -1px -1px 2px white;
-}
-div.json {
-	font-size: 11px;
-	white-space: pre; font-family: monospace; unicode-bidi: embed; padding: 4px;
-	overflow-x: hidden;
-	background-color: #f0f0f0;
-	border: 1px solid silver;
-	box-shadow: 2px 2px 10px silver inset;
-	-moz-box-shadow: 2px 2px 10px silver inset;
-	-webkit-box-shadow: 2px 2px 10px silver inset;
-}
-div.json s { text-decoration: none; color: #003f7f; }
-div.json s.key { color: #000000; }
-div.json s.addr { color: #3f003f; }
-div.json s a { text-decoration: none; }
-div.json s a:hover { text-decoration: underline; }
-div.json u { text-decoration: none; color: #003f7f; }
-div.json i { font-style: normal; color: #7f0000; }
-div.json b { font-style: normal; color: #7f0000; }
-.main-text-input { margin-top: 4px; margin-bottom: 4px; }
-.page .footer { width: auto; }
-</style>
 END;
-
-//////////////////////////////////////////////////////////////////////////////////////
 
 function colorizeJson($json)
 {
@@ -92,14 +65,13 @@ function colorizeJson($json)
 		$sfx = $matches[2][$n];
 		$json = str_replace(' '.$m.$sfx, ' <i>'.$m.'</i>'.$sfx, $json);
 	}
+
 	$json = preg_replace('#\[\s+\]#', '[]', $json);
-	$json = str_replace('[', '<b>[</b>', $json);
-	$json = str_replace(']', '<b>]</b>', $json);
-	$json = str_replace('{', '<b>{</b>', $json);
-	$json = str_replace('}', '<b>}</b>', $json);
+
 	return $json;
 }
 
+// Transaction scripts are shown in the raw data only
 function simplifyscript($script)
 {
 	$script = preg_replace("/[0-9a-f]+ OP_DROP ?/","", $script);
@@ -107,86 +79,88 @@ function simplifyscript($script)
 	return trim($script);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 $remote = new WalletRPC($coin);
-
 $block = $remote->getblock($hash);
 if(!$block) return;
-//debuglog($block);
 
 $d = date('Y-m-d H:i:s', $block['time']);
 $confirms = isset($block['confirmations'])? $block['confirmations']: '';
 $txcount = count($block['tx']);
 
+$difficulty = bitcoinvaluetoa($block['difficulty']);
+$difficulty2 = number_format($difficulty, 8, '.', ',');
+
 $version = dechex($block['version']);
 $nonce = $block['nonce'];
 
-echo '<table class="dataGrid1">';
-echo '<tr><td width=100></td><td></td></tr>';
+echo '<div class="dmd-admin dmd-explorer">';
+dmd_admin_head(CHtml::encode($coin->name).' <small>block '.$block['height'].'</small>', $coin, null, '',
+	$coin->createExplorerLink('&larr; All blocks', array(), array('class'=>'dmd-more')));
 
-echo '<tr><td>Coin:</td><td><b>'.$coin->createExplorerLink($coin->name).'</b></td></tr>';
-echo '<tr><td>Blockhash:</td><td><span class="txid monospace">'.$hash.'</span></td></tr>';
-
-echo '</tr><tr class="raw" style="display:none;"><td colspan="2"><div class="json">';
-echo colorizeJson(json_encode($block, 128));
-echo '</div></td>';
-
-echo '<tr><td>Confirmations:</td><td>'.$confirms.'</td></tr>';
-echo '<tr><td>Height:</td><td>'.$block['height'].'</td></tr>';
-echo '<tr><td>Time:</td><td>'.$d.' ('.$block['time'].')'.'</td></tr>';
-echo '<tr><td>Difficulty:</td><td>'.$block['difficulty'].'</td></tr>';
-echo '<tr><td>Bits:</td><td><span class="monospace">'.$block['bits'].'</span></td></tr>';
-echo '<tr><td>Nonce:</td><td><span class="monospace">'.$nonce.'</span></td></tr>';
-echo '<tr><td>Version:</td><td><span class="monospace">'.$version.'</span></td></tr>';
-echo '<tr><td>Size:</td><td>'.$block['size'].' bytes</td></tr>';
-
-if(isset($block['flags']))
-	echo '<tr><td>Flags:</td><td><span class="monospace">'.$block['flags'].'</span></td></tr>';
-
-if(isset($block['previousblockhash']) && $coin->algo == 'x16r') {
-	echo '<tr><td>Hash order:</td><td><span class="monospace">'.
-		substr($block['previousblockhash'], -16).
-	'</span></td></tr>';
+function dmd_block_row($label, $value)
+{
+	echo '<div><dt>'.$label.'</dt><dd>'.$value.'</dd></div>';
 }
 
+echo '<section class="dmd-card">';
+echo '<div class="dmd-card-head"><h2>Block</h2></div>';
+echo '<dl class="dmd-kv dmd-kv-wide">';
+dmd_block_row('Coin', $coin->createExplorerLink($coin->name));
+dmd_block_row('Blockhash', '<span class="dmd-hash">'.$hash.'</span>');
+dmd_block_row('Confirmations', $confirms);
+dmd_block_row('Height', $block['height']);
+dmd_block_row('Time', $d.' ('.$block['time'].')');
+dmd_block_row('Difficulty', $difficulty2);
+dmd_block_row('Bits', '<span class="dmd-hash">'.$block['bits'].'</span>');
+dmd_block_row('Nonce', '<span class="dmd-hash">'.$nonce.'</span>');
+dmd_block_row('Version', '<span class="dmd-hash">'.$version.'</span>');
+dmd_block_row('Size', $block['size'].' bytes');
+
+if(isset($block['flags']))
+	dmd_block_row('Flags', '<span class="dmd-hash">'.$block['flags'].'</span>');
+
+if(isset($block['previousblockhash']) && $coin->algo == 'x16r')
+	dmd_block_row('Hash order', '<span class="dmd-hash">'.substr($block['previousblockhash'], -16).'</span>');
+
 if(isset($block['previousblockhash']))
-	echo '<tr><td>Previous Hash:</td><td><span class="monospace">'.
-		$coin->createExplorerLink($block['previousblockhash'], array('hash'=>$block['previousblockhash'])).
-	'</span></td></tr>';
+	dmd_block_row('Previous hash', $coin->createExplorerLink($block['previousblockhash'], array('hash'=>$block['previousblockhash']), array('class'=>'dmd-hash')));
 
 if(isset($block['nextblockhash']))
-	echo '<tr><td>Next Hash:</td><td><span class="monospace">'.
-		$coin->createExplorerLink($block['nextblockhash'], array('hash'=>$block['nextblockhash'])).
-	'</span></td></tr>';
+	dmd_block_row('Next hash', $coin->createExplorerLink($block['nextblockhash'], array('hash'=>$block['nextblockhash']), array('class'=>'dmd-hash')));
 
-echo '<tr><td>Merkle Root:</td><td><span class="monospace">'.$block['merkleroot'].'</span></td></tr>';
+dmd_block_row('Merkle root', '<span class="dmd-hash">'.$block['merkleroot'].'</span>');
+dmd_block_row('Transactions', $txcount);
+echo '</dl>';
 
-echo '<tr><td>Transactions:</td><td>'.$txcount.'</td></tr>';
-
-echo "</table><br>";
-
-////////////////////////////////////////////////////////////////////////////////
+echo '<details class="dmd-raw"><summary>Raw block data</summary>';
+echo '<div class="dmd-codebox json">'.colorizeJson(json_encode($block, 128)).'</div>';
+echo '</details>';
+echo '</section>';
 
 echo <<<end
-
-<table class="dataGrid">
+<section class="dmd-card dmd-table-card">
+<div class="dmd-card-head"><h2>Transactions</h2><span class="dmd-small">Click a transaction for its raw data</span></div>
+<div class="dmd-scroll">
+<table class="dmd-table dmd-admin-table dmd-tx">
 <thead>
 <tr>
-<th width="8px" class="ntx">#</th>
-<th>Transaction Hash</th>
-<th>Size</th>
-<th>Value</th>
+<th class="ntx">#</th>
+<th>Transaction hash</th>
+<th class="r">Size</th>
+<th class="r">Value</th>
 <th>From</th>
 <th>To (amount)</th>
 </tr>
-</thead>
+</thead><tbody>
 end;
 
 $ntx = 0;
 foreach($block['tx'] as $txhash)
 {
 	$ntx++;
+
 	$tx = $remote->getrawtransaction($txhash, 1);
 	if(!$tx && ($ntx == 1 || $txid == $txhash)) {
 		// some transactions are not found directly with getrawtransaction
@@ -204,59 +178,59 @@ foreach($block['tx'] as $txhash)
 	$valuetx = 0;
 	foreach($tx['vout'] as $vout)
 		$valuetx += $vout['value'];
+	$valuetx2 = number_format($valuetx, 8, '.', ',');
 
 	echo '<tr class="ssrow">';
-	echo '<td class="ntx">'.$ntx.'</td>';
-	echo '<td><span class="txid monospace">'.$tx['txid'].'</span></td>';
-	$size = (strlen($tx['hex'])/2);
-	echo "<td>$size</td>";
-	echo "<td>$valuetx</td>";
+	echo '<td class="ntx dmd-muted" data-label="#">'.$ntx.'</td>';
+	echo '<td class="dmd-first" data-label="Transaction hash"><span class="txid monospace">'.$tx['txid'].'</span></td>';
 
-	echo "<td>";
+	$size = (strlen($tx['hex'])/2);
+	echo '<td class="r" data-label="Size">'.$size.'</td>';
+	echo '<td class="r dmd-num" data-label="Value">'.$valuetx2.'</td>';
+
+	echo '<td data-label="From">';
 	$segwit = false;
 	foreach($tx['vin'] as $vin) {
 		if(isset($vin['coinbase']))
-			echo "Generation";
+			echo '<span class="dmd-badge new">Generation</span>';
 		if(isset($vin['txinwitness']))
 			$segwit = true;
 	}
 	if($segwit)
-		echo '&nbsp;<img src="/images/ui/segwit.png" height="8px" valign="center" title="segwit"/>';
+		echo ' <span class="dmd-badge pool" title="segwit">segwit</span>';
 	echo "</td>";
 
-	echo "<td>";
+	echo '<td class="dmd-to" data-label="To (amount)">';
+
 	$nvout = count($tx['vout']);;
 	if ($nvout > 500) echo "Too much addresses to display ($nvout)";
 	else
 	foreach($tx['vout'] as $vout)
 	{
 		$value = $vout['value'];
+		$value2 = number_format($value, 8, '.', ',');
 		if ($value == 0) continue;
 
 		if(isset($vout['scriptPubKey']['addresses'][0]))
-			echo '<span class="monospace">'.$vout['scriptPubKey']['addresses'][0]."</span> ($value)";
+			echo '<span>'.$vout['scriptPubKey']['addresses'][0]." <small>($value2)</small></span>";
 		else
-			echo "($value)";
-
-		echo '<br>';
+			echo "<span><small>($value)</small></span>";
 	}
-	echo "</td>";
 
-	echo '</tr><tr class="raw" style="display:none;"><td colspan="6"><div class="json">';
+	echo "</td>";
+	echo '</tr><tr class="raw" style="display:none;"><td colspan="6"><div class="dmd-codebox json">';
 	unset($tx['hex']);
 	echo ($nvout > 500) ? 'truncated' : colorizeJson(json_encode($tx, 128));
 	echo '</div></td>';
-
 	echo "</tr>";
 
 	if ($ntx > 100) {
-		echo '<tr class="ssrow"><td colspan="6">Too much transations to display...</td></tr>';
+		echo '<tr class="ssrow"><td colspan="6" class="dmd-empty-row">Too much transations to display...</td></tr>';
 		break;
 	}
 }
 
 if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
-
 	echo '<tr><th class="section" colspan="6">';
 	echo 'Stake';
 	echo '</th></tr>';
@@ -265,6 +239,7 @@ if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
 	foreach($block['stx'] as $txhash)
 	{
 		$ntx++;
+
 		$stx = $remote->getrawtransaction($txhash, 1);
 		if(!$stx) continue;
 
@@ -273,13 +248,14 @@ if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
 			$valuetx += $vout['value'];
 
 		echo '<tr class="ssrow">';
-		echo '<td class="ntx">'.$ntx.'</td>';
-		echo '<td><span class="txid monospace">'.$stx['txid'].'</span></td>';
-		$size = (strlen($stx['hex'])/2);
-		echo "<td>$size</td>";
-		echo "<td>$valuetx</td>";
+		echo '<td class="ntx dmd-muted" data-label="#">'.$ntx.'</td>';
+		echo '<td class="dmd-first" data-label="Transaction hash"><span class="txid monospace">'.$stx['txid'].'</span></td>';
 
-		echo "<td>";
+		$size = (strlen($stx['hex'])/2);
+		echo '<td class="r" data-label="Size">'.$size.'</td>';
+		echo '<td class="r dmd-num" data-label="Value">'.$valuetx.'</td>';
+
+		echo '<td data-label="From">';
 		if(isset($stx['vout'][0]['scriptPubKey']) && arraySafeVal($stx['vout'][0]['scriptPubKey'],'type') == 'stakesubmission')
 			echo "Ticket";
 		else foreach($stx['vin'] as $vin) {
@@ -290,44 +266,42 @@ if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
 		}
 		echo "</td>";
 
-		echo "<td>";
+		echo '<td class="dmd-to" data-label="To (amount)">';
 		foreach($stx['vout'] as $vout)
 		{
 			$value = $vout['value'];
+			$value2 =  number_format($value, 8, '.', ',');
 			if ($value == 0) continue;
 
 			if(isset($vout['scriptPubKey']['addresses'][0]))
-				echo '<span class="monospace">'.$vout['scriptPubKey']['addresses'][0]."</span> ($value)";
+				echo '<span>'.$vout['scriptPubKey']['addresses'][0]." <small>($value2)</small></span>";
 			else
-				echo "($value)";
-
-			echo '<br/>';
+				echo "<span><small>($value2)</small></span>";
 		}
 		echo "</td>";
 
-		echo '</tr><tr class="raw" style="display:none;"><td colspan="6"><div class="json">';
+		echo '</tr><tr class="raw" style="display:none;"><td colspan="6"><div class="dmd-codebox json">';
 		unset($stx['hex']);
 		echo colorizeJson(json_encode($stx, 128));
 		echo '</div></td>';
-
 		echo '</tr>';
 	}
 }
 
-echo '</table>';
+echo '</tbody></table></div></section>';
 
 $actionUrl = $coin->visible ? '/explorer/'.$coin->symbol : '/explorer/search?id='.$coin->id;
 
 echo <<<end
-<form action="{$actionUrl}" method="POST" style="padding: 8px; padding-left: 0px;">
-<input type="text" name="height" class="main-text-input" placeholder="block height" style="width: 80px;">
-<input type="text" name="txid" class="main-text-input" placeholder="tx hash" style="width: 450px; margin: 4px;">
-<input type="submit" value="Search" class="main-submit-button">
+<section class="dmd-card">
+<div class="dmd-card-head"><h2>Search</h2></div>
+<form class="dmd-inline-form" action="{$actionUrl}" method="POST">
+<label class="visually-hidden" for="dmd-height">Block height</label>
+<input id="dmd-height" type="text" name="height" class="dmd-input dmd-narrow" placeholder="Block height" inputmode="numeric">
+<label class="visually-hidden" for="dmd-txid">Transaction hash</label>
+<input id="dmd-txid" type="text" name="txid" class="dmd-input" placeholder="Tx hash" spellcheck="false">
+<button type="submit" class="dmd-button">Search</button>
 </form>
+</section>
+</div>
 end;
-
-echo '<br><br><br><br><br><br><br><br><br><br>';
-echo '<br><br><br><br><br><br><br><br><br><br>';
-echo '<br><br><br><br><br><br><br><br><br><br>';
-
-

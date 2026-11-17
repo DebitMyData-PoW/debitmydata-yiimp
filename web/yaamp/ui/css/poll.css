@@ -22,10 +22,10 @@
 
 .tweetpoll-question
 {
-	font-family: Helvetica, Arial, sans-serif;
+	font-family: bankgothic;
 	background-color: #f5f5f5;
 	font-size: 1.1em;
-	font-weight: bold;
+	font-weight: normal;
 
 	width: 90%;
 	height: 66px;
@@ -42,7 +42,7 @@
 
 .tweetpoll-supplement
 {
-	font-family: Helvetica, Arial, sans-serif;
+	font-family: bankgothic;
 	background-color: white;
 	font-size: 1em;
 
@@ -62,7 +62,7 @@
 .tweetpoll-input
 {
 	background-color: #f5f5f5;
-	font-weight: bold;
+	font-weight: normal;
 	height: 22px;
 	width: 200px;
 	
@@ -78,7 +78,7 @@
 .tweetpoll-input2
 {
 	background-color: #f5f5f5;
-	font-weight: bold;
+	font-weight: normal;
 	height: 22px;
 	width: 200px;
 	
@@ -96,7 +96,7 @@
 	background-color: #f5f5f5;
 	font-size: 14px;
 	color: #999;
-	font-weight: bold;
+	font-weight: normal;
 	height: 50px;
 	width: 610px;
 	
@@ -112,7 +112,7 @@
 
 .tweetpoll-result
 {
-	background-color: #cccccc;
+	background-color: #b1b1b1;
 	height: 20px;
 	font-size: .9em;
 
@@ -161,7 +161,7 @@
 	background-color: #f5f5f5;
 	font-size: 14px;
 	color: #999;
-	font-weight: bold;
+	font-weight: normal;
 	height: 100px;
 	width: 610px;
 	

@@ -1,0 +1,861 @@
+/* The pool in the DebitMyData look (debitmydata.io, id.debitmydata.io): white top bar, red
+   accents, white cards, dark-red footer. It loads after the older style sheets, so it wins over
+   their dark theme; the "!important" rules below are there to beat the colours and fonts written
+   straight into the older pages (wallet page, admin). */
+@font-face{font-family:Mada;font-style:normal;font-weight:400;font-display:swap;src:url(/yaamp/ui/fonts/mada-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:Mada;font-style:normal;font-weight:600;font-display:swap;src:url(/yaamp/ui/fonts/mada-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:Mada;font-style:normal;font-weight:700;font-display:swap;src:url(/yaamp/ui/fonts/mada-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:Mada;font-style:normal;font-weight:800;font-display:swap;src:url(/yaamp/ui/fonts/mada-latin-800-normal.woff2) format("woff2")}
+:root{--red:#c80815;--red-hover:#e12330;--red-deep:#640000;--red-brand:#bf030c;--pink:#fff0f1;--pink-line:#f5c9cc;
+--grey:#f5f5f5;--line:#ececf0;--text:#211f1f;--muted:#7d8797;--body:#55606e;--green:#098551;
+--sans:Mada,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+--page:1100px;--shadow:0 10px 30px rgba(17,17,26,.06);
+--red-text:#c80815;--page-bg:#fff;--card:#fff;--topbar:#fff;--input-bg:#fff;--input-line:#d9dce2;--input-hover:#c4c8d0;--placeholder:#9aa2ae;
+--row-line:#f3f3f5;--row-hover:#fffafa;--tooltip-head:#fbfbfc;--bar-bg:#f1e3e4;--pink-hover:#ffe2e5;--stat-hover-line:#f7d4d7;
+--bar-shadow:0 4px 18px rgba(17,17,26,.06);--soft-shadow:0 2px 8px rgba(17,17,26,.05);--row-shadow:0 6px 18px rgba(17,17,26,.04);
+--pop-shadow:0 30px 70px rgba(17,17,26,.25)}
+html{color-scheme:light}
+
+/* Page */
+html{scroll-padding-top:84px}
+body.dmd{margin:0;padding:0;min-height:100vh;display:flex;flex-direction:column;background:var(--page-bg) none;color:var(--text);
+font:17px/1.55 var(--sans);text-align:left}
+.dmd *,.dmd *::before,.dmd *::after{box-sizing:border-box}
+.dmd p{font-family:inherit}
+.dmd code{font-family:var(--mono);font-size:.9em;background:var(--grey);border-radius:6px;padding:1px 6px}
+.dmd :focus-visible{outline:3px solid var(--red-text);outline-offset:2px}
+.dmd .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.dmd .content-out{flex:1 0 auto;padding:0}
+.dmd .content-inner{max-width:var(--page);margin:0 auto;padding:28px 16px 80px}
+/* The old page loaders, particles, glitch logo and banner: gone from the light theme. */
+.dmd .loader,.dmd .loader2,.dmd #preloader,.dmd #silver-tech-bg,.dmd .bannerFooter,.dmd #image-container,.dmd .moon{display:none!important}
+.dmd .page .footer,.dmd > .footer{display:none}
+
+/* Top bar */
+.dmd .dmd-topbar{position:sticky;top:0;z-index:1000;background:var(--topbar);border-bottom:1px solid var(--line);box-shadow:var(--bar-shadow)}
+.dmd .dmd-in{max-width:var(--page);margin:0 auto;padding:12px 16px}
+.dmd .dmd-topbar .dmd-in{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.dmd .dmd-brand{display:flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;font:800 1.15rem/1.2 var(--sans)}
+.dmd .dmd-brand img{width:25px;height:25px}
+.dmd .dmd-brand:hover{color:var(--red-text)}
+.dmd .dmd-tag{font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--red-brand);background:var(--pink);
+border:1px solid var(--pink-line);border-radius:999px;padding:1px 8px}
+.dmd .dmd-nav{margin-left:auto;display:flex;align-items:center;gap:4px;flex-wrap:wrap;font-size:.95rem}
+.dmd .dmd-nav a{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:999px;color:var(--red-text);
+font:600 .95rem/1.4 var(--sans);text-decoration:none}
+.dmd .dmd-nav a svg{width:15px;height:15px}
+.dmd .dmd-nav a:hover,.dmd .dmd-nav a.on{background:var(--pink);color:var(--red-text)}
+.dmd .dmd-nav a.dmd-cta{background:var(--red);color:#fff;font-weight:700;box-shadow:0 6px 14px rgba(200,8,21,.22)}
+.dmd .dmd-nav a.dmd-cta:hover{background:var(--red-hover);color:#fff}
+.dmd .dmd-menu-toggle{position:absolute;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
+.dmd .dmd-menu-button{display:none}
+.dmd .dmd-menu-toggle:focus-visible+.dmd-menu-button{outline:3px solid var(--red-text);outline-offset:2px}
+
+/* Footer */
+.dmd .dmd-footer{flex:none;background:var(--red-deep);color:#f5ced0;font:.95rem/1.55 var(--sans)}
+.dmd .dmd-footer .dmd-in{padding-top:38px;padding-bottom:22px}
+.dmd .dmd-cols{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:24px 20px}
+.dmd .dmd-head{margin:0 0 10px;color:#fff;font-weight:700;font-size:1.15rem;line-height:1.3}
+.dmd .dmd-col a{display:block;margin:0 0 7px;color:#fff;text-decoration:none;font:600 .95rem/1.55 var(--sans);overflow-wrap:anywhere}
+.dmd .dmd-col a:hover{color:#f5ced0;text-decoration:underline}
+.dmd .dmd-col a.dmd-get-app{display:inline-flex;align-items:center;gap:8px;margin:8px 0 0;padding:8px 16px;border-radius:999px;
+background:#fff;color:var(--red-deep);font-weight:700}
+.dmd .dmd-col a.dmd-get-app svg{width:18px;height:18px}
+.dmd .dmd-col a.dmd-get-app:hover{background:#f5ced0;text-decoration:none}
+.dmd .dmd-legal{margin:26px 0 0;padding-top:14px;border-top:1px solid rgba(255,255,255,.2);font-size:.85rem;font-family:var(--sans)}
+.dmd .dmd-footer a:focus-visible{outline-color:#fff}
+.dmd .dmd-to-top{position:fixed;right:18px;bottom:18px;z-index:999;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;
+background:var(--red);color:#fff;box-shadow:0 8px 20px rgba(200,8,21,.3);text-decoration:none}
+.dmd .dmd-to-top svg{width:22px;height:22px;stroke-width:2.4}
+.dmd .dmd-to-top:hover{background:var(--red-hover);color:#fff}
+@supports (animation-timeline:scroll()){
+.dmd .dmd-to-top{animation:dmd-to-top-in linear both;animation-timeline:scroll(root);animation-range:150px 450px}
+@keyframes dmd-to-top-in{from{opacity:0;visibility:hidden;transform:translateY(12px)}to{opacity:1;visibility:visible;transform:none}}
+}
+
+/* Shared pieces */
+.dmd .dmd-accent{color:var(--red-text)}
+.dmd .dmd-eyebrow{display:inline-block;background:var(--pink);color:var(--red-brand);border:1px solid var(--pink-line);border-radius:999px;
+font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;padding:3px 14px;margin:0 0 14px}
+.dmd .dmd-card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:22px 24px}
+.dmd .dmd-card-head{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;margin:0 0 12px}
+.dmd .dmd-card-head h2{display:flex;align-items:center;gap:10px;flex:1 1 auto;margin:0;font:800 1.05rem/1.3 var(--sans);
+text-transform:uppercase;letter-spacing:.04em;color:var(--text)}
+.dmd .dmd-card-head h2 svg{width:22px;height:22px;color:var(--red-text);flex:none}
+.dmd .dmd-card-head .dmd-more{font-size:.9rem}
+.dmd .dmd-more{font-weight:700;color:var(--red-text);text-decoration:none}
+.dmd .dmd-more:hover{text-decoration:underline;color:var(--red-hover)}
+.dmd .dmd-more svg{width:15px;height:15px;vertical-align:-2px}
+.dmd .dmd-small{font-size:.9rem;color:var(--muted);margin:0}
+.dmd .dmd-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:0;font:700 1rem/1.2 var(--sans);
+border-radius:12px;padding:12px 20px;border:1px solid var(--red);background:var(--red);color:#fff;text-decoration:none;cursor:pointer;
+box-shadow:0 10px 22px rgba(200,8,21,.22);width:auto;backdrop-filter:none;white-space:nowrap;flex:none}
+.dmd .dmd-button:hover{background:var(--red-hover);border-color:var(--red-hover);color:#fff}
+.dmd .dmd-button svg{width:18px;height:18px}
+.dmd .dmd-input{width:100%;min-width:0;margin:0;font:400 1rem/1.3 var(--sans);color:var(--text);background:var(--input-bg);
+border:1px solid var(--input-line);border-radius:12px;padding:12px 14px;box-shadow:inset 0 1px 2px rgba(17,17,26,.04)}
+.dmd .dmd-input::placeholder{color:var(--placeholder);font:inherit}
+.dmd .dmd-input:hover{border-color:var(--input-hover)}
+.dmd .dmd-input:focus{outline:3px solid rgba(200,8,21,.18);outline-offset:0;border-color:var(--red)}
+.dmd .dmd-copy{display:inline-flex;align-items:center;gap:6px;flex:none;margin:0;width:auto;padding:6px 12px;border-radius:999px;
+border:1px solid var(--pink-line);background:var(--pink);color:var(--red-brand);font:700 .8rem/1.2 var(--sans);cursor:pointer}
+.dmd .dmd-copy:hover{background:var(--pink-hover)}
+.dmd .dmd-copy svg{width:15px;height:15px}
+.dmd .dmd-copy.done{background:var(--green);border-color:var(--green);color:#fff}
+
+/* Home: hero */
+.dmd .dmd-hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);
+grid-template-areas:"text coin";align-items:center;gap:8px 32px;margin:10px 0 30px}
+.dmd .dmd-hero-text{grid-area:text}
+.dmd .dmd-hero-coin{grid-area:coin}
+.dmd .dmd-hero h1{font:800 3.2rem/1.02 var(--sans);text-transform:uppercase;letter-spacing:-.015em;margin:0 0 16px;color:var(--text);
+text-shadow:none;animation:none}
+.dmd .dmd-hero-text>p:not(.dmd-eyebrow){color:var(--body);margin:0 0 16px;max-width:580px}
+.dmd .dmd-perks{list-style:none;display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:0 0 22px}
+.dmd .dmd-perks li{background:var(--card);border:1px solid var(--line);border-radius:999px;box-shadow:var(--soft-shadow);
+font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 14px}
+.dmd .dmd-perks li::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:8px;vertical-align:middle}
+.dmd .dmd-lookup{max-width:580px}
+.dmd .dmd-lookup label{display:block;margin:0 0 6px;font-weight:700;font-size:.95rem;color:var(--text)}
+.dmd .dmd-lookup-row{display:flex;gap:10px}
+.dmd .dmd-lookup .dmd-small{margin-top:6px}
+.dmd .dmd-hero-coin{position:relative;display:grid;place-items:center}
+/* the coin, 250px (170px on phones), and its glow around it */
+.dmd .dmd-hero-coin::before{content:"";position:absolute;left:50%;top:50%;width:min(100%,330px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;
+background:radial-gradient(circle,rgba(242,196,80,.42) 0%,rgba(242,196,80,.12) 45%,rgba(246,246,248,0) 70%)}
+.dmd .dmd-hero-coin img{position:relative;width:min(100%,250px);height:auto;filter:drop-shadow(0 26px 40px rgba(120,80,0,.28))}
+@media (prefers-reduced-motion:no-preference){
+.dmd .dmd-hero-coin img{animation:dmd-float 6s ease-in-out infinite}
+@keyframes dmd-float{50%{transform:translateY(-12px)}}
+}
+
+/* Home: live figures */
+.dmd .dmd-stats{list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding:0;margin:0 0 18px}
+.dmd .dmd-stat{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:22px 12px 18px;text-align:center;
+transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.dmd .dmd-stat .dmd-icon{display:block;color:var(--red-text);margin:0 0 8px}
+.dmd .dmd-stat .dmd-icon svg{width:34px;height:34px}
+.dmd .dmd-stat b{display:block;font-size:2rem;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--text)}
+.dmd .dmd-stat b small{font-size:.5em;font-weight:700;color:var(--muted)}
+.dmd .dmd-stat .dmd-label{display:block;margin-top:4px;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+/* time to find a block: with the pool and solo */
+.dmd .dmd-ttf{display:grid;gap:3px;width:max-content;max-width:100%;margin:0 auto}
+.dmd .dmd-ttf div{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+.dmd .dmd-ttf dt{font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.dmd .dmd-ttf dd{margin:0;font-size:1.35rem;font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums;color:var(--text);white-space:nowrap}
+.dmd .dmd-ttf dd small{font-size:.6em;font-weight:700;color:var(--muted)}
+.dmd .dmd-stat-ttf .dmd-label{margin-top:6px}
+@media (hover:hover){.dmd .dmd-stat:hover{transform:translateY(-5px);border-color:var(--stat-hover-line);box-shadow:0 20px 40px rgba(200,8,21,.13)}}
+
+/* Home: pool settings and the hashrate chart */
+.dmd .dmd-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin:0 0 18px}
+.dmd .dmd-settings{border-left:4px solid var(--red)}
+.dmd .dmd-kv{margin:0 0 12px}
+.dmd .dmd-kv div{display:grid;grid-template-columns:100px minmax(0,1fr);gap:12px;padding:9px 0;border-bottom:1px solid var(--row-line)}
+.dmd .dmd-kv div:last-child{border-bottom:0}
+.dmd .dmd-kv dt{font-weight:700;color:var(--text)}
+.dmd .dmd-kv dd{margin:0;color:var(--body);min-width:0}
+.dmd .dmd-kv .dmd-stratum{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.dmd .dmd-kv .dmd-stratum code{overflow-wrap:anywhere;font-size:.95em;color:var(--text)}
+.dmd .dmd-chart{display:flex;flex-direction:column}
+.dmd #pool_hashrate_sha256_results{flex:1 1 auto;min-height:220px;margin:0 -8px -10px}
+.dmd .dmd-chart-now{font-size:.9rem;color:var(--muted)}
+.dmd .dmd-chart-now b{color:var(--text);font-size:1.05rem}
+.dmd .apexcharts-tooltip{font-family:var(--sans)!important;border:1px solid var(--line)!important;box-shadow:var(--shadow)!important}
+.dmd .apexcharts-tooltip-title{font-family:var(--sans)!important;background:var(--tooltip-head)!important;border-bottom:1px solid var(--line)!important}
+.dmd .dmd-empty{display:grid;place-items:center;min-height:180px;color:var(--muted);font-size:.95rem;text-align:center}
+
+/* Latest blocks (results/found_results.php) */
+.dmd .dmd-blocks-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin:0}
+.dmd .dmd-blocks-table th{padding:8px 10px;text-align:left;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+color:var(--muted);border-bottom:1px solid var(--line)}
+.dmd .dmd-blocks-table td{padding:12px 10px;border-bottom:1px solid var(--row-line);color:var(--body);vertical-align:middle}
+.dmd .dmd-blocks-table tr:last-child td{border-bottom:0}
+.dmd .dmd-blocks-table tbody tr:hover td{background:var(--row-hover)}
+.dmd .dmd-blocks-table .r{text-align:right}
+.dmd .dmd-blocks-table .dmd-height{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:1.1rem;color:var(--text);text-decoration:none}
+.dmd .dmd-blocks-table a.dmd-height:hover{color:var(--red-text)}
+.dmd .dmd-blocks-table .dmd-cube{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--pink);color:var(--red-text);flex:none}
+.dmd .dmd-blocks-table .dmd-cube svg{width:18px;height:18px}
+.dmd .dmd-blocks-table .dmd-reward{font-weight:700;color:var(--text)}
+.dmd .dmd-blocks-table .dmd-reward small{font-weight:700;color:var(--muted)}
+.dmd .dmd-status{display:inline-flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:.85rem;font-weight:700;color:var(--text)}
+.dmd .dmd-bar{display:block;width:110px;height:6px;border-radius:999px;background:var(--bar-bg);overflow:hidden}
+.dmd .dmd-bar i{display:block;height:100%;border-radius:999px;background:var(--red)}
+.dmd .dmd-badge{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:3px 12px}
+.dmd .dmd-badge.done{background:var(--red);color:#fff}
+.dmd .dmd-badge.new{background:var(--pink);color:var(--red-brand);border:1px solid var(--pink-line)}
+.dmd .dmd-badge.orphan{background:var(--grey);color:var(--muted)}
+.dmd .dmd-badge.pool{background:var(--grey);color:var(--text)}
+.dmd .dmd-badge.solo{background:transparent;color:var(--red-text);border:1px solid var(--red)}
+
+/* The wallet page (mywallet/index.php) and its parts */
+.dmd .dmd-wallet-intro{text-align:center;max-width:640px;margin:20px auto 0}
+.dmd .dmd-wallet-intro h1{font:800 2.4rem/1.05 var(--sans);text-transform:uppercase;letter-spacing:-.01em;margin:0 0 12px;color:var(--text);
+text-shadow:none;animation:none}
+.dmd .dmd-wallet-intro p:not(.dmd-eyebrow){color:var(--body);margin:0 0 18px}
+.dmd .dmd-wallet-intro .dmd-lookup{margin:0 auto}
+.dmd .mywalletPage{margin-top:0!important}
+.dmd #search-box{display:block;width:100%!important;max-width:640px!important;margin:24px auto 0!important;padding:12px 14px!important;
+font:400 1rem/1.3 var(--sans)!important;color:var(--text)!important;text-align:left!important;background:var(--input-bg)!important;
+border:1px solid var(--input-line)!important;border-radius:12px!important;box-shadow:inset 0 1px 2px rgba(17,17,26,.04)!important;backdrop-filter:none!important}
+.dmd #search-box:focus{outline:3px solid rgba(200,8,21,.18)!important;border-color:var(--red)!important}
+.dmd #search-box::placeholder{font-family:var(--sans)!important;font-size:1rem!important;color:var(--placeholder)!important}
+
+/* The older pages' boxes and tables, light: white cards, dark text, red accents */
+.dmd .main-left-box,.dmd .main-left2-box,.dmd .main-right-box,.dmd .main-right2-box,.dmd .main-right3-box,.dmd .main-right4-box,
+.dmd .main-right6-box{
+background:var(--card)!important;border:1px solid var(--line)!important;border-radius:18px!important;box-shadow:var(--shadow)!important;
+backdrop-filter:none!important;color:var(--body)}
+.dmd .main-left2-box{height:auto!important;padding:4px 8px}
+.dmd .main-left-inner,.dmd .main-right-inner,.dmd .main-right2-inner{background:transparent!important;backdrop-filter:none!important;color:var(--body)!important;
+font-family:var(--sans)!important;height:auto!important;margin-bottom:0!important}
+.dmd .main-left-title,.dmd .main-right-title,.dmd .main-right2-title{color:var(--text)!important;font:800 1rem/1.3 var(--sans)!important;
+letter-spacing:.06em;text-transform:uppercase}
+.dmd .main-left-title span,.dmd .main-right-title span{color:var(--text)!important;font-family:var(--sans)!important;font-size:1.05rem!important;font-weight:800}
+.dmd table.dataGrid,.dmd table.dataGrid2,.dmd table.dataGrid4,.dmd table.dataGrid5,.dmd table.dataGrid10,.dmd table.dataGrid11{color:var(--body)!important;
+font-family:var(--sans)}
+.dmd table.dataGrid4 tr,.dmd table.dataGrid10 tr{background:var(--card)!important;border:1px solid var(--line)!important;border-radius:14px;
+box-shadow:var(--row-shadow)!important;backdrop-filter:none!important}
+.dmd table.dataGrid5{background:var(--card);border-radius:14px}
+.dmd table.dataGrid5 th,.dmd table.dataGrid th{border-bottom:1px solid var(--line)}
+.dmd table.dataGrid5 td,.dmd table.dataGrid td{border-bottom:1px solid var(--row-line)}
+.dmd table.dataGrid5 tr.ssrow:hover td,.dmd table.dataGrid tr.ssrow:hover td{background:var(--row-hover)}
+/* :where() keeps these links rules weak, so the pool's own links (cards, buttons, footer) keep their colours. */
+:where(.dmd .content-inner) a:link,:where(.dmd .content-inner) a:visited{font-family:inherit;color:var(--red-text)}
+:where(.dmd .content-inner) a:hover{color:var(--red-hover)}
+/* Fonts and colours written into the older pages' tags */
+.dmd .content-inner [style*="interblack" i],.dmd .content-inner [style*="facetype" i],.dmd .content-inner [style*="roboto" i]{font-family:var(--sans)!important}
+.dmd .content-inner [style*="#9699A1" i],.dmd .content-inner [style*="#ABA89F" i],.dmd .content-inner [style*="#b1b1b1" i],
+.dmd .content-inner [style*="#999999" i],.dmd .content-inner [style*="#E0E0E0" i]{color:var(--body)!important}
+.dmd .content-inner [style*="#878787" i],.dmd .content-inner [style*="#797C84" i],.dmd .content-inner [style*="#656C6F" i]{color:var(--muted)!important}
+.dmd .content-inner [style*="color:#BC9600" i],.dmd .content-inner [style*="color: #BC9600" i],.dmd .content-inner [style*="#BFAA19" i],
+.dmd .content-inner [style*="#BFA519" i],.dmd .content-inner [style*="#CBA200" i]{color:var(--red-text)!important}
+.dmd .content-inner [style*="color:#000" i],.dmd .content-inner [style*="color: #000" i]{color:var(--text)!important}
+.dmd .content-inner [style*="rgba(188,150,0" i],.dmd .content-inner [style*="rgba(188, 150, 0" i]{background-color:var(--pink)!important}
+.dmd .content-inner [style*="backdrop-filter" i]{backdrop-filter:none!important}
+.dmd .content-inner span.block{color:var(--text)!important;font-family:var(--sans)!important}
+.dmd .content-inner .block.new{color:var(--red-brand)!important}
+.dmd .content-inner span.block.immature,.dmd .content-inner span.block.new{background:var(--pink)!important;border:1px solid var(--pink-line);border-radius:999px;color:var(--red-brand)!important;font-weight:700}
+.dmd .content-inner span.block.confirmed,.dmd .content-inner span.block.cleared,.dmd .content-inner span.block.exchange{background:var(--red)!important;border-radius:999px;color:#fff!important;font-weight:700}
+.dmd .content-inner .block.orphan{color:var(--muted)!important}
+.dmd .content-inner hr{border-top-color:var(--line)}
+.dmd .main-left2-box .main-left-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 16px;padding:10px 12px!important}
+.dmd .main-left2-box .main-left-inner>*{float:none!important;margin:0!important}
+.dmd .main-left2-box #nextpayout{font-family:var(--sans)!important;font-weight:700!important;color:var(--red-text)!important;opacity:1!important}
+.dmd .username-text{color:var(--text)}
+.dmd .animated-select{background:var(--input-bg);color:var(--text);border:1px solid var(--input-line);border-radius:10px;padding:6px 10px;font:600 .9rem var(--sans)}
+.dmd .main-text-input,.dmd .main-submit-button{color:var(--text)!important;background:var(--input-bg)!important;border:1px solid var(--input-line)!important;
+border-radius:12px!important;font-family:var(--sans)!important}
+
+/* Pop-ups (SweetAlert2): light */
+.dmd .swal2-popup{background:var(--card)!important;color:var(--text)!important;font-family:var(--sans)!important;border-radius:18px!important;
+border:1px solid var(--line)!important;box-shadow:var(--pop-shadow)!important}
+.dmd .swal2-title,.dmd .swal2-html-container{color:var(--text)!important;font-family:var(--sans)!important}
+.dmd .swal2-popup [style*="#BC9600" i],.dmd .swal2-popup [style*="#BFAA19" i],.dmd .swal2-popup [style*="#BFA519" i]{color:var(--red-text)!important}
+.dmd .swal2-popup [style*="#9699A1" i],.dmd .swal2-popup [style*="#B9B9B9" i]{color:var(--body)!important}
+.dmd .swal2-icon{color:var(--red-text)!important;border-color:var(--pink-line)!important}
+.dmd .swal2-icon.swal2-success [class^=swal2-success-line]{background-color:var(--red)!important}
+.dmd .swal2-icon.swal2-success .swal2-success-ring{border-color:var(--pink-line)!important}
+.dmd .swal2-popup [style*="interblack" i],.dmd .swal2-popup [style*="facetype" i]{font-family:var(--sans)!important}
+
+/* Light / dark switch in the top bar (shows a moon in the light theme, a sun in the dark one) */
+.dmd .dmd-theme-toggle{order:2;display:inline-grid;place-items:center;flex:none;width:40px;height:40px;margin:0 0 0 8px;padding:0;border-radius:999px;
+border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;transition:background-color .15s,color .15s,border-color .15s}
+.dmd .dmd-theme-toggle:hover{background:var(--pink);border-color:var(--pink-line);color:var(--red-text)}
+.dmd .dmd-theme-toggle svg{width:20px;height:20px}
+.dmd .dmd-theme-toggle .dmd-sun,html[data-theme="dark"] .dmd .dmd-theme-toggle .dmd-moon{display:none}
+html[data-theme="dark"] .dmd .dmd-theme-toggle .dmd-sun{display:block}
+
+/* The notifications bell, right of the light / dark switch: grey when there is nothing new, red with
+   a green dot when there are notices not seen yet; a tap opens their list under it */
+.dmd .dmd-bellbox{order:2;position:relative;flex:none;margin:0 0 0 8px}
+.dmd .dmd-bell{position:relative;display:inline-grid;place-items:center;width:40px;height:40px;margin:0;padding:0;border-radius:999px;
+border:1px solid var(--line);background:var(--card);color:var(--muted);cursor:pointer;transition:background-color .15s,color .15s,border-color .15s}
+.dmd .dmd-bell:hover,.dmd .dmd-bell[aria-expanded="true"]{background:var(--pink);border-color:var(--pink-line);color:var(--red-text)}
+.dmd .dmd-bell svg{width:20px;height:20px}
+.dmd .dmd-bell[data-unread="1"]{color:var(--red-text);background:var(--pink);border-color:var(--pink-line)}
+.dmd .dmd-bell[data-unread="1"] svg{fill:currentColor}
+.dmd .dmd-bell-dot{position:absolute;top:6px;right:7px;width:10px;height:10px;border-radius:50%;background:#1fa463;
+box-shadow:0 0 0 2px var(--card);display:none}
+.dmd .dmd-bell[data-unread="1"] .dmd-bell-dot{display:block}
+.dmd .dmd-bell-panel{position:absolute;top:calc(100% + 10px);right:0;z-index:1100;width:360px;max-height:min(70vh,520px);overflow:auto;
+padding:8px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 50px rgba(17,17,26,.2);text-align:left}
+.dmd .dmd-bell-panel[hidden]{display:none}
+.dmd .dmd-bell-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px 10px}
+.dmd .dmd-bell-head b{font-size:1rem;color:var(--text)}
+.dmd .dmd-bell-all{margin:0;padding:4px 8px;border:0;border-radius:8px;background:none;color:var(--red-text);font:700 .85rem/1.2 var(--sans);cursor:pointer}
+.dmd .dmd-bell-all:hover{background:var(--pink)}
+.dmd .dmd-bell-all[hidden]{display:none}
+.dmd .dmd-bell-list{list-style:none;margin:0;padding:0}
+.dmd .dmd-bell-list li+li{margin-top:6px}
+.dmd .dmd-bell-list button{position:relative;display:block;width:100%;margin:0;padding:10px 12px 10px 28px;text-align:left;cursor:pointer;
+border:1px solid var(--line);border-radius:12px;background:var(--grey);color:var(--body);font:400 .9rem/1.4 var(--sans)}
+.dmd .dmd-bell-list button::before{content:"";position:absolute;left:12px;top:17px;width:8px;height:8px;border-radius:50%;background:var(--red)}
+.dmd .dmd-bell-list button:hover{border-color:var(--pink-line);background:var(--pink)}
+.dmd .dmd-bell-item-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.dmd .dmd-bell-item-head b{color:var(--text);font-size:.95rem}
+.dmd .dmd-bell-item-head time{flex:none;color:var(--muted);font-size:.78rem}
+.dmd .dmd-bell-item-body{display:block;margin-top:2px}
+.dmd .dmd-bell-empty{margin:2px 10px 10px;color:var(--muted);font-size:.92rem}
+.dmd .dmd-bell-empty[hidden]{display:none}
+.dmd .dmd-bell-empty a{color:var(--red-text);font-weight:700}
+.dmd .dmd-bell-actions{padding:0 10px 10px}
+.dmd .dmd-bell-actions[hidden]{display:none}
+.dmd .dmd-bell-actions .dmd-button{width:100%;padding:10px 16px;font-size:.95rem;box-shadow:none}
+.dmd .dmd-bell-actions .dmd-button:disabled{opacity:.6;cursor:progress}
+.dmd .dmd-bell-foot{display:flex;align-items:center;flex-wrap:wrap;justify-content:space-between;gap:6px 10px;margin:8px 2px 0;
+padding:10px 10px 6px;border-top:1px solid var(--line)}
+.dmd .dmd-bell-tools{display:flex;align-items:center;gap:2px;margin-left:auto}
+.dmd .dmd-bell-settings{display:block;min-width:0;color:var(--red-text);font:700 .9rem/1.3 var(--sans);text-decoration:none}
+.dmd .dmd-bell-settings:hover{text-decoration:underline}
+.dmd .dmd-bell-off,.dmd .dmd-bell-test{flex:none;margin:0;padding:4px 8px;border:0;border-radius:8px;background:none;color:var(--muted);
+font:700 .85rem/1.2 var(--sans);cursor:pointer}
+.dmd .dmd-bell-off:hover,.dmd .dmd-bell-test:hover{background:var(--grey);color:var(--text)}
+.dmd .dmd-bell-off[hidden],.dmd .dmd-bell-test[hidden]{display:none}
+.dmd .dmd-bell-off:disabled,.dmd .dmd-bell-test:disabled{opacity:.5;cursor:default;background:none}
+/* "Notify me" on the home page's blocks: the pool's blocks on this device, no address needed */
+.dmd .dmd-notify-pool{display:inline-flex;align-items:center;gap:6px;flex:none;margin:0;width:auto;padding:6px 12px;border-radius:999px;
+border:1px solid var(--pink-line);background:var(--pink);color:var(--red-brand);font:700 .85rem/1.2 var(--sans);cursor:pointer}
+.dmd .dmd-notify-pool:hover{background:var(--pink-hover)}
+.dmd .dmd-notify-pool svg{width:15px;height:15px}
+.dmd .dmd-notify-pool[aria-pressed="true"]{background:var(--card);border-color:var(--line);color:var(--muted)}
+.dmd .dmd-notify-pool[aria-pressed="true"] svg{fill:currentColor;color:var(--green)}
+.dmd .dmd-notify-pool:disabled{opacity:.6;cursor:progress}
+.dmd #dmd-notify{scroll-margin-top:90px}
+.dmd #dmd-notify.dmd-flash{animation:dmd-flash 1.6s ease}
+@keyframes dmd-flash{0%,100%{box-shadow:var(--shadow)}25%,60%{box-shadow:0 0 0 3px var(--red),0 18px 40px rgba(200,8,21,.18)}}
+@media (prefers-reduced-motion:reduce){.dmd #dmd-notify.dmd-flash{animation:none}}
+
+/* Dark theme: the same design on a #18181d page with slightly lighter cards and light text. The red
+   stays the DebitMyData red; where red is used for text it is a lighter red, so it stays readable. */
+html[data-theme="dark"]{color-scheme:dark;
+--red-text:#ff5a64;--red-brand:#ff5a64;--pink:#33161b;--pink-line:#5c1f27;--pink-hover:#41191f;
+--grey:#2a2a33;--line:#303039;--text:#ececf1;--muted:#9a9ba6;--body:#b9bac4;--shadow:0 10px 30px rgba(0,0,0,.35);
+--page-bg:#18181d;--card:#202027;--topbar:#1d1d23;--input-bg:#26262e;--input-line:#3a3a44;--input-hover:#4a4a55;--placeholder:#7a7b86;
+--row-line:#2a2a32;--row-hover:#26262e;--tooltip-head:#26262e;--bar-bg:#3a1a1f;--stat-hover-line:#5c1f27;
+--bar-shadow:0 4px 18px rgba(0,0,0,.4);--soft-shadow:0 2px 8px rgba(0,0,0,.3);--row-shadow:0 6px 18px rgba(0,0,0,.25);
+--pop-shadow:0 30px 70px rgba(0,0,0,.6)}
+html[data-theme="dark"] .dmd .dmd-hero-coin img{filter:drop-shadow(0 26px 40px rgba(0,0,0,.5))}
+html[data-theme="dark"] .dmd .dmd-menu-button{box-shadow:none}
+
+/* Tablets */
+/* Payouts page (/site/tx) */
+.dmd .dmd-tx-intro{margin-bottom:22px}
+.dmd .dmd-tx-address{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px 10px;margin:0 0 10px}
+.dmd .dmd-tx-address code{font-size:.95rem;color:var(--text);overflow-wrap:anywhere;padding:4px 10px}
+.dmd .dmd-tx-links{margin:0;font-weight:600}
+.dmd .dmd-tx-links a{color:var(--red-text);text-decoration:none}
+.dmd .dmd-tx-links a:hover{text-decoration:underline}
+.dmd .dmd-tx-links svg,.dmd .dmd-tx-table .dmd-hash svg{width:14px;height:14px;vertical-align:-2px}
+/* the line under the links: rewards are paid inside the block, listed once matured */
+.dmd .dmd-wallet-intro p.dmd-tx-note{max-width:560px;margin:0 auto;font-size:.92rem;color:var(--muted)}
+.dmd .dmd-stats.dmd-three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.dmd .dmd-tx-table .dmd-tx-date{display:block;font-weight:700;color:var(--text);white-space:nowrap}
+.dmd .dmd-tx-table td small{color:var(--muted);font-size:.8rem}
+.dmd .dmd-tx-table tbody td>small{display:block}
+.dmd .dmd-tx-table .dmd-hash{display:inline-flex;align-items:center;gap:6px;font:600 .9rem/1.3 var(--mono);color:var(--text);
+text-decoration:none;overflow-wrap:anywhere}
+.dmd .dmd-tx-table a.dmd-hash:hover{color:var(--red-text)}
+.dmd .dmd-tx-table tfoot td{border-top:2px solid var(--line);border-bottom:0;padding-top:14px;font-weight:800;color:var(--text)}
+.dmd .dmd-tx-table .dmd-tx-phone{display:none}
+@media (max-width:980px){
+.dmd .dmd-hero{grid-template-columns:minmax(0,1fr) 220px;gap:8px 20px}
+.dmd .dmd-hero h1{font-size:2.5rem}
+.dmd .dmd-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+.dmd .dmd-two{grid-template-columns:minmax(0,1fr)}
+.dmd .dmd-cols{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+/* Phones: the menu folds into a button (no script needed) */
+@media (max-width:760px){
+.dmd .dmd-theme-toggle{order:1;margin-left:auto}
+.dmd .dmd-bellbox{order:1}
+.dmd .dmd-menu-button{order:2;margin-left:8px}
+.dmd .dmd-nav{order:3}
+.dmd .dmd-menu-button{display:grid;place-items:center;width:44px;height:44px;border-radius:10px;cursor:pointer;
+border:1px solid var(--line);box-shadow:0 4px 12px rgba(17,17,26,.06)}
+.dmd .dmd-menu-button span,.dmd .dmd-menu-button span::before,.dmd .dmd-menu-button span::after{display:block;width:20px;height:2px;
+background:var(--text);border-radius:2px;transition:transform .2s,background .2s}
+.dmd .dmd-menu-button span{position:relative}
+.dmd .dmd-menu-button span::before,.dmd .dmd-menu-button span::after{content:"";position:absolute;left:0}
+.dmd .dmd-menu-button span::before{top:-6px}
+.dmd .dmd-menu-button span::after{top:6px}
+.dmd .dmd-menu-toggle:checked+.dmd-menu-button span{background:transparent}
+.dmd .dmd-menu-toggle:checked+.dmd-menu-button span::before{transform:translateY(6px) rotate(45deg)}
+.dmd .dmd-menu-toggle:checked+.dmd-menu-button span::after{transform:translateY(-6px) rotate(-45deg)}
+.dmd .dmd-nav{display:none;width:100%;margin:4px 0 6px;flex-direction:column;align-items:stretch;gap:2px}
+.dmd .dmd-menu-toggle:checked~.dmd-nav{display:flex}
+.dmd .dmd-nav a{padding:11px 14px;border-radius:10px;font-size:1rem}
+.dmd .dmd-nav a.dmd-cta{align-self:flex-start;margin-top:4px;border-radius:999px;padding:9px 18px}
+.dmd .dmd-topbar{max-height:100vh;overflow-y:auto}
+.dmd .content-inner{padding-top:16px}
+.dmd .dmd-hero{grid-template-columns:minmax(0,1fr);grid-template-rows:none;grid-template-areas:"coin" "text";text-align:center;gap:0;margin-top:4px}
+.dmd .dmd-hero-coin{margin-bottom:8px}
+.dmd .dmd-ttf dd{font-size:1.15rem}
+.dmd .dmd-ttf div{gap:10px}
+.dmd .dmd-hero-coin img{width:170px}
+.dmd .dmd-hero-coin::before{width:220px}
+.dmd .dmd-hero h1{font-size:2.05rem}
+.dmd .dmd-hero-text>p,.dmd .dmd-lookup{margin-left:auto;margin-right:auto}
+.dmd .dmd-perks{justify-content:center}
+.dmd .dmd-lookup{text-align:left}
+.dmd .dmd-lookup-row{flex-direction:column}
+.dmd .dmd-stats{gap:10px}
+.dmd .dmd-stat{padding:18px 8px 14px}
+.dmd .dmd-stat .dmd-icon svg{width:28px;height:28px}
+.dmd .dmd-stat b{font-size:1.55rem}
+.dmd .dmd-card{padding:18px 16px}
+.dmd .dmd-kv div{grid-template-columns:minmax(0,1fr);gap:2px}
+.dmd .dmd-blocks-table th,.dmd .dmd-blocks-table td{padding-left:6px;padding-right:6px}
+.dmd .dmd-blocks-table .dmd-hide-phone{display:none}
+.dmd .dmd-tx-table .dmd-tx-phone{display:block;margin-top:4px}
+.dmd .dmd-tx-table .dmd-tx-phone .dmd-hash{white-space:nowrap}
+.dmd .dmd-blocks-table .dmd-cube{display:none}
+.dmd .dmd-bar{width:80px}
+.dmd .dmd-wallet-intro h1{font-size:1.8rem}
+.dmd .dmd-cols{grid-template-columns:repeat(2,minmax(0,1fr))}
+.dmd .dmd-col:last-child{grid-column:1/-1}
+}
+@media (max-width:980px){.dmd .dmd-stats.dmd-three{grid-template-columns:repeat(2,minmax(0,1fr))}.dmd .dmd-stats.dmd-three li:first-child{grid-column:1/-1}}
+@media (max-width:340px){.dmd .dmd-stats{grid-template-columns:minmax(0,1fr)}}
+@media print{.dmd .dmd-topbar{position:static}.dmd .dmd-to-top{display:none}}
+
+/* Wallet page, redesigned (mywallet/index.php and its parts) */
+/* links in the new parts take the text's font (main.css gives every link its own font and size);
+   kept at the lowest weight so a class on the link (.dmd-button...) still decides */
+.dmd :where(.dmd-home,.dmd-card,.dmd-wallet-intro,.dmd-stat) a:where(:link,:visited){font-family:inherit;font-size:inherit}
+.dmd .dmd-wallet-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,360px);align-items:end;gap:20px 28px;margin:10px 0 24px}
+.dmd .dmd-wallet-head h1{font:800 2.6rem/1.05 var(--sans);text-transform:uppercase;letter-spacing:-.015em;margin:0 0 12px;color:var(--text);text-shadow:none;animation:none}
+.dmd .dmd-wallet-address{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.dmd .dmd-wallet-address code{font:600 .98rem/1.4 var(--mono);color:var(--text);background:var(--card);border:1px solid var(--line);
+border-radius:12px;padding:8px 12px;box-shadow:var(--soft-shadow);overflow-wrap:anywhere;min-width:0}
+.dmd .dmd-addr-short{display:none}
+.dmd .dmd-wallet-side{display:flex;flex-direction:column;gap:12px}
+.dmd .dmd-wallet-payout{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--red);
+border-radius:14px;box-shadow:var(--soft-shadow);padding:10px 14px}
+.dmd .dmd-wallet-payout .dmd-icon{color:var(--red-text);display:grid}
+.dmd .dmd-wallet-payout .dmd-icon svg{width:26px;height:26px}
+.dmd .dmd-wallet-payout .dmd-label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.dmd .dmd-wallet-payout b{font-size:1.35rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text)}
+.dmd .dmd-wallet-side .dmd-lookup{max-width:none}
+.dmd .dmd-wallet-side .dmd-input{padding-top:9px;padding-bottom:9px}
+.dmd .dmd-wallet-side .dmd-button{padding-top:9px;padding-bottom:9px}
+.dmd .dmd-stat .dmd-sub{display:block;margin-top:6px;font-size:.82rem;color:var(--muted)}
+.dmd .dmd-stat a.dmd-sub{color:var(--red-text);font-weight:700;text-decoration:none}
+.dmd .dmd-stat a.dmd-sub:hover{text-decoration:underline}
+.dmd .dmd-stat-main b{color:var(--red-text)}
+.dmd .dmd-stats.dmd-three{grid-template-columns:repeat(3,minmax(0,1fr))}
+/* the wallet figures without the balance card (nothing waits for a balance payout) */
+.dmd .dmd-stats.dmd-pair{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:340px){.dmd .dmd-stats.dmd-pair{grid-template-columns:minmax(0,1fr)}}
+.dmd .dmd-stats.dmd-loading{grid-template-columns:minmax(0,1fr)}
+.dmd .dmd-alert{background:var(--pink);border:1px solid var(--pink-line);color:var(--red-brand);border-radius:12px;padding:10px 14px;font-weight:700}
+.dmd .dmd-muted{color:var(--muted)}
+.dmd .dmd-kv-wide div{grid-template-columns:160px minmax(0,1fr)}
+.dmd .dmd-kv-wide dd b{color:var(--text);font-variant-numeric:tabular-nums}
+.dmd #main_graphs_results{flex:1 1 auto;min-height:220px;margin:0 -8px -10px}
+.dmd .dmd-wallet .dmd-card{margin:0 0 18px}
+.dmd .dmd-wallet .dmd-two .dmd-card{margin:0}
+.dmd .dmd-wallet-payouts p{color:var(--body);margin:0 0 14px}
+.dmd .dmd-busy{opacity:.55;transition:opacity .2s}
+.dmd .dmd-nowrap{white-space:nowrap}
+.dmd .dmd-list-tools{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:-6px 0 10px;font-size:.85rem;color:var(--muted)}
+.dmd .dmd-select{margin:0;font:600 .9rem/1.2 var(--sans);color:var(--text);background:var(--input-bg);border:1px solid var(--input-line);
+border-radius:10px;padding:6px 10px;width:auto;height:auto;box-shadow:none}
+.dmd .dmd-select:focus{outline:3px solid rgba(200,8,21,.18);border-color:var(--red)}
+/* tables of the wallet page: rows on a computer, one card per row on a phone */
+.dmd .dmd-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin:0;background:transparent}
+.dmd .dmd-table th{padding:8px 10px;text-align:left;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+color:var(--muted);border-bottom:1px solid var(--line);white-space:nowrap;background:transparent}
+.dmd .dmd-table td{padding:11px 10px;border-bottom:1px solid var(--row-line);color:var(--body);vertical-align:middle;background:transparent}
+.dmd .dmd-table tbody tr:last-child td{border-bottom:0}
+.dmd .dmd-table tbody tr:hover td{background:var(--row-hover)}
+.dmd .dmd-table .r{text-align:right}
+.dmd .dmd-table code{font:600 .85rem/1.2 var(--mono);color:var(--text)}
+.dmd .dmd-rig-name{font-weight:800;color:var(--text)}
+.dmd .dmd-rig-rate{font-weight:700;color:var(--text)}
+.dmd .dmd-table .dmd-height{display:inline-flex;align-items:center;gap:10px;font:800 1.05rem/1.2 var(--sans);color:var(--text);text-decoration:none}
+.dmd .dmd-table a.dmd-height:hover{color:var(--red-text)}
+.dmd .dmd-table .dmd-cube{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:var(--pink);color:var(--red-text);flex:none}
+.dmd .dmd-table .dmd-cube svg{width:17px;height:17px}
+.dmd .dmd-table .dmd-when{display:block;margin:2px 0 0 42px;font-size:.8rem;color:var(--muted)}
+.dmd .dmd-table .dmd-reward{display:block;font-weight:700;color:var(--text)}
+.dmd .dmd-table .dmd-reward small{font-weight:700;color:var(--muted)}
+.dmd .dmd-table .dmd-part{display:block;font-size:.8rem;color:var(--muted)}
+.dmd .dmd-rigs{overflow:hidden}
+.dmd .dmd-rigs #workers_wallet_results{overflow-x:auto}
+@media (max-width:980px){
+.dmd .dmd-wallet-head{grid-template-columns:minmax(0,1fr);align-items:start}
+.dmd .dmd-wallet-head h1{font-size:2.2rem}
+}
+@media (max-width:760px){
+.dmd .dmd-wallet-head{text-align:center}
+.dmd .dmd-wallet-head h1{font-size:1.9rem}
+.dmd .dmd-wallet-address{justify-content:center}
+.dmd .dmd-addr-full{display:none}
+.dmd .dmd-addr-short{display:inline}
+.dmd .dmd-wallet-payout{justify-content:center;text-align:left}
+.dmd .dmd-wallet-side .dmd-lookup-row{flex-direction:row}
+.dmd .dmd-wallet-side .dmd-button svg{display:none}
+.dmd .dmd-stats.dmd-three{grid-template-columns:repeat(2,minmax(0,1fr))}
+.dmd .dmd-stats.dmd-three li:first-child{grid-column:1/-1}
+.dmd .dmd-stat .dmd-sub{font-size:.76rem}
+.dmd .dmd-list-tools{justify-content:flex-start;margin-top:0}
+.dmd .dmd-rigs #workers_wallet_results{overflow:visible}
+/* one card per row: the column name before each value */
+.dmd .dmd-table thead{display:none}
+.dmd .dmd-table,.dmd .dmd-table tbody,.dmd .dmd-table tr,.dmd .dmd-table td{display:block;width:100%}
+.dmd .dmd-table tr{border:1px solid var(--line);border-radius:14px;padding:6px 12px;margin:0 0 10px;background:var(--card);box-shadow:var(--soft-shadow)}
+.dmd .dmd-table tbody tr:hover td{background:transparent}
+.dmd .dmd-table td{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:7px 0;text-align:right;border-bottom:1px solid var(--row-line)}
+.dmd .dmd-table td:last-child{border-bottom:0}
+.dmd .dmd-table td::before{content:attr(data-label);flex:none;text-align:left;font-size:.68rem;font-weight:700;letter-spacing:.12em;
+text-transform:uppercase;color:var(--muted)}
+.dmd .dmd-table td.r{text-align:right}
+.dmd .dmd-table .dmd-rig-name{font-size:1.05rem}
+.dmd .dmd-earn-table td:first-child{display:block;text-align:left}
+.dmd .dmd-earn-table td:first-child::before{display:none}
+.dmd .dmd-earn-table .dmd-when{margin-left:42px}
+.dmd .dmd-table .dmd-amount{display:block;text-align:right}
+.dmd .dmd-kv-wide div{grid-template-columns:minmax(0,1fr) auto;align-items:baseline}
+.dmd .dmd-kv-wide dd{text-align:right}
+.dmd .dmd-kv-wide dt{white-space:nowrap}
+.dmd .dmd-kv-wide dd .dmd-muted{display:block;font-size:.85em}
+/* rigs: the name as the card's title, the figures two by two */
+.dmd .dmd-rigs-table tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px;padding:10px 14px 6px}
+.dmd .dmd-rigs-table td{display:block;text-align:left;padding:6px 0;border-bottom:0}
+.dmd .dmd-rigs-table td.r{text-align:left}
+.dmd .dmd-rigs-table td::before{display:block;margin-bottom:2px}
+.dmd .dmd-rigs-table td.dmd-rig-name{grid-column:1/-1;font-size:1.1rem;padding:2px 0 8px;margin-bottom:4px;border-bottom:1px solid var(--row-line)}
+.dmd .dmd-rigs-table td.dmd-rig-name::before{display:none}
+}
+
+/* The "Get the app" window (yaamp/ui/dmd-app.php), as on id.debitmydata.io */
+.dmd dialog.dmd-install{width:min(calc(100vw - 32px),420px);max-height:calc(100vh - 32px);padding:0;border:0;border-radius:24px;
+background:var(--card);color:var(--text);text-align:center;box-shadow:var(--pop-shadow);overflow:auto;font-family:var(--sans)}
+.dmd dialog.dmd-install::backdrop{background:rgba(24,20,20,.55)}
+.dmd dialog.dmd-install[open]{animation:dmd-install-in .28s ease-out}
+@keyframes dmd-install-in{from{opacity:0;transform:translateY(24px) scale(.97)}}
+.dmd .dmd-install .in{position:relative;padding:34px 24px 22px}
+.dmd .dmd-install img{display:block;width:112px;height:112px;margin:0 auto 16px}
+.dmd .dmd-install h2{margin:0 0 10px;font:800 1.5rem/1.2 var(--sans);color:var(--text);text-transform:none;letter-spacing:0}
+.dmd .dmd-install h2:focus{outline:none}
+.dmd .dmd-install p{margin:0 0 18px;color:var(--muted);font-size:1.05rem;line-height:1.5}
+.dmd .dmd-install .steps{margin:0 0 20px;padding:0;list-style:none;counter-reset:step;text-align:left;display:grid;gap:10px}
+.dmd .dmd-install .steps li{counter-increment:step;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;
+background:var(--grey);font-size:1rem;color:var(--text)}
+.dmd .dmd-install .steps li::before{content:counter(step);flex:none;display:grid;place-items:center;width:28px;height:28px;
+border-radius:50%;background:var(--red);color:#fff;font-weight:700;font-size:.9rem}
+.dmd .dmd-install .steps svg{flex:none;margin-left:auto;color:var(--red-text)}
+.dmd .dmd-install .steps[hidden],.dmd .dmd-install p.note[hidden],.dmd .dmd-install button[hidden]{display:none}
+.dmd .dmd-install p.note{margin:-6px 0 18px;font-size:.95rem}
+.dmd .dmd-install-actions{display:grid;gap:10px}
+.dmd .dmd-install .dmd-install-go{width:100%;padding:15px 20px;border-radius:999px;font-size:1.05rem}
+.dmd .dmd-install .dmd-install-later{width:100%;margin:0;padding:13px 20px;border-radius:999px;background:var(--card);color:var(--text);
+border:1px solid var(--line);font:600 1rem/1.2 var(--sans);cursor:pointer}
+.dmd .dmd-install .dmd-install-later:hover{background:var(--grey)}
+.dmd .dmd-install .dmd-install-close{position:absolute;top:10px;right:10px;width:40px;height:40px;margin:0;padding:0;border:0;
+border-radius:50%;background:none;color:var(--muted);font-size:1.6rem;line-height:1;cursor:pointer}
+.dmd .dmd-install .dmd-install-close:hover{background:var(--grey);color:var(--text)}
+@media (prefers-reduced-motion:reduce){.dmd dialog.dmd-install[open]{animation:none}}
+/* inside the installed app, "Get the app" has nothing to offer */
+.dmd-in-app .dmd .dmd-col a.dmd-get-app{display:none}
+@media (display-mode:standalone){.dmd .dmd-col a.dmd-get-app{display:none}}
+
+/* Wallet page: notifications (part 3) */
+.dmd .dmd-notify p{color:var(--body);margin:0 0 14px}
+.dmd .dmd-switches{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 16px}
+.dmd .dmd-switch{display:flex;align-items:flex-start;gap:10px;margin:0;padding:12px 14px;border:1px solid var(--line);border-radius:14px;
+background:var(--card);cursor:pointer;font-weight:400}
+.dmd .dmd-switch:hover{border-color:var(--stat-hover-line)}
+.dmd .dmd-switch input{flex:none;width:18px;height:18px;margin:2px 0 0;accent-color:var(--red)}
+.dmd .dmd-switch b{display:block;color:var(--text);font-weight:700}
+.dmd .dmd-switch small{display:block;margin-top:2px;color:var(--muted);font-size:.82rem;line-height:1.35}
+.dmd .dmd-notify-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.dmd .dmd-notify-off{margin:0;padding:11px 18px;border-radius:999px;background:var(--card);color:var(--text);border:1px solid var(--line);
+font:600 .95rem/1.2 var(--sans);cursor:pointer}
+.dmd .dmd-notify-off:hover{background:var(--grey)}
+.dmd .dmd-notify-off[hidden],.dmd .dmd-notify .dmd-button[hidden]{display:none}
+.dmd .dmd-notify .dmd-button:disabled{opacity:.6;cursor:progress}
+.dmd #dmd-notify-msg{margin:12px 0 0;min-height:1.2em}
+.dmd #dmd-notify-msg a{color:var(--red-text);font-weight:700}
+@media (max-width:760px){.dmd .dmd-switches{grid-template-columns:minmax(0,1fr)}.dmd .dmd-notify-actions .dmd-button{width:100%}}
+
+/* Phones: the bell, the light / dark switch and the menu button stay on the brand's line */
+@media (max-width:760px){
+.dmd .dmd-topbar .dmd-in{column-gap:8px}
+.dmd .dmd-bell,.dmd .dmd-theme-toggle{width:38px;height:38px}
+.dmd .dmd-bellbox{margin-left:0;position:static}
+.dmd .dmd-menu-button{margin-left:0;width:40px;height:40px}
+.dmd .dmd-bell-panel{position:fixed;top:68px;left:12px;right:12px;width:auto;max-height:calc(100vh - 90px)}
+}
+@media (max-width:380px){
+.dmd .dmd-topbar .dmd-in{column-gap:6px}
+.dmd .dmd-brand{gap:8px;font-size:1rem}
+.dmd .dmd-brand img{width:25px;height:25px}
+.dmd .dmd-bell,.dmd .dmd-theme-toggle{width:36px;height:36px}
+.dmd .dmd-menu-button{width:38px;height:38px}
+}
+
+/* Admin pages (coins, a coin's wallet / settings / peers / console, users, workers, earnings, payments,
+   big miners, block explorer): a title, the admin's links as tabs, then white cards and tables */
+.dmd .dmd-admin-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px 20px;margin:6px 0 16px}
+.dmd .dmd-admin-title{min-width:0}
+.dmd .dmd-admin-head .dmd-eyebrow{margin:0 0 10px}
+.dmd .dmd-admin-head h1{display:flex;align-items:center;gap:12px;margin:0;font:800 2.3rem/1.05 var(--sans);text-transform:uppercase;
+letter-spacing:-.01em;color:var(--text);text-shadow:none;animation:none;overflow-wrap:anywhere}
+.dmd .dmd-admin-head h1 img{width:42px;height:42px;flex:none}
+.dmd .dmd-admin-head h1 small{font-size:.5em;color:var(--muted);letter-spacing:.04em}
+.dmd .dmd-admin-sub{margin:8px 0 0;color:var(--body)}
+.dmd .dmd-admin-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.dmd .dmd-admin-nav{display:flex;flex-direction:column;gap:8px;margin:0 0 22px}
+.dmd .dmd-admin-tabs{display:flex;align-items:center;gap:4px;overflow-x:auto;padding:6px;background:var(--card);border:1px solid var(--line);
+border-radius:14px;box-shadow:var(--soft-shadow);scrollbar-width:thin}
+.dmd .dmd-admin-tabs a{display:inline-flex;align-items:center;gap:7px;flex:none;padding:7px 13px;border-radius:10px;color:var(--body);
+font:700 .9rem/1.3 var(--sans);text-decoration:none;white-space:nowrap}
+.dmd .dmd-admin-tabs a svg{width:17px;height:17px;flex:none;color:var(--muted)}
+.dmd .dmd-admin-tabs a:hover{background:var(--pink);color:var(--red-text)}
+.dmd .dmd-admin-tabs a:hover svg{color:inherit}
+.dmd .dmd-admin-tabs a.on{background:var(--red);color:#fff}
+.dmd .dmd-admin-tabs a.on svg{color:#fff}
+.dmd .dmd-admin-tabs a[target] svg{width:14px;height:14px}
+.dmd .dmd-tabs-label{display:inline-flex;align-items:center;gap:8px;flex:none;min-width:88px;padding:0 10px 0 6px;margin-right:2px;
+border-right:1px solid var(--line);font-size:.68rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.dmd .dmd-tabs-label img{width:20px;height:20px}
+.dmd .dmd-admin .dmd-card{margin:0 0 18px}
+.dmd .dmd-admin .dmd-card-head h2 small{font-size:.8em;font-weight:700;color:var(--muted);text-transform:none;letter-spacing:0}
+.dmd .dmd-admin .dmd-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+.dmd .dmd-admin .dmd-stat b{font-size:1.6rem;overflow-wrap:anywhere}
+.dmd .dmd-admin .dmd-stat b a{color:inherit;text-decoration:none}
+.dmd .dmd-admin .dmd-stat b a:hover{color:var(--red-text)}
+.dmd .dmd-stat-main{border-left:4px solid var(--red)}
+.dmd .dmd-admin .dmd-stat.dmd-warn b{color:var(--red-text)}
+.dmd .dmd-admin .dmd-two{align-items:start}
+/* buttons: red (dmd-button), outlined, small, and the ones that delete */
+.dmd .dmd-button.dmd-ghost{background:var(--card);color:var(--red-text);border-color:var(--pink-line);box-shadow:var(--soft-shadow)}
+.dmd .dmd-button.dmd-ghost:hover{background:var(--pink);border-color:var(--pink-line);color:var(--red-text)}
+.dmd .dmd-button.dmd-sm{padding:8px 14px;font-size:.9rem;border-radius:10px;box-shadow:none}
+.dmd .dmd-button.dmd-sm svg{width:16px;height:16px}
+.dmd a.dmd-act,.dmd button.dmd-act{display:inline-flex;align-items:center;gap:5px;margin:0;padding:4px 11px;border-radius:999px;border:1px solid var(--pink-line);
+background:var(--pink);color:var(--red-brand);font:700 .78rem/1.3 var(--sans);text-decoration:none;white-space:nowrap;cursor:pointer;width:auto}
+.dmd a.dmd-act:hover,.dmd button.dmd-act:hover{background:var(--pink-hover);color:var(--red-brand)}
+.dmd a.dmd-act.dmd-danger{background:transparent;border-color:var(--line);color:var(--muted)}
+.dmd a.dmd-act.dmd-danger:hover{border-color:var(--red);color:var(--red-text);background:var(--pink)}
+.dmd .dmd-acts{display:inline-flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
+/* the search box and the controls over a table */
+.dmd .dmd-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 14px;margin:0 0 12px}
+.dmd .dmd-toolbar .dmd-small{margin:0}
+.dmd .dmd-search{position:relative;display:block;flex:0 1 340px;min-width:0;margin:0}
+.dmd .dmd-search svg{position:absolute;left:12px;top:50%;width:18px;height:18px;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.dmd .dmd-search .dmd-input{padding:9px 12px 9px 38px;border-radius:10px;text-align:left}
+.dmd .dmd-search .dmd-input::-webkit-search-cancel-button{cursor:pointer}
+.dmd .dmd-field{display:inline-flex;align-items:center;gap:8px;margin:0;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+/* tables */
+.dmd .dmd-table-card{padding:8px 10px}
+.dmd .dmd-table-card .dmd-card-head{padding:12px 10px 0}
+.dmd .dmd-scroll{overflow-x:auto}
+.dmd .dmd-admin-table td,.dmd .dmd-admin-table th{white-space:nowrap}
+.dmd .dmd-admin-table td.dmd-wrap{white-space:normal}
+.dmd .dmd-admin-table tr.filtered{display:none!important}
+.dmd .dmd-admin-table th.tablesorter-header{cursor:pointer;user-select:none}
+.dmd .dmd-admin-table th .tablesorter-header-inner{display:inline-flex;align-items:center;gap:4px}
+.dmd .dmd-admin-table th.tablesorter-headerAsc .tablesorter-header-inner::after{content:"\2191";color:var(--red-text)}
+.dmd .dmd-admin-table th.tablesorter-headerDesc .tablesorter-header-inner::after{content:"\2193";color:var(--red-text)}
+.dmd .dmd-admin-table th.tablesorter-header:hover{color:var(--text)}
+.dmd .dmd-table .dmd-coin{display:inline-flex;align-items:center;gap:10px;font-weight:700;color:var(--text)}
+.dmd .dmd-table .dmd-coin img{width:24px;height:24px;flex:none}
+.dmd .dmd-table .dmd-coin small{font-weight:700;color:var(--muted)}
+.dmd .dmd-table .dmd-coin a{color:var(--text);text-decoration:none}
+.dmd .dmd-table .dmd-coin a:hover{color:var(--red-text)}
+.dmd .dmd-table .dmd-addr{font:600 .85rem/1.3 var(--mono);color:var(--text);text-decoration:none}
+.dmd .dmd-table a.dmd-addr:hover{color:var(--red-text);text-decoration:underline}
+.dmd .dmd-table .dmd-num{font-weight:700;color:var(--text)}
+.dmd .dmd-table .dmd-warn{color:var(--red-text);font-weight:700}
+.dmd .dmd-table .dmd-muted{color:var(--muted)}
+.dmd .dmd-count{margin:10px 10px 4px;font-size:.85rem;color:var(--muted)}
+.dmd .dmd-more-row{display:flex;justify-content:center;margin:12px 0 4px}
+.dmd .dmd-empty-row{padding:26px 10px;text-align:center;color:var(--muted)}
+/* key / value lists (block details, totals) */
+.dmd .dmd-admin .dmd-kv-wide div{grid-template-columns:170px minmax(0,1fr)}
+.dmd .dmd-admin .dmd-kv dd{overflow-wrap:anywhere}
+.dmd .dmd-admin .dmd-kv dd code,.dmd .dmd-admin .dmd-kv dd .dmd-hash{font:600 .88rem/1.4 var(--mono);color:var(--text);background:none;padding:0}
+.dmd .dmd-admin .dmd-kv dd a{color:var(--red-text);text-decoration:none}
+.dmd .dmd-admin .dmd-kv dd a:hover{text-decoration:underline}
+.dmd .dmd-totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.dmd .dmd-totals .dmd-card{margin:0}
+.dmd .dmd-totals .dmd-kv{margin:0}
+.dmd .dmd-totals .dmd-kv div{grid-template-columns:minmax(0,1fr) auto}
+.dmd .dmd-totals .dmd-kv dd{text-align:right;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+.dmd .dmd-totals .dmd-kv .dmd-warn dd,.dmd .dmd-totals .dmd-kv .dmd-warn dt{color:var(--red-text)}
+/* code blocks: addnode lines, raw block and transaction data, the console's answers */
+.dmd .dmd-codebox{position:relative;margin:0;padding:14px 16px;border-radius:12px;background:#16161b;color:#d6d7de;
+font:500 .85rem/1.55 var(--mono);white-space:pre;overflow-x:auto;border:1px solid #2a2a32}
+.dmd .dmd-codebox:empty::before{content:"Nothing to show yet";color:#7a7b86}
+.dmd .dmd-small+.dmd-codebox{margin-top:8px}
+.dmd .dmd-admin-table .dmd-status{align-items:flex-start}
+.dmd .dmd-codebox s{text-decoration:none;color:#f2c97d}
+.dmd .dmd-codebox s.key{color:#9fb7ff}
+.dmd .dmd-codebox s.addr,.dmd .dmd-codebox s.hash{color:#ff9aa1}
+.dmd .dmd-codebox s a{color:inherit;text-decoration:none}
+.dmd .dmd-codebox s a:hover{text-decoration:underline}
+.dmd .dmd-codebox u{text-decoration:none;color:#ff9aa1}
+.dmd .dmd-codebox i{font-style:normal;color:#8fe0b5}
+.dmd .dmd-codebox b{font-weight:700;color:#ff5a64}
+.dmd .dmd-rpcerror{margin:0 0 10px}
+/* forms on admin pages: a field, its label and its hint on one line */
+.dmd .dmd-inline-form{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:0}
+.dmd .dmd-inline-form .dmd-input{flex:1 1 220px;width:auto;text-align:left}
+.dmd .dmd-inline-form .dmd-input.dmd-narrow{flex:0 1 140px}
+/* the flash messages (done / error) */
+.dmd .content-inner>.ui-widget{max-width:var(--page);margin:0 0 16px}
+.dmd .content-inner>.ui-widget .ui-state-highlight,.dmd .content-inner>.ui-widget .ui-state-error{border-radius:12px!important;padding:10px 14px!important;
+font:700 .95rem/1.4 var(--sans)!important;background:var(--pink)!important;border:1px solid var(--pink-line)!important;color:var(--red-brand)!important}
+.dmd .content-inner>.ui-widget .ui-state-highlight{background:var(--card)!important;border-color:var(--line)!important;border-left:4px solid var(--green)!important;color:var(--text)!important}
+
+/* A coin's settings (site/coin_form.php): jQuery UI tabs as tabs, the fields in a card */
+.dmd .dmd-coin-form #tabs{background:transparent!important;border:0!important;padding:0!important;font-family:var(--sans)!important;color:var(--body)}
+.dmd .dmd-coin-form #tabs>ul{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;padding:0!important;background:transparent!important;border:0!important;list-style:none}
+.dmd .dmd-coin-form #tabs>ul li{float:none!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;top:0!important;white-space:nowrap}
+.dmd .dmd-coin-form #tabs>ul li a{display:inline-flex!important;align-items:center;gap:8px;float:none!important;padding:9px 16px!important;border-radius:999px;
+border:1px solid var(--line);background:var(--card);color:var(--body)!important;font:700 .95rem/1.2 var(--sans)!important;text-transform:none!important;letter-spacing:0!important;text-decoration:none;cursor:pointer}
+.dmd .dmd-coin-form #tabs>ul li a svg{width:17px;height:17px;color:var(--muted)}
+.dmd .dmd-coin-form #tabs>ul li a:hover{background:var(--pink);color:var(--red-text)!important;border-color:var(--pink-line)}
+.dmd .dmd-coin-form #tabs>ul li.ui-tabs-active a,.dmd .dmd-coin-form #tabs>ul li.ui-state-active a{background:var(--red);border-color:var(--red);color:#fff!important}
+.dmd .dmd-coin-form #tabs>ul li.ui-tabs-active a svg,.dmd .dmd-coin-form #tabs>ul li.ui-state-active a svg{color:#fff}
+.dmd .dmd-coin-form .ui-tabs-panel{background:var(--card)!important;border:1px solid var(--line)!important;border-radius:18px;box-shadow:var(--shadow);padding:8px 24px!important;color:var(--body)}
+.dmd .dmd-coin-form fieldset{border:0;margin:0;padding:0;min-width:0}
+.dmd .dmd-coin-form .ctrlHolder{display:grid!important;grid-template-columns:220px minmax(0,320px) minmax(0,1fr);align-items:center;gap:6px 18px;
+width:auto!important;margin:0!important;padding:12px 0!important;border-bottom:1px solid var(--row-line);background:transparent!important;text-align:left!important;float:none!important}
+.dmd .dmd-coin-form .ctrlHolder:last-child{border-bottom:0}
+.dmd .dmd-coin-form .ctrlHolder>div[style*="clear"]{display:none}
+.dmd .dmd-coin-form .ctrlHolder label{float:none!important;width:auto!important;margin:0!important;padding:0!important;text-align:left!important;
+font:700 .95rem/1.3 var(--sans)!important;color:var(--text)!important}
+.dmd .dmd-coin-form .ctrlHolder label em{float:none!important;position:static!important;display:inline!important;width:auto!important;font-style:normal;color:var(--red-text);margin:0 4px 0 0!important}
+.dmd .dmd-coin-form .ctrlHolder input.textInput,.dmd .dmd-coin-form .ctrlHolder textarea{float:none!important;width:100%!important;margin:0!important;
+font:500 .95rem/1.3 var(--sans)!important;color:var(--text)!important;background:var(--input-bg)!important;border:1px solid var(--input-line)!important;
+border-radius:10px!important;padding:9px 12px!important;text-align:left!important;box-shadow:inset 0 1px 2px rgba(17,17,26,.04)!important}
+.dmd .dmd-coin-form .ctrlHolder textarea{min-height:120px;font-family:var(--mono)!important;font-size:.85rem!important;resize:vertical}
+.dmd .dmd-coin-form .ctrlHolder input.textInput:focus,.dmd .dmd-coin-form .ctrlHolder textarea:focus{outline:3px solid rgba(200,8,21,.18)!important;border-color:var(--red)!important}
+.dmd .dmd-coin-form .ctrlHolder input[readonly]{background:var(--grey)!important;color:var(--muted)!important;cursor:default}
+.dmd .dmd-coin-form .ctrlHolder input[type=checkbox]{justify-self:start;width:20px!important;height:20px!important;margin:0!important;accent-color:var(--red);cursor:pointer}
+.dmd .dmd-coin-form .ctrlHolder p.formHint2,.dmd .dmd-coin-form .ctrlHolder p.formHint{float:none!important;width:auto!important;margin:0!important;padding:0!important;
+font:400 .9rem/1.4 var(--sans)!important;color:var(--muted)!important;text-align:left!important}
+.dmd .dmd-coin-form .ctrlHolder.error{background:var(--pink)!important;border-radius:10px;padding-left:10px!important;padding-right:10px!important}
+.dmd .dmd-coin-form .errorField{grid-column:1/-1;margin:0;color:var(--red-text);font-size:.9rem}
+.dmd .dmd-coin-form #errorMsg,.dmd .dmd-coin-form .errorMsg{background:var(--pink);border:1px solid var(--pink-line);border-radius:12px;padding:10px 16px;margin:0 0 14px;color:var(--red-brand)}
+.dmd .dmd-coin-form #errorMsg h3{margin:0 0 6px;font:800 1rem/1.3 var(--sans);color:var(--red-brand)}
+.dmd .dmd-coin-form .buttonHolder{display:flex;justify-content:flex-end;margin:16px 0 0;padding:0;background:transparent;border:0}
+.dmd .dmd-coin-form .buttonHolder button,.dmd .dmd-coin-form #btnSubmit{display:inline-flex;align-items:center;justify-content:center;margin:0!important;
+min-width:160px;padding:12px 26px!important;border-radius:12px!important;border:1px solid var(--red)!important;background:var(--red)!important;color:#fff!important;
+font:700 1rem/1.2 var(--sans)!important;box-shadow:0 10px 22px rgba(200,8,21,.22)!important;cursor:pointer;text-shadow:none!important}
+.dmd .dmd-coin-form .buttonHolder button:hover,.dmd .dmd-coin-form #btnSubmit:hover{background:var(--red-hover)!important;border-color:var(--red-hover)!important}
+.dmd .dmd-coin-form #btnSubmit .ui-button-text{padding:0!important;font:inherit!important;line-height:inherit!important}
+.dmd .dmd-coin-form .dmd-conf p{margin:0 0 12px;color:var(--body)}
+.dmd .dmd-coin-form .dmd-conf .dmd-codebox{margin:0 0 12px}
+.dmd .dmd-coin-form .dmd-conf{padding:12px 0}
+.dmd .dmd-coin-form textarea.dmd-copy-src{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+
+/* The coin's console (site/coin_console.php) */
+.dmd .dmd-console .dmd-codebox{min-height:220px;max-height:70vh;overflow:auto}
+
+/* Block explorer (explorer/coin.php, explorer/block.php) */
+.dmd .dmd-explorer .dmd-pager{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dmd .dmd-explorer #diff_graph{min-height:180px;margin:0 -8px -10px}
+.dmd .dmd-explorer .dmd-tx td span.txid{cursor:pointer;font:600 .85rem/1.3 var(--mono);color:var(--text)}
+.dmd .dmd-explorer .dmd-tx td span.txid:hover{color:var(--red-text);text-decoration:underline}
+.dmd .dmd-explorer .dmd-tx td span.txid.dmd-found{color:var(--red-text)}
+.dmd .dmd-explorer .dmd-tx td.dmd-to{white-space:normal;min-width:260px}
+.dmd .dmd-explorer .dmd-tx td.dmd-to span{display:block;font:600 .82rem/1.5 var(--mono);color:var(--text);overflow-wrap:anywhere}
+.dmd .dmd-explorer .dmd-tx td.dmd-to small{color:var(--muted);font-family:var(--sans)}
+.dmd .dmd-explorer .dmd-tx tr.raw td{white-space:normal;padding:0 0 12px}
+.dmd .dmd-explorer .dmd-tx tr.raw:hover td{background:transparent}
+.dmd .dmd-explorer .dmd-tx tr.raw .dmd-codebox{max-height:520px;overflow:auto}
+
+@media (max-width:980px){
+.dmd .dmd-admin .dmd-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+.dmd .dmd-coin-form .ctrlHolder{grid-template-columns:180px minmax(0,1fr)}
+.dmd .dmd-coin-form .ctrlHolder p.formHint2,.dmd .dmd-coin-form .ctrlHolder p.formHint{grid-column:2}
+}
+@media (max-width:760px){
+.dmd .dmd-admin-head{align-items:flex-start}
+.dmd .dmd-admin-head h1{font-size:1.75rem}
+.dmd .dmd-admin-head h1 img{width:32px;height:32px}
+.dmd .dmd-admin-actions{width:100%}
+.dmd .dmd-tabs-label{min-width:0}
+.dmd .dmd-admin .dmd-stat b{font-size:1.3rem}
+.dmd .dmd-toolbar{align-items:stretch}
+.dmd .dmd-search{flex:1 1 100%}
+/* on a phone each row is a card (the tables of the wallet page do the same) */
+.dmd .dmd-table-card{background:transparent;border:0;box-shadow:none;padding:0}
+.dmd .dmd-table-card .dmd-card-head{padding:0 2px}
+.dmd .dmd-scroll{overflow:visible}
+.dmd .dmd-admin-table td,.dmd .dmd-admin-table th{white-space:normal}
+.dmd .dmd-admin-table td{overflow-wrap:anywhere;flex-direction:row;align-items:center;justify-content:space-between}
+.dmd .dmd-admin-table td:empty{display:none}
+.dmd .dmd-admin-table tr{display:flex;flex-direction:column}
+.dmd .dmd-admin-table td.dmd-first{order:-1;display:block;text-align:left;font-size:1.02rem}
+.dmd .dmd-admin-table td.dmd-first::before{display:none}
+.dmd .dmd-admin .dmd-kv-wide div{grid-template-columns:minmax(0,1fr)}
+.dmd .dmd-admin .dmd-kv-wide dd{text-align:left}
+.dmd .dmd-explorer .dmd-tx td.dmd-to{min-width:0}
+.dmd .dmd-explorer .dmd-tx td.dmd-to span{text-align:right}
+.dmd .dmd-explorer .dmd-tx tr.raw{padding:0;border:0;box-shadow:none;background:transparent}
+.dmd .dmd-explorer .dmd-tx tr.raw td::before{display:none}
+.dmd .dmd-coin-form .ui-tabs-panel{padding:4px 16px!important}
+.dmd .dmd-coin-form .ctrlHolder{grid-template-columns:minmax(0,1fr)}
+.dmd .dmd-coin-form .ctrlHolder p.formHint2,.dmd .dmd-coin-form .ctrlHolder p.formHint{grid-column:1}
+.dmd .dmd-coin-form .buttonHolder{justify-content:stretch}
+.dmd .dmd-coin-form .buttonHolder button,.dmd .dmd-coin-form #btnSubmit{width:100%}
+.dmd .dmd-inline-form .dmd-button{flex:1 1 auto}
+}
+.dmd .dmd-raw{margin:14px 0 0}
+.dmd .dmd-raw summary{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-weight:700;color:var(--red-text)}
+.dmd .dmd-raw .dmd-codebox{margin-top:10px;max-height:520px;overflow:auto}
+.dmd .dmd-explorer .dmd-tx td.ntx{width:36px}
+.dmd .dmd-explorer .dmd-tx th.section{padding-top:18px;color:var(--text)}
+.dmd .dmd-table a .dmd-coin{pointer-events:none}
+.dmd .dmd-table a:has(.dmd-coin){text-decoration:none}
+
+/* Wallet page: this device's notifications follow another address. Told under the address, with a
+   link to that address's page and a button to switch them here (mywallet/index.php). */
+.dmd .dmd-follow-note{display:flex;align-items:center;flex-wrap:wrap;gap:10px 12px;margin-top:14px;max-width:640px;padding:10px 12px 10px 14px;
+background:var(--card);border:1px solid var(--line);border-left:4px solid var(--red);border-radius:12px;box-shadow:var(--soft-shadow);text-align:left}
+.dmd .dmd-follow-note[hidden]{display:none}
+.dmd .dmd-follow-note>.dmd-icon{color:var(--red-text);display:grid;flex:none}
+.dmd .dmd-follow-note>.dmd-icon svg{width:20px;height:20px}
+.dmd .dmd-follow-note p{flex:1 1 230px;margin:0;color:var(--body);font-size:.92rem;line-height:1.45}
+.dmd .dmd-follow-note p a,.dmd #dmd-notify-msg a{color:var(--red-text);font-weight:700;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
+.dmd .dmd-follow-note .dmd-button{flex:none;white-space:nowrap}
+.dmd .dmd-follow-note .dmd-button svg{width:16px;height:16px}
+@media (max-width:760px){
+.dmd .dmd-follow-note{margin-left:auto;margin-right:auto}
+.dmd .dmd-follow-note .dmd-button{flex:1 1 100%;justify-content:center;white-space:normal}
+}
+
+/* Wallet page: "Forget" next to "Copy" (this browser stops remembering the address), quieter than Copy */
+.dmd .dmd-forget{display:inline-flex;align-items:center;gap:6px;flex:none;margin:0;width:auto;padding:6px 12px;border-radius:999px;
+border:1px solid var(--line);background:var(--card);color:var(--muted);font:700 .8rem/1.2 var(--sans);cursor:pointer}
+.dmd .dmd-forget:hover{background:var(--pink);border-color:var(--pink-line);color:var(--red-text)}
+.dmd .dmd-forget:disabled{opacity:.6;cursor:default}
+.dmd .dmd-forget svg{width:15px;height:15px}
+/* On a phone: Copy and Forget as round icons on the address's line. Their words stay for screen
+   readers (hidden from view only), and Copy still turns green once copied. */
+@media (max-width:760px){
+.dmd .dmd-wallet-address{flex-wrap:nowrap;gap:8px}
+.dmd .dmd-wallet-address .dmd-copy,.dmd .dmd-wallet-address .dmd-forget{position:relative;justify-content:center;width:38px;height:38px;padding:0}
+.dmd .dmd-wallet-address .dmd-copy svg,.dmd .dmd-wallet-address .dmd-forget svg{width:17px;height:17px}
+.dmd .dmd-wallet-address .dmd-copy span,.dmd .dmd-wallet-address .dmd-forget span{position:absolute;width:1px;height:1px;margin:-1px;padding:0;
+overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+}
+@media (max-width:340px){.dmd .dmd-wallet-address code{font-size:.86rem;padding:8px 10px}}
+
+/* Admin pages: "Log out" at the end of the Pool tabs */
+.dmd .dmd-admin-tabs .dmd-admin-logout{display:inline-flex;align-items:center;gap:7px;flex:none;margin:0 0 0 auto;padding:7px 13px;
+border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--body);font:700 .88rem/1.2 var(--sans);cursor:pointer;white-space:nowrap}
+.dmd .dmd-admin-tabs .dmd-admin-logout svg{width:17px;height:17px;flex:none;color:var(--muted)}
+.dmd .dmd-admin-tabs .dmd-admin-logout:hover{background:var(--pink);border-color:var(--pink-line);color:var(--red-text)}
+.dmd .dmd-admin-tabs .dmd-admin-logout:hover svg{color:inherit}
+.dmd .dmd-admin-tabs .dmd-admin-logout:disabled{opacity:.6;cursor:default}
+/* always in sight: it stays at the right edge while the tabs scroll under it (phones) */
+.dmd .dmd-admin-tabs .dmd-admin-logout{position:sticky;right:0;z-index:1;background:var(--card);box-shadow:-10px 0 10px -4px var(--card)}
+@media (max-width:760px){.dmd .dmd-admin-tabs .dmd-admin-logout{padding:7px 10px}.dmd .dmd-admin-tabs .dmd-admin-logout span{display:none}}

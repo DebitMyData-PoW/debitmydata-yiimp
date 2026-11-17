@@ -5,9 +5,12 @@ class YAAMP_REMOTE;
 class YAAMP_COIND;
 class YAAMP_COIND_AUX;
 
+// coinbase sizes: room for a coinbase paying miners directly (PPLNS, see pplns.h)
+#define YAAMP_COINBASE_HEXSIZE	(32*1024)
+
 struct YAAMP_JOB_VALUES
 {
-	char coinbase[4*1024];
+	char coinbase[YAAMP_COINBASE_HEXSIZE];
 	char merkleroot_be[1024];
 
 	char header[1024];
@@ -50,7 +53,7 @@ struct YAAMP_JOB_TEMPLATE
 	json_int_t value;
 
 	char coinb1[4*1024];
-	char coinb2[4*1024];
+	char coinb2[YAAMP_COINBASE_HEXSIZE - 4*1024 - 64];
 
 	char header[256];
 
@@ -64,7 +67,14 @@ struct YAAMP_JOB_TEMPLATE
 
 	char mweb[YAAMP_SMALLBUFSIZE];
 
+	struct PPLNS_TEMPL *pplns;	// coinbase payouts (pplns.cpp), NULL for other templates
 };
+
+void pplns_templ_free(YAAMP_JOB_TEMPLATE *templ);
+
+void build_submit_values(YAAMP_JOB_VALUES *submitvalues, YAAMP_JOB_TEMPLATE *templ,
+	const char *nonce1, const char *nonce2, const char *ntime, const char *nonce,
+	uint32_t versionbits, uint32_t versionmask, const char *coinb2);
 
 #define YAAMP_JOB_MAXSUBIDS		200
 
@@ -95,7 +105,10 @@ inline void job_delete(YAAMP_OBJECT *object)
 		job->templ->txsteps.clear();
 		job->templ->txdata.clear();
 	}
-	if (job->templ) delete job->templ;
+	if (job->templ) {
+		pplns_templ_free(job->templ);
+		delete job->templ;
+	}
 	delete job;
 }
 

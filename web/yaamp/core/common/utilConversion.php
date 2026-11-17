@@ -249,7 +249,18 @@ function Itoa($i)
 	return $s;
 }
 
-function Itoa2($i, $precision=1)
+
+
+
+
+
+
+/*****************************************************************************************************/
+
+
+
+
+function Itoa22($i, $precision=1)
 {
 	$s = '';
 	if($i >= 1000*1000*1000*1000*1000)
@@ -267,6 +278,61 @@ function Itoa2($i, $precision=1)
 
 	return $s;
 }
+
+
+function Itoa2($i, $precision=1)
+{
+	$s = '';
+	
+	if($i >= 1000*1000*1000*1000*1000) // For P (Peta)
+		$s = round(floatval($i)/1000/1000/1000/1000/1000, $precision) ." P";
+	else if($i >= 1000*1000*1000*1000) // For T (Tera)
+	{
+		// If the value is in T, always keep two decimal points if the original value was large enough to require it
+		if ($i >= 100 * 1000 * 1000 * 1000) {  // If the value is >= 100 T (would have been displayed as 3 digits)
+			$s = round(floatval($i)/1000/1000/1000/1000, 2) ." T";
+		} else {
+			$s = round(floatval($i)/1000/1000/1000/1000, $precision) ." T";
+		}
+	}
+	else if($i >= 1000*1000*1000) // For G (Giga)
+	{
+		// Convert large G values to T with two decimals
+		if ($i >= 100 * 1000 * 1000 * 1000) {  // If the value is >= 100 G (3 digits)
+			$s = round(floatval($i)/1000/1000/1000/1000, 2) ." T";
+		} else {
+			$s = round(floatval($i)/1000/1000/1000, $precision) ." G";
+		}
+	}
+	else if($i >= 1000*1000) // For M (Mega)
+	{
+		// Convert large M values to G with two decimals
+		if ($i >= 100 * 1000 * 1000) {  // If the value is >= 100 M (3 digits)
+			$s = round(floatval($i)/1000/1000/1000, 2) ." G";
+		} else {
+			$s = round(floatval($i)/1000/1000, $precision) ." M";
+		}
+	}
+	else if($i >= 1000) // For k (Kilo)
+	{
+		// Convert large K values to M with two decimals
+		if ($i >= 100 * 1000) {  // If the value is >= 100 K (3 digits)
+			$s = round(floatval($i)/1000/1000, 2) ." M";
+		} else {
+			$s = round(floatval($i)/1000, $precision) ." k";
+		}
+	}
+	else // For values below 1k
+		$s = round(floatval($i), $precision);
+
+	return $s;
+}
+
+
+
+/*****************************************************************************************************/
+
+
 
 function YesNo($b)
 {

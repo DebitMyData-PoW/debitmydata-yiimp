@@ -28,7 +28,7 @@ if (empty($json)) {
 		$n++;
 
 		$tm = $block['time'];
-		$dt = date('Y-m-d H:i:s', $tm);
+		$dt = date('Y/m/d H:i:s', $tm);
 		$diff = floatval($block['difficulty']);
 		$vers = $block['version'];
 		$algo = versionToAlgo($coin, $vers);
@@ -53,7 +53,7 @@ if (empty($json)) {
 			$diff = floatval($row['diff']);
 			if ($maxdiff && $diff > ($maxdiff*1.5)) $diff = $maxdiff*1.5;
 			$tm = $row['time'];
-			$dt = date('Y-m-d H:i:s', $tm);
+			$dt = date('Y/m/d H:i:s', $tm);
 			$series['user'][$n] = array($dt, $diff, $row['diff'], $row['height']);
 			$n++;
 		}

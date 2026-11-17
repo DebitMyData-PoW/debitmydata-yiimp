@@ -95,7 +95,7 @@ class DistcleanCommand extends CConsoleCommand
 		dborun("UPDATE balances SET balance=0");
 		dborun("DELETE FROM markets WHERE coinid NOT IN (SELECT id FROM coins)");
 		dborun("UPDATE markets SET deposit_address=NULL");
-		dborun("UPDATE coins SET master_wallet=NULL, charity_address=NULL, deposit_address=NULL,
+		dborun("UPDATE coins SET master_wallet=NULL, charity_address=NULL, charity_address2=NULL, deposit_address=NULL,
 			balance=0, rpcpasswd=NULL, rpcuser=NULL WHERE 1");
 	}
 

@@ -14,13 +14,14 @@ echo <<<end
 #graph_history_price, #graph_history_balance {
 	width: 75%; height: 300px; float: right;
 	margin-bottom: 8px;
+	background-color: rgba(0, 0, 0, 0.35);
 }
 .jqplot-title {
 	margin-bottom: 4px;
 }
 .jqplot-cursor-tooltip,
 .jqplot-highlighter-tooltip {
-	background: rgba(220,220,220, .6) !important;
+	background: rgba(0, 0, 0, 0.35) !important;
 	border: 1px solid gray;
 	padding: 2px 4px;
 	z-index: 100;
@@ -121,7 +122,7 @@ function graph_price_data(data)
 		grid: {
 			borderWidth: 1,
 			shadowWidth: 0, shadowDepth: 0,
-			background: '#f0f0f0'
+			background: 'rgba(0, 0, 0, 0.35)'
 		},
 
 		legend: {
@@ -208,7 +209,7 @@ function graph_balance_data(data)
 		grid: {
 			borderWidth: 1,
 			shadowWidth: 0, shadowDepth: 0,
-			background: '#f0f0f0'
+			background: 'rgba(0, 0, 0, 0.35)'
 		},
 
 		legend: {

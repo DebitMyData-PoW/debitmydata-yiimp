@@ -3,8 +3,8 @@
 
 .uniForm .ctrlHolder
 {
-	padding:7px;
-	border-top:1px solid #dfdfdf;
+	padding:10px;
+//	border-top:1px solid #9699A1;
 }
 
 .uniForm .resetButton{float:left}
@@ -14,7 +14,7 @@
 .uniForm .inlineLabel span{float:left;width:90%}
 .uniForm label,.uniForm .blockLabels label,.uniForm .blockLabels .label{margin:0 0 .5em}
 .uniForm .selectInput,.uniForm select,.uniForm .blockLabels .selectInput,.uniForm .blockLabels select{width:53.5%}
-.uniForm textarea,.uniForm .blockLabels textarea{width:53%;height:12em}
+.uniForm textarea,.uniForm .blockLabels textarea{width:53%;height:}
 .uniForm .formHint,.uniForm .blockLabels .formHint{width:30%;font-size:1em;color:#777;position:relative;top:-.5em}
 .uniForm .formHint2,.uniForm .blockLabels .formHint2{width:30%;font-size:1em;color:#777;position:relative;top:-.5em}
 .uniForm .multiField,.uniForm .blockLabels .multiField,.uniForm .textInput,.uniForm .blockLabels .textInput,.uniForm .blockLabels .fileUpload{width:45%}
@@ -22,10 +22,10 @@
 
 .uniForm .inlineLabels label,.uniForm .inlineLabels .label
 {
-	font-weight: bold;
+	font-weight: normal;
 	width:15%;
 	margin:.3em 2% 0 0;
-	color: #555;
+	color: #6F7177;
 }
 
 .uniForm .inlineLabels .selectInput,.uniForm .inlineLabels select,.uniForm .inlineLabels .textInput,.uniForm .inlineLabels .fileUpload
@@ -36,11 +36,11 @@
 .uniForm .inlineLabels textarea
 {
 	width:30%;
-	height:6em;
+//	height:6em;
 }
 
 .uniForm .inlineLabels .formHint{margin-top:0;margin-left:47%;font-size:1em;color:#777;position:static}
-.uniForm .inlineLabels .formHint2{margin-top:0;margin-left:0;font-size:1em;color:#777;position:static}
+.uniForm .inlineLabels .formHint2{margin-top:0;margin-left:0;font-size:1em;color:#6F7177;position:static}
 .uniForm .inlineLabels .multiField{width:30%;margin:0 0 .3em}
 .uniForm .inlineLabels .multiField .inlineLabel,.uniForm .multiField .inlineLabel,.uniForm .blockLabels .multiField .inlineLabel{display:block;margin:0 0 .5em}
 .uniForm .inlineLabels .multiField .blockLabel{float:left;width:26%;margin:0 3% 0 0}
@@ -61,12 +61,12 @@
 .uniForm #OKMsg p{margin:0}
 .uniForm{margin-top:1.5em}
 .uniForm .multiField,.uniForm .blockLabels .multiField{width:60%}
-.uniForm .formHint,.uniForm .blockLabels .formHint{width:35%;margin-top:.3em}
-.uniForm .formHint2,.uniForm .blockLabels .formHint2{width:35%;margin-top:.3em}
+.uniForm .formHint,.uniForm .blockLabels .formHint{width: ;margin-top:.3em}
+.uniForm .formHint2,.uniForm .blockLabels .formHint2{width: ;margin-top:.3em}
 
 /*.uniForm .textInput,.uniForm select,.uniForm textarea
 {
-	border:2px solid #dfdfdf;
+	border:1px solid #9699A1;
 	background:#fff;
 	color: #555;
 }*/
@@ -84,7 +84,8 @@
 	padding:10px 10px 10px 0;
 	font-size:120%;
 	margin-top: 1em;
-	border-top:1px solid #dfdfdf;
+	border-top:1px solid #9699A1;
+	border-radius: 5px;
 }
 
 .uniForm .inlineLabels .ctrlHolder .multiField.phoneNum .blockLabel{width:auto}

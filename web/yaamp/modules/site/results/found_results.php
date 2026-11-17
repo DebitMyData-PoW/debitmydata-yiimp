@@ -1,140 +1,102 @@
 <?php
+/*
+ * The latest blocks the pool found (home page, refreshed every 30 seconds): block, when, shared or
+ * solo, reward, and how far the block is from maturity. Each block links to its transaction in the
+ * explorer.
+ */
 
-function WriteBoxHeader($title)
-{
-	echo "<div class='main-left-box'>";
-	echo "<div class='main-left-title'>$title</div>";
-	echo "<div class='main-left-inner'>";
-}
-
-$showrental = (bool) YAAMP_RENTAL;
-
-$algo_from_query_param = getparam('algo');
- if($algo_from_query_param) {
-	// Query param is set
-	if($algo_from_query_param != 'all') {
-		$r_algo = array_map('trim', explode(',', $algo_from_query_param));
-		$r_algo = preg_replace('/[^A-Za-z0-9\-]/', '', $r_algo);
-	}
- } else {
-	// Filter out algo from user's preferences
-	$algo_from_user_pref = user()->getState('yaamp-algo');
-	if($algo_from_user_pref != 'all') {
-		$r_algo = array($algo_from_user_pref);
-	}
-}
+// The pool shows maturity as "confirmations/251", as it always has.
+$maturity = 251;
 
 $count = getparam('count');
-$count = $count? $count: 50;
-
-$algo_header = isset($r_algo) ? implode(',', $r_algo) : 'any algo';
-WriteBoxHeader("Last $count Blocks ($algo_header)");
+$count = $count ? (int) $count : 5;
 
 $criteria = new CDbCriteria();
 $criteria->condition = "t.category NOT IN ('stake','generated')";
-$criteria->condition .= " AND IFNULL(coin.visible,1)=1"; // ifnull for rental
-if(isset($r_algo)) {
-	$criteria->addInCondition('t.algo', $r_algo);
-}
+$criteria->condition .= " AND IFNULL(coin.visible,1)=1";
+$criteria->addCondition('coin.id != 179');
+$criteria->addCondition('coin.id != 182');
 $criteria->limit = $count;
 $criteria->order = 't.time DESC';
 $db_blocks = getdbolistWith('db_blocks', 'coin', $criteria);
 
-echo <<<EOT
-
-<style type="text/css">
-span.block { padding: 2px; display: inline-block; text-align: center; min-width: 75px; border-radius: 3px; }
-span.block.new       { color: white; background-color: #ad4ef0; }
-span.block.orphan    { color: white; background-color: #d9534f; }
-span.block.immature  { color: white; background-color: #f0ad4e; }
-span.block.confirmed { color: white; background-color: #5cb85c; }
-b.row a { font-size: 10pt; }
-.ssrow td.row { font-size: .8em; }
-td.right { text-align: right; }
-</style>
-
-<table class="dataGrid2">
-<thead>
-<tr>
-<td></td>
-<th>Name</th>
-<th align="right">Amount</th>
-<th align="right">Difficulty</th>
-<th align="right">Block</th>
-<th align="right">Time</th>
-<th align="right">Status</th>
-</tr>
-</thead>
-EOT;
-
-foreach($db_blocks as $db_block)
-{
-	$d = datetoa2($db_block->time);
-	if(!$db_block->coin_id)
-	{
-		if (!$showrental)
-			continue;
-
-		$reward = bitcoinvaluetoa($db_block->amount);
-
-		echo '<tr class="ssrow">';
-		echo '<td width="18px"><img width="16px" src="/images/btc.png"/></td>';
-		echo '<td class="row"><b>Rental</b> ('.$db_block->algo.')</td>';
-		echo '<td class="row right"><b>'.$reward.' BTC</b></td>';
-		echo '<td class="row right"></td>';
-		echo '<td class="row right"></td>';
-		echo '<td class="row right">'.$d.' ago</td>';
-		echo '<td class="row right">';
-		echo '<span class="block confirmed">Confirmed</span>';
-		echo '</td>';
-		echo '</tr>';
-
-		continue;
-	}
-
-	$reward = round($db_block->amount, 3);
-	$coin = $db_block->coin ? $db_block->coin : getdbo('db_coins', $db_block->coin_id);
-	$difficulty = Itoa2($db_block->difficulty, 3);
-	$height = number_format($db_block->height, 0, '.', ' ');
-
-	$link = $coin->createExplorerLink($coin->name, array('hash'=>$db_block->blockhash));
-
-	$flags = $db_block->segwit ? '&nbsp;<img src="/images/ui/segwit.png" height="8px" valign="center" title="segwit"/>' : '';
-
-	echo '<tr class="ssrow">';
-	echo '<td width="18px"><img width="16px" src="'.$coin->image.'"></td>';
-	echo '<td class="row"><b class="row">'.$link.'</b> ('.$db_block->algo.')'.$flags.'</td>';
-	echo '<td class="row right"><b>'.$reward.' '.$coin->symbol_show.'</b></td>';
-	echo '<td class="row right" title="found '.$db_block->difficulty_user.'">'.$difficulty.'</td>';
-	echo '<td class="row right">'.$height.'</td>';
-	echo '<td class="row right">'.$d.' ago</td>';
-	echo '<td class="row right">';
-
-	if($db_block->category == 'orphan')
-		echo '<span class="block orphan">Orphan</span>';
-
-	else if($db_block->category == 'immature') {
-		$eta = '';
-		if ($coin->block_time && $coin->mature_blocks) {
-			$t = (int) ($coin->mature_blocks - $db_block->confirmations) * $coin->block_time;
-			$eta = "ETA: ".sprintf('%dh %02dmn', ($t/3600), ($t/60)%60);
-		}
-		echo '<span class="block immature" title="'.$eta.'">Immature ('.$db_block->confirmations.')</span>';
-	}
-	else if($db_block->category == 'generate')
-		echo '<span class="block confirmed">Confirmed</span>';
-
-	else if($db_block->category == 'new')
-		echo '<span class="block new">New</span>';
-
-	echo "</td>";
-	echo "</tr>";
+// Shared (PPLNS, PROP) or solo, from what each block paid (yaamp_block_kinds)
+$kinds = array();
+$hashes = array();
+foreach ($db_blocks as $db_block) {
+    if ($db_block->coin_id && !empty($db_block->blockhash)) $hashes[$db_block->coin_id][] = $db_block->blockhash;
+}
+foreach ($hashes as $coinid => $list) {
+    $kinds += yaamp_block_kinds($coinid, $list);
 }
 
-echo "</table>";
+$cube = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>';
 
-echo "<br></div></div><br>";
+$rows = '';
+foreach ($db_blocks as $db_block) {
+    if (!$db_block->coin_id) {
+        continue;    // rentals: not used on this pool
+    }
+    $coin = $db_block->coin ? $db_block->coin : getdbo('db_coins', $db_block->coin_id);
+    if (!$coin) {
+        continue;
+    }
 
+    $url = '';
+    if (!empty($coin->link_explorer) && !empty($db_block->txhash)) {
+        $url = CHtml::encode(rtrim($coin->link_explorer, '/') . '/tx/' . $db_block->txhash);
+    }
+    $height = number_format($db_block->height);
+    $block = $url
+        ? "<a class=\"dmd-height\" href=\"$url\" target=\"_blank\" rel=\"noopener\" title=\"Open in the explorer\"><span class=\"dmd-cube\">$cube</span>$height</a>"
+        : "<span class=\"dmd-height\"><span class=\"dmd-cube\">$cube</span>$height</span>";
 
+    $reward = $db_block->amount > 0
+        ? '<span class="dmd-reward">' . number_format($db_block->amount) . ' <small>' . CHtml::encode($coin->symbol) . '</small></span>'
+        : '—';
 
+    $kind = isset($kinds[$db_block->blockhash]) ? $kinds[$db_block->blockhash] : 'prop';
+    if ($kind == 'solo') {
+        $type = '<span class="dmd-badge solo" title="Found by a solo miner and paid to its address in the block">Solo</span>';
+    } else {
+        $title = $kind == 'pplns' ? 'Shared by the pool\'s miners (PPLNS)' : 'Shared by the pool\'s miners';
+        $type = '<span class="dmd-badge pool" title="' . $title . '">Shared</span>';
+    }
 
+    $confirm = (int) $db_block->confirmations;
+    switch ($db_block->category) {
+        case 'immature':
+            $percent = max(2, min(100, round($confirm * 100 / $maturity)));
+            $eta = '';
+            if ($coin->block_time && $coin->mature_blocks) {
+                $t = max(0, (int) ($coin->mature_blocks - $confirm) * $coin->block_time);
+                $eta = sprintf(' · about %dh %02dmin left', intdiv($t, 3600), intdiv($t, 60) % 60);
+            }
+            $status = "<span class=\"dmd-status\" title=\"Confirming$eta\">$confirm/$maturity"
+                . "<span class=\"dmd-bar\" aria-hidden=\"true\"><i style=\"width:$percent%\"></i></span></span>";
+            break;
+        case 'generate':
+            $status = '<span class="dmd-badge done">Confirmed</span>';
+            break;
+        case 'orphan':
+            $status = '<span class="dmd-badge orphan">Orphaned</span>';
+            break;
+        case 'new':
+            $status = '<span class="dmd-badge new">New</span>';
+            break;
+        default:
+            $status = '<span class="dmd-badge orphan">' . CHtml::encode(ucfirst($db_block->category)) . '</span>';
+    }
+
+    $rows .= '<tr><td>' . $block . '</td><td>' . datetoa2($db_block->time) . ' ago</td><td>' . $type . '</td>'
+        . '<td class="r dmd-hide-phone">' . $reward . '</td><td class="r">' . $status . '</td></tr>';
+}
+
+if ($rows === '') {
+    echo '<p class="dmd-empty">No blocks found yet.</p>';
+    return;
+}
+
+echo '<table class="dmd-blocks-table"><thead><tr><th scope="col">Block</th><th scope="col">Found</th><th scope="col">Type</th>'
+    . '<th scope="col" class="r dmd-hide-phone">Reward</th><th scope="col" class="r">Status</th></tr></thead><tbody>'
+    . $rows . '</tbody></table>';

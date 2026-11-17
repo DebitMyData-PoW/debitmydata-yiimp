@@ -66,7 +66,7 @@
     
     // called with scope of series.
     $.jqplot.MekkoRenderer.prototype.init = function(options, plot) {
-        this.fill = false;
+        this.fill = true;
         this.fillRect = true;
         this.strokeRect = true;
         this.shadow = false;

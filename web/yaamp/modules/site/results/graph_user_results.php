@@ -1,6 +1,6 @@
 <?php
 
-$percent = 16;
+$percent = 20;
 
 $user = getuserparam(getparam('address'));
 if(!$user) return;
@@ -11,7 +11,7 @@ if(empty($algo)) $algo = user()->getState('yaamp-algo');
 $target = yaamp_hashrate_constant($algo);
 
 $step = 15*60;
-$t = time() - 24*60*60;
+$t = time() - 12*60*60;
 
 $stats = getdbolist('db_hashuser', "time>$t and algo=:algo and userid=$user->id order by time", array(':algo'=>$algo));
 $averages = array();
@@ -25,17 +25,17 @@ for($i = $t+$step, $j = 0; $i < time(); $i += $step)
 
 	if($i + $step >= time())
 	{
-		$m = round(yaamp_user_rate($user->id, $algo)/1000000, 3);
+		$m = round(yaamp_user_rate($user->id, $algo)/1, 3);
 	//	debuglog("last $m");
 	}
 
 	else if(isset($stats[$j]) && $i > $stats[$j]->time)
 	{
-		$m = round($stats[$j]->hashrate/1000000, 3);
+		$m = round($stats[$j]->hashrate/1, 3);
 		$j++;
 	}
 
-	$d = date('Y-m-d H:i:s', $i);
+	$d = date('Y/m/d H:i:s', $i);
 	echo "[\"$d\",$m]";
 
 	$averages[] = array($d, $m);
@@ -63,17 +63,17 @@ for($i = $t+$step, $j = 0; $i < time(); $i += $step)
 
 	if($i + $step >= time())
 	{
-		$m = round(yaamp_user_rate_bad($user->id, $algo)/1000000, 3);
+		$m = round(yaamp_user_rate_bad($user->id, $algo)/1, 3);
 	//	debuglog("last $m");
 	}
 
 	else if(isset($stats[$j]) && $i > $stats[$j]->time)
 	{
-		$m = round($stats[$j]->hashrate_bad/1000000, 3);
+		$m = round($stats[$j]->hashrate_bad/1, 3);
 		$j++;
 	}
 
-	$d = date('Y-m-d H:i:s', $i);
+	$d = date('Y/m/d H:i:s', $i);
 	echo "[\"$d\",$m]";
 }
 

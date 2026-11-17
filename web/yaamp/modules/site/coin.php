@@ -1,4 +1,9 @@
 <?php
+/*
+ * Admin: a coin's wallet (/site/coin?id=): what the pool owns and owes in this coin, the wallet's
+ * figures and its latest transactions (site/coin_results.php, refreshed every 30 seconds), and
+ * "Send payouts" (pays the balances that are due now).
+ */
 
 $id = getiparam('id');
 $coin = getdbo('db_coins', $id);
@@ -6,7 +11,7 @@ if (!$coin) {
 	$this->goback();
 }
 
-$this->pageTitle = 'Wallet - '.$coin->symbol;
+$this->pageTitle = 'Wallet - '.(is_string($coin->symbol) ? $coin->symbol : '[INVALID SYMBOL]');
 
 // force a refresh after 10mn to prevent memory leaks in chrome
 app()->clientScript->registerMetaTag('600', null, 'refresh');
@@ -18,71 +23,22 @@ $remote = new WalletRPC($coin);
 $info = $remote->getinfo();
 
 $sellamount = $coin->balance;
-//if ($info) $sellamount = floatval($sellamount) - arraySafeVal($info, "paytxfee") * 3;
-
-echo getAdminSideBarLinks().'<br/><br/>';
-echo getAdminWalletLinks($coin, $info, 'wallet');
 
 $maxrows = arraySafeVal($_REQUEST,'rows', 500);
 $since = arraySafeVal($_REQUEST,'since', time() - (7*24*3600)); // one week
-
-echo '<div id="main_actions">';
+$since2 = arraySafeVal($_REQUEST,'since', time() - (2*60*60)); // 2 hours
 
 app()->clientScript->registerCoreScript('jquery.ui'); // dialog
 
-/* 
-echo "<br><a href='/site/makeconfigfile?id=$coin->id'><b>MAKE CONFIG & START</b></a>";
+$payout = '<a class="dmd-button" href="/site/payuserscoin?id='.$coin->id.'" '
+	.'onclick="return confirm(\'Send the payouts that are due now?\');">'.dmd_admin_icon('send').'Send payouts</a>';
 
-if($info)
-{
-	echo "<br><a href='/site/restartcoin?id=$coin->id'><b>RESTART COIND</b></a>";
-	echo "<br><a href='/site/stopcoin?id=$coin->id'><b>STOP COIND</b></a>";
+echo '<div class="dmd-admin">';
+dmd_admin_head(CHtml::encode($coin->name).' <small>wallet</small>', $coin, $info ? $info : false, $payout);
 
-	if(isset($info['balance']) && $info['balance'] && !empty($coin->deposit_address))
-		echo "<br><a href='javascript:showSellAmountDialog()'><b>SEND BALANCE TO</b></a> - $coin->deposit_address";
-}
-else
-{
-	echo "<br><a href='/site/startcoin?id=$coin->id'><b>START COIND</b></a>";
-	echo "<br><br><a href='/site/resetblockchain?id=$coin->id'><b>RESET BLOCKCHAIN</b></a>";
-
-	if($coin->installed)
-		echo "<br><a href='javascript:uninstall_coin();'><b>UNINSTALL COIN</b></a><br>";
-}
-
-*/
 echo <<<END
-
-<br/><a class="red" href="/site/deleteearnings?id={$coin->id}"><b>DELETE EARNINGS</b></a>
-<br/><a href="/site/clearearnings?id={$coin->id}"><b>CLEAR EARNINGS</b></a>
-<br/><a href="/site/checkblocks?id={$coin->id}"><b>UPDATE BLOCKS</b></a>
-<br/><a href="/site/payuserscoin?id={$coin->id}"><b>DO PAYMENTS</b></a>
-<br/>
+<div id="main_results"><div class="dmd-card dmd-empty">Loading the wallet...</div></div>
 </div>
-
-<style type="text/css">
-table.dataGrid a.red, table.dataGrid a.red:visited, a.red { color: darkred; }
-div#main_actions {
-	position: absolute; top: 60px; right: 16px; width: 280px; text-align: right;
-}
-div#markets {
-	overflow-x: hidden; overflow-y: scroll; max-height: 156px;
-}
-div#transactions {
-	overflow-x: hidden; overflow-y: scroll; min-height: 200px; max-height: 360px;
-	margin-bottom: 8px;
-}
-div#sums {
-	overflow-x: hidden; overflow-y: scroll; min-height: 250px; max-height: 600px;
-	width: 380px; float: left; margin-top: 16px; margin-bottom: 8px; margin-right: 16px;
-}
-.page .footer { clear: both; width: auto; margin-top: 16px; }
-tr.ssrow.bestmarket { background-color: #dfd; }
-tr.ssrow.disabled { background-color: #fdd; color: darkred; }
-tr.ssrow.orphan { color: darkred; }
-</style>
-
-<div id="main_results"></div>
 
 <script type="text/javascript">
 
@@ -99,7 +55,7 @@ var main_timeout;
 
 function main_refresh()
 {
-	var url = "/site/coin_results?id={$id}&rows={$maxrows}&since={$since}";
+	var url = "/site/coin_results?id={$coin->id}&rows={$maxrows}&since={$since2}";
 
 	clearTimeout(main_timeout);
 	$.get(url, '', main_ready).error(main_error);
@@ -122,11 +78,11 @@ function showSellAmountDialog(marketname, address, marketid, bookmarkid)
 	$("#dlgaddr").html(address);
 	$("#sell-amount-dialog").dialog(
 	{
-    	autoOpen: true,
+		autoOpen: true,
 		width: 400,
 		height: 240,
 		modal: true,
-		title: 'Send $coin->symbol to '+marketname,
+		title: 'Send {$coin->symbol} to '+marketname,
 
 		buttons:
 		{
@@ -146,10 +102,8 @@ function showSellAmountDialog(marketname, address, marketid, bookmarkid)
 </script>
 
 <div id="sell-amount-dialog" style="display: none;">
-<br>
-Address: <span id="dlgaddr">xxxxxxxxxxxx</span><br><br>
-Amount: <input type=text id="input_sell_amount" value="$sellamount">
-<br>
+<p>Address: <code id="dlgaddr">xxxxxxxxxxxx</code></p>
+<p><label>Amount <input type="text" id="input_sell_amount" class="dmd-input" value="$sellamount"></label></p>
 </div>
 
 END;
@@ -160,5 +114,3 @@ if ($coin->watch) {
 	$this->renderPartial('coin_market_graph', array('coin'=>$coin));
 	JavascriptReady("$(window).resize(graph_resized);");
 }
-
-//////////////////////////////////////////////////////////////////////////////////////

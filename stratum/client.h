@@ -100,6 +100,17 @@ public:
 
 	int donation;
 	int broadcast_timeouts;
+
+	// ASIC handshake and difficulty (BIP310 mining.configure, mining.suggest_difficulty)
+	uint32_t version_mask;		// version-rolling mask agreed with the miner, 0 if none
+	double difficulty_floor;	// the miner asked not to go below this
+	double difficulty_prev;		// difficulty before the last change
+	int diff_change_jobid;		// last job sent with difficulty_prev
+
+	// coinbase payouts (pplns.cpp)
+	bool solo;			// m=solo: paid the whole block it finds
+	bool pplns_nofees;
+	int pplns_donation;
 };
 
 inline void client_delete(YAAMP_OBJECT *object)
@@ -138,6 +149,7 @@ int client_send_difficulty(YAAMP_CLIENT *client, double difficulty);
 double client_normalize_difficulty(double difficulty);
 
 void client_change_difficulty(YAAMP_CLIENT *client, double difficulty);
+double client_job_difficulty(YAAMP_CLIENT *client, int jobid);
 void client_record_difficulty(YAAMP_CLIENT *client);
 void client_adjust_difficulty(YAAMP_CLIENT *client);
 

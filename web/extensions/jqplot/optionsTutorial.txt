@@ -197,7 +197,7 @@ as specify the color of the trend line you could do:
 >         constrainTo: 'x'
 >     },
 >     trendline: {
->         color: '#cccccc'
+>         color: '#b1b1b1'
 >     }
 > }]
 
@@ -210,7 +210,7 @@ and wanted to turn off dragging and trend lines on the second series, you could 
 >         constrainTo: 'x'
 >     },
 >     trendline: {
->         color: '#cccccc'
+>         color: '#b1b1b1'
 >     }
 > }, {
 >    isDragable: false,

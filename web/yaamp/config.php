@@ -25,8 +25,11 @@ return array(
 			'caseSensitive'=>true,
 			'rules'=>array(
 				// prevent /explorer/id/<num>/p1/v1/... -> /explorer/<num>?params...
-				'/explorer/<id:\d+>' => array('/explorer', 'urlFormat'=>'get'),
-				'explorer/<id:\d+>' => array('explorer', 'urlFormat'=>'get'),
+				// '/explorer/<id:\d+>' => array('/explorer', 'urlFormat'=>'get'),
+				// 'explorer/<id:\d+>' => array('explorer', 'urlFormat'=>'get'),
+				//'miners' => 'site/miners',
+				'mywallet' => 'mywallet/index',
+        			'mywallet/<address:[\w-]+>' => 'mywallet/index', // This handles /mywallet/<address>
 			),
 		),
 
@@ -49,7 +52,7 @@ return array(
 		),
 
 		'user'=>array(
-			'allowAutoLogin'=>true,
+			'allowAutoLogin'=>false,
 			'loginUrl'=>array('site/login'),
 		),
 

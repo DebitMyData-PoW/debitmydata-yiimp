@@ -1,19 +1,25 @@
 <?php
+/*
+ * Admin: a coin wallet's console (/site/console?id=): send one RPC command to the wallet and read
+ * its answer. Addresses and hashes in the answer become links after 2 seconds.
+ */
 
 if (!$coin) $this->goback();
+
 $this->pageTitle = 'Console - '.$coin->symbol;
 
 $remote = new WalletRPC($coin);
 
-echo getAdminSideBarLinks().'<br/><br/>';
-
 $info = $remote->getinfo();
+
+echo '<div class="dmd-admin dmd-console">';
+dmd_admin_head(CHtml::encode($coin->name).' <small>console</small>', $coin, $info ? $info : false);
+
 if (!$info) {
-	echo $remote->error;
+	echo '<p class="dmd-alert">The wallet does not answer: '.CHtml::encode($remote->error).'</p>';
+	echo '</div>';
 	return;
 }
-
-echo getAdminWalletLinks($coin, $info, 'console').'<br/><br/>';
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -53,11 +59,13 @@ function colorizeJson($json)
 		$sfx = $matches[2][$n];
 		$json = str_replace(' '.$m.$sfx, ' <i>'.$m.'</i>'.$sfx, $json);
 	}
+
 	$json = preg_replace('#\[\s+\]#', '[]', $json);
 	$json = str_replace('[', '<b>[</b>', $json);
 	$json = str_replace(']', '<b>]</b>', $json);
 	$json = str_replace('{', '<b>{</b>', $json);
 	$json = str_replace('}', '<b>}</b>', $json);
+
 	return $json;
 }
 
@@ -67,11 +75,6 @@ $last_query = htmlentities(trim($query));
 
 echo <<<end
 <script type="text/javascript">
-function main_resize() {
-	var w = 0 + jQuery('div.form').width();
-	var wpx = (w - 100).toString() + 'px';
-	jQuery('.main-text-input').css({width: wpx});
-}
 
 var lazyLinks;
 function main_json_links() {
@@ -89,32 +92,17 @@ function main_json_links() {
 		el.html(link);
 	});
 }
+
 </script>
 
-<style type="text/css">
-div.form { margin-right: 8px; }
-div.rpcerror, div.terminal {
-	white-space: pre; font-family: monospace; unicode-bidi: embed; padding: 4px;
-	overflow-x: hidden;
-}
-div.rpcerror { color: darkred; background: transparent; margin-top: 0; margin-bottom: -8px; }
-div.terminal { color: silver; background: black; min-height: 180px; margin-left: 0; margin-right: 8px; margin-bottom: 8px; margin-top: 8px; }
-.terminal s { text-decoration: none; color: #ffffcf; }
-.terminal s.key { color: #ffff7f; }
-.terminal s a { color: #ffffcf; text-decoration: none; }
-.terminal s a:hover { text-decoration: underline; }
-.terminal u { text-decoration: none; color: #ff7f7f; }
-.terminal i { font-style: normal; color: #ff7fff; }
-.terminal b { font-style: normal; color: #ff3f3f; }
-.page .footer { width: auto; }
-</style>
-
-<div class="form">
-<form action="/site/console?id={$coin->id}" method="post" style="padding: 0px;">
-<input class="main-text-input" value="{$last_query}" type="text" name="query" placeholder="Query" style="width: 50%; margin-right: 4px;">
-<input class="main-submit-button" type="submit" value="Execute" style="width: 80px;">
+<section class="dmd-card">
+<div class="dmd-card-head"><h2>Command</h2><span class="dmd-small">For example: getblockchaininfo, getpeerinfo, help</span></div>
+<form class="dmd-inline-form" action="/site/console?id={$coin->id}" method="post">
+<label class="visually-hidden" for="dmd-query">Command</label>
+<input id="dmd-query" class="dmd-input" value="{$last_query}" type="text" name="query" placeholder="Query" autocomplete="off" spellcheck="false">
+<button class="dmd-button" type="submit">Execute</button>
 </form>
-</div>
+</section>
 end;
 
 $result = '';
@@ -126,18 +114,21 @@ if (!empty($query)) {
 	debuglog("{$coin->symbol} CONSOLE {$query}");
 }
 
+echo '<section class="dmd-card">';
+echo '<div class="dmd-card-head"><h2>Answer</h2></div>';
+
 if (!empty($remote->error) && $remote->error != $result) {
 	$err = $remote->error;
-	echo '<div class="rpcerror">';
+	echo '<p class="dmd-alert dmd-rpcerror">';
 	echo is_string($err) ? htmlentities($err) : htmlentities(json_encode($err, 128));
-	echo '</div>';
+	echo '</p>';
 }
 
-echo '<div class="terminal">';
+echo '<div class="dmd-codebox terminal">';
 echo is_string($result) ? htmlentities($result) : colorizeJson(htmlentities(json_encode($result, 128)));
 echo '</div>';
+echo '</section>';
+echo '</div>';
 
-JavascriptReady("main_resize(); $(window).resize(main_resize); $('.main-text-input:first').focus();");
-
+JavascriptReady("$('#dmd-query').focus();");
 JavascriptReady("lazyLinks = setTimeout(main_json_links, 2000);");
-

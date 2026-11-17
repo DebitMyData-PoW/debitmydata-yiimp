@@ -12,28 +12,30 @@ int job_get_jobid()
 	return jobid;
 }
 
-static void job_mining_notify_buffer(YAAMP_JOB *job, char *buffer)
+// client: a solo miner gets its own coinbase (NULL: the pool's)
+static void job_mining_notify_buffer(YAAMP_JOB *job, YAAMP_CLIENT *client, char *buffer)
 {
 	YAAMP_JOB_TEMPLATE *templ = job->templ;
+	const char *coinb2 = job->coind? pplns_coinb2(templ, client): templ->coinb2;
 
 	if (!strcmp(g_stratum_algo, "lbry")) {
 		sprintf(buffer, "{\"id\":null,\"method\":\"mining.notify\",\"params\":["
 			"\"%x\",\"%s\",\"%s\",\"%s\",\"%s\",[%s],\"%s\",\"%s\",\"%s\",true]}\n",
-			job->id, templ->prevhash_be, templ->claim_be, templ->coinb1, templ->coinb2,
+			job->id, templ->prevhash_be, templ->claim_be, templ->coinb1, coinb2,
 			templ->txmerkles, templ->version, templ->nbits, templ->ntime);
 		return;
 	} else if (strlen(templ->extradata_hex) == 128) {
 		// LUX smart contract state hashes (like lbry extra field, here the 2 root hashes in one)
 		sprintf(buffer, "{\"id\":null,\"method\":\"mining.notify\",\"params\":["
 			"\"%x\",\"%s\",\"%s\",\"%s\",\"%s\",[%s],\"%s\",\"%s\",\"%s\",true]}\n",
-			job->id, templ->prevhash_be, templ->extradata_be, templ->coinb1, templ->coinb2,
+			job->id, templ->prevhash_be, templ->extradata_be, templ->coinb1, coinb2,
 			templ->txmerkles, templ->version, templ->nbits, templ->ntime);
 		return;
 	}
 
 	// standard stratum
 	sprintf(buffer, "{\"id\":null,\"method\":\"mining.notify\",\"params\":[\"%x\",\"%s\",\"%s\",\"%s\",[%s],\"%s\",\"%s\",\"%s\",true]}\n",
-		job->id, templ->prevhash_be, templ->coinb1, templ->coinb2, templ->txmerkles, templ->version, templ->nbits, templ->ntime);
+		job->id, templ->prevhash_be, templ->coinb1, coinb2, templ->txmerkles, templ->version, templ->nbits, templ->ntime);
 }
 
 static YAAMP_JOB *job_get_last(int coinid)
@@ -71,7 +73,7 @@ void job_send_last(YAAMP_CLIENT *client)
 	client->jobid_sent = job->id;
 
 	char buffer[YAAMP_SMALLBUFSIZE];
-	job_mining_notify_buffer(job, buffer);
+	job_mining_notify_buffer(job, client, buffer);
 
 	socket_send_raw(client->sock, buffer, strlen(buffer));
 }
@@ -86,7 +88,7 @@ void job_send_jobid(YAAMP_CLIENT *client, int jobid)
 	}
 
 	char buffer[YAAMP_SMALLBUFSIZE];
-	job_mining_notify_buffer(job, buffer);
+	job_mining_notify_buffer(job, client, buffer);
 
 	YAAMP_JOB_TEMPLATE *templ = job->templ;
 	client->jobid_sent = job->id;
@@ -108,7 +110,9 @@ void job_broadcast(YAAMP_JOB *job)
 	YAAMP_JOB_TEMPLATE *templ = job->templ;
 
 	char buffer[YAAMP_SMALLBUFSIZE];
-	job_mining_notify_buffer(job, buffer);
+	job_mining_notify_buffer(job, NULL, buffer);
+
+	char *solo_buffer = NULL;	// solo miners get their own coinbase
 
 	g_list_client.Enter();
 	for(CLI li = g_list_client.first; li; li = li->next)
@@ -121,14 +125,24 @@ void job_broadcast(YAAMP_JOB *job)
 		if(client->jobid_next != job->id) continue;
 		if(client->jobid_sent == job->id) continue;
 
+		// difficulty first: the jobs sent before keep the old one (client_job_difficulty)
+		client_adjust_difficulty(client);
+
 		client->jobid_sent = job->id;
 		client_add_job_history(client, job->id);
 
-		client_adjust_difficulty(client);
-
 		setsockopt(client->sock->sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
 
-		if (socket_send_raw(client->sock, buffer, strlen(buffer)) == -1) {
+		const char *notify = buffer;
+		if(client->solo && job->coind) {
+			if(!solo_buffer) solo_buffer = (char *) malloc(YAAMP_SMALLBUFSIZE);
+			if(solo_buffer) {
+				job_mining_notify_buffer(job, client, solo_buffer);
+				notify = solo_buffer;
+			}
+		}
+
+		if (socket_send_raw(client->sock, notify, strlen(notify)) == -1) {
 			int err = errno;
 			client->broadcast_timeouts++;
 			// too much timeouts, disconnect him
@@ -147,6 +161,7 @@ void job_broadcast(YAAMP_JOB *job)
 	}
 
 	g_list_client.Leave();
+	free(solo_buffer);
 	g_last_broadcasted = time(NULL);
 
 	int s2 = current_timestamp_dms();

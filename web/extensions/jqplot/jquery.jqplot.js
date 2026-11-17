@@ -351,7 +351,7 @@
         errorFontWeight: '',
         catchErrors: false,
         defaultTickFormatString: "%.1f",
-        defaultColors: [ "#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc", "#c747a3", "#cddf54", "#FBD178", "#26B4E3", "#bd70c7"],
+        defaultColors: [ "#EAB102", "#FFC617", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc", "#c747a3", "#cddf54", "#FBD178", "#26B4E3", "#bd70c7"],
         defaultNegativeColors: [ "#498991", "#C08840", "#9F9274", "#546D61", "#646C4A", "#6F6621", "#6E3F5F", "#4F64B0", "#A89050", "#C45923", "#187399", "#945381", "#959E5C", "#C7AF7B", "#478396", "#907294"],
         dashLength: 4,
         gapLength: 4,
@@ -1158,6 +1158,7 @@
         // >    ]
         // > }
 
+
         // prop: show
         // whether or not to draw the series.
         this.show = true;
@@ -1207,7 +1208,7 @@
         // [draw, skip, draw, skip, ...] such as [1, 10] to draw a dotted line, 
         // [1, 10, 20, 10] to draw a dot-dash line, and so on.
         this.linePattern = 'solid';
-        this.shadow = true;
+        this.shadow = false;
         // prop: shadowAngle
         // Shadow angle in degrees
         this.shadowAngle = 45;
@@ -1216,10 +1217,10 @@
         this.shadowOffset = 1.25;
         // prop: shadowDepth
         // Number of times shadow is stroked, each stroke offset shadowOffset from the last.
-        this.shadowDepth = 3;
+        this.shadowDepth = 30;
         // prop: shadowAlpha
         // Alpha channel transparency of shadow.  0 = transparent.
-        this.shadowAlpha = '0.1';
+        this.shadowAlpha = '0.01';
         // prop: breakOnNull
         // Wether line segments should be be broken at null value.
         // False will join point on either side of line.
@@ -1244,14 +1245,15 @@
         // prop: fill
         // true or false, whether to fill under lines or in bars.
         // May not be implemented in all renderers.
-        this.fill = false;
+        this.fill = true;
         // prop: fillColor
         // CSS color spec to use for fill under line.  Defaults to line color.
-        this.fillColor;
+    //    this.strokeColor = '#FF0000';
+        this.fillColor = '#FFFFFF';
         // prop: fillAlpha
         // Alpha transparency to apply to the fill under the line.
         // Use this to adjust alpha separate from fill color.
-        this.fillAlpha;
+        this.fillAlpha = 0.25;
         // prop: fillAndStroke
         // If true will stroke the line (with color this.color) as well as fill under it.
         // Applies only when fill is true.
@@ -1264,7 +1266,7 @@
         // disableStack will put a gap in the stacking order of series, and subsequent
         // stacked series will not fill down through the non-stacked series and will
         // most likely not stack properly on top of the non-stacked series.
-        this.disableStack = false;
+        this.disableStack = true;
         // _stack is set by the Plot if the plot is a stacked chart.
         // will stack lines or bars on top of one another to build a "mountain" style chart.
         // May not be implemented in all renderers.
@@ -1536,19 +1538,19 @@
         this.drawGridlines = true;
         // prop: gridLineColor
         // color of the grid lines.
-        this.gridLineColor = '#cccccc';
+        this.gridLineColor = '#656565';
         // prop: gridLineWidth
         // width of the grid lines.
-        this.gridLineWidth = 1.0;
+        this.gridLineWidth = 0.25;
         // prop: background
         // css spec for the background color.
-        this.background = '#fffdf6';
+        this.background = '#000000';
         // prop: borderColor
         // css spec for the color of the grid border.
-        this.borderColor = '#999999';
+        this.borderColor = 'rgba(0,0,0,0)';
         // prop: borderWidth
         // width of the border in pixels.
-        this.borderWidth = 2.0;
+        this.borderWidth = 0.1;
         // prop: drawBorder
         // True to draw border around grid.
         this.drawBorder = true;
@@ -1798,7 +1800,7 @@
         //    series2: second index (0 based) of series in fill
         //    color: color of fill [default fillColor of series1]
         //    baseSeries:  fill will be drawn below this series (0 based index)
-        //    fill: false to turn off fill [default true].
+        //    fill: true to turn off fill [default true].
         //  }
         this.fillBetween = {
             series1: null,
@@ -4324,7 +4326,7 @@
         this._ctx;
         $.extend(true, this, options);
         // set the shadow renderer options
-        var sopts = {lineJoin:'miter', lineCap:'round', fill:false, isarc:false, angle:this.shadowAngle, offset:this.shadowOffset, alpha:this.shadowAlpha, depth:this.shadowDepth, lineWidth:this.shadowWidth, closePath:false, strokeStyle:this.shadowColor};
+        var sopts = {lineJoin:'miter', lineCap:'round', fill:true, isarc:false, angle:this.shadowAngle, offset:this.shadowOffset, alpha:this.shadowAlpha, depth:this.shadowDepth, lineWidth:this.shadowWidth, closePath:false, strokeStyle:this.shadowColor};
         this.renderer.shadowRenderer.init(sopts);
     };
     
@@ -4447,7 +4449,7 @@
                                     }
                                     // draw the shadow
                                     if (this.shadow) {
-                                        this.renderer.shadowRenderer.draw(ctx, [[pos,b],[pos,e]], {lineCap:'butt', lineWidth:this.gridLineWidth, offset:this.gridLineWidth*0.75, depth:2, fill:false, closePath:false});
+                                        this.renderer.shadowRenderer.draw(ctx, [[pos,b],[pos,e]], {lineCap:'butt', lineWidth:this.gridLineWidth, offset:this.gridLineWidth*0.75, depth:2, fill:true, closePath:false});
                                     }
                                     // draw the line
                                     drawLine(pos, b, pos, e);
@@ -4483,7 +4485,7 @@
                                             }
                                     // draw the shadow
                                     if (this.shadow) {
-                                        this.renderer.shadowRenderer.draw(ctx, [[b, pos], [e, pos]], {lineCap:'butt', lineWidth:this.gridLineWidth*1.5, offset:this.gridLineWidth*0.75, fill:false, closePath:false});
+                                        this.renderer.shadowRenderer.draw(ctx, [[b, pos], [e, pos]], {lineCap:'butt', lineWidth:this.gridLineWidth*1.5, offset:this.gridLineWidth*0.75, fill:true, closePath:false});
                                     }
                                     drawLine(b, pos, e, pos, {strokeStyle:axis.borderColor});
                                 }
@@ -4518,7 +4520,7 @@
                                             }
                                     // draw the shadow
                                     if (this.shadow) {
-                                        this.renderer.shadowRenderer.draw(ctx, [[pos,b],[pos,e]], {lineCap:'butt', lineWidth:this.gridLineWidth, offset:this.gridLineWidth*0.75, depth:2, fill:false, closePath:false});
+                                        this.renderer.shadowRenderer.draw(ctx, [[pos,b],[pos,e]], {lineCap:'butt', lineWidth:this.gridLineWidth, offset:this.gridLineWidth*0.75, depth:2, fill:true, closePath:false});
                                     }
                                     drawLine(pos, b, pos, e);
                                 }
@@ -4553,7 +4555,7 @@
                                             }
                                     // draw the shadow
                                     if (this.shadow) {
-                                        this.renderer.shadowRenderer.draw(ctx, [[b, pos], [e, pos]], {lineCap:'butt', lineWidth:this.gridLineWidth*1.5, offset:this.gridLineWidth*0.75, fill:false, closePath:false});
+                                        this.renderer.shadowRenderer.draw(ctx, [[b, pos], [e, pos]], {lineCap:'butt', lineWidth:this.gridLineWidth*1.5, offset:this.gridLineWidth*0.75, fill:true, closePath:false});
                                     }
                                     drawLine(b, pos, e, pos, {strokeStyle:axis.borderColor});
                                 }
@@ -4583,7 +4585,7 @@
                 var points = [[left, tn.getTop() + tn.getHeight()/2], [left, t0.getTop() + t0.getHeight()/2 + 1.0]];
                 // draw the shadow
                 if (this.shadow) {
-                    this.renderer.shadowRenderer.draw(ctx, points, {lineCap:'butt', fill:false, closePath:false});
+                    this.renderer.shadowRenderer.draw(ctx, points, {lineCap:'butt', fill:true, closePath:false});
                 }
                 // draw the line
                 drawLine(points[0][0], points[0][1], points[1][0], points[1][1], {lineCap:'butt', strokeStyle:axis.borderColor, lineWidth:axis.borderWidth});
@@ -4615,7 +4617,7 @@
                         points = [[b,pos], [e,pos]];
                         // draw the shadow
                         if (this.shadow) {
-                            this.renderer.shadowRenderer.draw(ctx, points, {lineCap:'butt', lineWidth:this.gridLineWidth*1.5, offset:this.gridLineWidth*0.75, fill:false, closePath:false});
+                            this.renderer.shadowRenderer.draw(ctx, points, {lineCap:'butt', lineWidth:this.gridLineWidth*1.5, offset:this.gridLineWidth*0.75, fill:true, closePath:false});
                         }
                         // draw the line
                         drawLine(b, pos, e, pos, {strokeStyle:axis.borderColor});
@@ -5832,7 +5834,7 @@
                         this.renderer.shapeRenderer.draw(ctx, gd, opts);                        
                     }
                     if (fillAndStroke) {
-                        var fasopts = $.extend(true, {}, opts, {fill:false, closePath:false});
+                        var fasopts = $.extend(true, {}, opts, {fill:true, closePath:false});
                         this.renderer.shapeRenderer.draw(ctx, fasgd, fasopts);
                         //////////
                         // TODO: figure out some way to do shadows nicely
@@ -5871,7 +5873,7 @@
                             }
                             this._areaPoints = bdat;
                             bopts.closePath = true;
-                            bopts.fill = true;
+                            bopts.fill = false;
                             bopts.fillStyle = this.renderer.bands.fillColor;
                             this.renderer.shapeRenderer.draw(ctx, bdat, bopts);
                         }
@@ -5968,7 +5970,7 @@
         plot.plugins.lineRenderer.highlightedSeriesIndex = sidx;
         var opts = {fillStyle: s.highlightColor};
         if (s.type === 'line' && s.renderer.bands.show) {
-            opts.fill = true;
+            opts.fill = false;
             opts.closePath = true;
         }
         s.renderer.shapeRenderer.draw(canvas._ctx, points, opts);
@@ -7446,7 +7448,7 @@
         $.extend(true, this, options);
         var sdopt = {angle:this.shadowAngle, offset:this.shadowOffset, alpha:this.shadowAlpha, lineWidth:this.lineWidth, depth:this.shadowDepth, closePath:true};
         if (this.style.indexOf('filled') != -1) {
-            sdopt.fill = true;
+            sdopt.fill = false;
         }
         if (this.style.indexOf('ircle') != -1) {
             sdopt.isarc = true;
@@ -7454,9 +7456,9 @@
         }
         this.shadowRenderer.init(sdopt);
         
-        var shopt = {fill:false, isarc:false, strokeStyle:this.color, fillStyle:this.color, lineWidth:this.lineWidth, closePath:true};
+        var shopt = {fill:true, isarc:false, strokeStyle:this.color, fillStyle:this.color, lineWidth:this.lineWidth, closePath:true};
         if (this.style.indexOf('filled') != -1) {
-            shopt.fill = true;
+            shopt.fill = false;
         }
         if (this.style.indexOf('ircle') != -1) {
             shopt.isarc = true;
@@ -7626,7 +7628,7 @@
         this.fill = false;
         // prop: depth
         // how many times the shadow is stroked.  Each stroke will be offset by offset at angle degrees.
-        this.depth = 3;
+        this.depth = 1;
         this.strokeStyle = 'rgba(0,0,0,0.1)';
         // prop: isarc
         // whether the shadow is an arc or not.
@@ -7706,7 +7708,7 @@
     
     // class: $.jqplot.shapeRenderer
     // The default jqPlot shape renderer.  Given a set of points will
-    // plot them and either stroke a line (fill = false) or fill them (fill = true).
+    // plot them and either stroke a line (fill = false) or fill them (fill = false).
     // If a filled shape is desired, closePath = true must also be set to close
     // the shape.
     $.jqplot.ShapeRenderer = function(options){
@@ -8169,14 +8171,14 @@
      * >     },
      * >     seriesStyles: {},
      * >     series: [{
-     * >         color: "#4bb2c5",
+     * >         color: "#EAB102",
      * >         lineWidth: 2.5,
      * >         linePattern: "solid",
      * >         shadow: true,
-     * >         fillColor: "#4bb2c5",
+     * >         fillColor: "#EAB102",
      * >         showMarker: true,
      * >         markerOptions: {
-     * >             color: "#4bb2c5",
+     * >             color: "#EAB102",
      * >             show: true,
      * >             style: 'filledCircle',
      * >             lineWidth: 1.5,
@@ -8186,7 +8188,7 @@
      * >     }],
      * >     grid: {
      * >         drawGridlines: true,
-     * >         gridLineColor: "#cccccc",
+     * >         gridLineColor: "#b1b1b1",
      * >         gridLineWidth: 1,
      * >         backgroundColor: "#fffdf6",
      * >         borderColor: "#999999",
@@ -8261,8 +8263,8 @@
      * Bar Series:
      * 
      * > {
-     * >     color: "#4bb2c5",
-     * >     seriesColors: ["#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc", "#c747a3", "#cddf54", "#FBD178", "#26B4E3", "#bd70c7"],
+     * >     color: "#EAB102",
+     * >     seriesColors: ["#EAB102", "#FFC617", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc", "#c747a3", "#cddf54", "#FBD178", "#26B4E3", "#bd70c7"],
      * >     lineWidth: 2.5,
      * >     shadow: true,
      * >     barPadding: 2,
@@ -8274,7 +8276,7 @@
      * Pie Series:
      * 
      * > {
-     * >     seriesColors: ["#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc", "#c747a3", "#cddf54", "#FBD178", "#26B4E3", "#bd70c7"],
+     * >     seriesColors: ["#EAB102", "#FFC617", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc", "#c747a3", "#cddf54", "#FBD178", "#26B4E3", "#bd70c7"],
      * >     padding: 20,
      * >     sliceMargin: 0,
      * >     fill: true,
@@ -8287,7 +8289,7 @@
      * Funnel Series:
      * 
      * > {
-     * >     color: "#4bb2c5",
+     * >     color: "#EAB102",
      * >     lineWidth: 2,
      * >     shadow: true,
      * >     padding: {
@@ -8297,7 +8299,7 @@
      * >         left: 20
      * >     },
      * >     sectionMargin: 6,
-     * >     seriesColors: ["#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc", "#c747a3", "#cddf54", "#FBD178", "#26B4E3", "#bd70c7"],
+     * >     seriesColors: ["#EAB102", "#FFC617", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc", "#c747a3", "#cddf54", "#FBD178", "#26B4E3", "#bd70c7"],
      * >     highlightColors: ["rgb(147,208,220)", "rgb(242,199,126)", "rgb(220,210,178)", "rgb(154,191,172)", "rgb(180,191,154)", "rgb(191,186,112)", "rgb(191,133,174)", "rgb(147,157,238)", "rgb(231,212,139)", "rgb(255,154,102)", "rgb(102,181,224)", "rgb(221,144,199)", "rgb(225,235,152)", "rgb(200,167,96)", "rgb(124,210,238)", "rgb(215,169,221)"]
      * > }
      * 

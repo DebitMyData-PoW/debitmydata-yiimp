@@ -56,6 +56,7 @@ class db_coins extends CActiveRecord
 			'market'	=> 'Preferred market',
 			'rpcencoding'	=> 'RPC Type',
 			'dedicatedport'	=> 'Dedicated Port',
+			'dedicatedport2'	=> 'Dedicated Port2',
 			'specifications'=> 'AddNodes'
 		);
 	}

@@ -21,6 +21,7 @@ class db_hashuser extends CActiveRecord
 	public function relations()
 	{
 		return array(
+//        		'db_accounts' => array(self::BELONGS_TO, 'db_accounts', 'userid'),
 		);
 	}
 

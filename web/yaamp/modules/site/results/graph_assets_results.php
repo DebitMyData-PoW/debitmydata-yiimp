@@ -3,7 +3,7 @@
 $percent = 16;
 
 $step = 15*60;
-$t = time() - 24*60*60;
+$t = time() - 12*60*60;
 $stats = getdbolist('db_stats', "time>$t order by time");
 
 echo '[[';

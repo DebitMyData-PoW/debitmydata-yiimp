@@ -22,6 +22,9 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
+#include <string>
+#include <algorithm>
 
 using namespace std;
 
@@ -127,6 +130,7 @@ extern volatile bool g_exiting;
 #include "coind.h"
 #include "remote.h"
 #include "share.h"
+#include "pplns.h"
 
 extern YAAMP_DB *g_db;
 extern YAAMP_ALGO g_algos[];

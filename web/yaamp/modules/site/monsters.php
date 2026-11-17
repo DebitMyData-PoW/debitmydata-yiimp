@@ -1,19 +1,18 @@
 <?php
+/*
+ * Admin: the accounts to keep an eye on (/site/monsters): shares from a stratum that is gone, a
+ * balance without blocks in the last 24 hours, the most rigs, the most shares, and the locked ones.
+ */
 
-echo getAdminSideBarLinks();
+echo '<div class="dmd-admin">';
+dmd_admin_head('Big miners', null, null, '', 'Accounts to keep an eye on');
 
-echo <<<end
-<div align="right" style="margin-top: -14px; margin-bottom: 6px;">
-<input class="search" type="search" data-column="all" style="width: 140px;" placeholder="Search..." />
-</div>
-<style type="text/css">
-tr.ssrow.filtered { display: none; }
-</style>
-end;
+echo '<div class="dmd-toolbar">'.dmd_admin_search('Search miners...').'</div>';
 
-showTableSorter('maintable', "{
-	tableClass: 'dataGrid',
-	headers: { 1: { sorter: false} },
+echo '<section class="dmd-card dmd-table-card"><div class="dmd-scroll">';
+
+dmd_admin_table('maintable', "{
+	headers: { 9: { sorter: false} },
 	widgets: ['zebra','filter'],
 	widgetOptions: {
 		filter_external: '.search',
@@ -27,18 +26,15 @@ echo <<<end
 <thead>
 <tr>
 <th>UID</th>
-<th></th>
 <th>Coin</th>
 <th>Address</th>
-<th></th>
 <th>Last</th>
-<th>Blocks</th>
-<th>Balance</th>
-<th>Total Paid</th>
-<th>Miners</th>
-<th>Shares</th>
-<th></th>
-<th></th>
+<th class="r">Blocks (24h)</th>
+<th class="r">Balance</th>
+<th class="r">Total paid</th>
+<th class="r">Miners</th>
+<th class="r">Shares</th>
+<th>Why</th>
 </tr>
 </thead>
 <tbody>
@@ -60,46 +56,29 @@ function showUser($userid, $what)
 	$share_count = getdbocount('db_shares', "userid=$user->id");
 	$block_count = getdbocount('db_blocks', "userid=$user->id and time>$t");
 
+	$address = $user ? substr($user->username, 0, 10).'...' : '';
+
 	$coin = getdbo('db_coins', $user->coinid);
 
-	echo "<tr class='ssrow'>";
+	$why = array(
+		'pid' => 'Shares from an old stratum',
+		'blocks' => 'Balance, no block in 24h',
+		'miners' => 'Most rigs',
+		'shares' => 'Most shares',
+		'locked' => 'Locked',
+	);
 
-	echo "<td width=24>$user->id</td>";
-
-	if(!$coin)
-		echo '<td width=60 colspan="2"></td>';
-	else {
-		$coinlink = CHtml::link($coin->symbol, '/site/coin?id='.$coin->id);
-		echo '<td width=16><img src="'.$coin->image.'" width="16"></td><td width=48><b>'.$coinlink.'</b></td>';
-	}
-
-	echo "<td><a href='/site?address=$user->username'><b>$user->username</a></b></td>";
-	echo "<td>$what</td>";
-	echo "<td>$d</td>";
-
-	echo "<td>$block_count</td>";
-	echo "<td>$balance</td>";
-
-	if(intval($paid) > 0.01)
-		echo "<td><b>$paid</b></td>";
-	else
-		echo "<td>$paid</td>";
-
-	echo "<td>$miner_count</td>";
-	echo "<td>$share_count</td>";
-
-	if($user->is_locked)
-	{
-		echo "<td>locked</td>";
-		echo "<td><a href='/site/unblockuser?wallet=$user->username'>unblock</a></td>";
-	}
-
-	else
-	{
-		echo "<td></td>";
-		echo "<td><a href='/site/blockuser?wallet=$user->username'>block</a></td>";
-	}
-
+	echo '<tr class="ssrow">';
+	echo '<td data-label="UID" class="dmd-muted">'.$user->id.'</td>';
+	echo '<td data-label="Coin">'.($coin ? dmd_admin_coin_cell($coin, '/site/coin?id='.$coin->id) : '').'</td>';
+	echo '<td data-label="Address" class="dmd-first"><a class="dmd-addr" href="/mywallet/?address='.$user->username.'" title="'.$user->username.'">'.$address.'</a></td>';
+	echo '<td data-label="Last">'.($d ? "<span>$d ago</span>" : '').'</td>';
+	echo '<td data-label="Blocks (24h)" class="r">'.$block_count.'</td>';
+	echo '<td data-label="Balance" class="r dmd-num">'.$balance.'</td>';
+	echo '<td data-label="Total paid" class="r">'.$paid.'</td>';
+	echo '<td data-label="Miners" class="r">'.$miner_count.'</td>';
+	echo '<td data-label="Shares" class="r">'.$share_count.'</td>';
+	echo '<td data-label="Why">'.($user->is_locked ? '<span class="dmd-badge solo">Locked</span>' : '<span class="dmd-small">'.$why[$what].'</span>').'</td>';
 	echo "</tr>";
 }
 
@@ -130,15 +109,5 @@ $list = getdbolist('db_accounts', "is_locked");
 foreach($list as $user)
 	showUser($user->id, 'locked');
 
-echo "</tbody></table>";
-
-
-
-
-
-
-
-
-
-
-
+echo "</tbody></table></div></section>";
+echo '</div>';

@@ -9,6 +9,7 @@ public:
 
 	bool valid;
 	bool extranonce1;
+	bool solo;		// mined for a solo coinbase: not part of the PPLNS window
 	int32_t error_number;
 
 	uint32_t ntime;
@@ -46,7 +47,8 @@ inline void share_delete(YAAMP_OBJECT *object)
 ///////////
 
 YAAMP_SHARE *share_find(int jobid, char *extranonce2, char *ntime, char *nonce, char *nonce1);
-void share_add(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, char *extranonce2, char *ntime, char *nonce, double share_diff, int error_number);
+// credit_diff: the difficulty the share was mined at (0: the client's current one)
+void share_add(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, char *extranonce2, char *ntime, char *nonce, double share_diff, int error_number, double credit_diff=0);
 
 void share_write(YAAMP_DB *db);
 void share_prune(YAAMP_DB *db);

@@ -1,4 +1,29 @@
 <?php
+
+
+
+echo <<<END
+<script>
+window.addEventListener("load", () => {
+  const loader = document.querySelector(".loader");
+
+  loader.classList.add("loader--hidden");
+
+  loader.addEventListener("transitionend", () => {
+    document.body.removeChild(loader);
+  //  loader.remove();
+  });
+});
+</script>
+
+<div class="loader"></div>
+END;
+
+
+
+
+
+
 echo getAdminSideBarLinks();
 
 $algo = user()->getState('yaamp-algo');

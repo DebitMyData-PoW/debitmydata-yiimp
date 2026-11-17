@@ -63,6 +63,12 @@ static void job_pack_tx(YAAMP_COIND *coind, char *data, json_int_t amount, char 
 //	debuglog("pack tx %lld\n", amount);
 }
 
+// the pool wallet's output (used by pplns.cpp)
+void coinbase_pack_pool_output(YAAMP_COIND *coind, char *data, json_int_t amount)
+{
+	job_pack_tx(coind, data, amount, NULL);
+}
+
 void coinbase_aux(YAAMP_JOB_TEMPLATE *templ, char *aux_script)
 {
 	vector<string> hashlist = coind_aux_hashlist(templ->auxs, templ->auxs_size);
@@ -1159,11 +1165,11 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 		}
 	}
 
-	else if (templ->has_segwit_txs) {
-		strcat(templ->coinb2, "02");
-		strcat(templ->coinb2, commitment);
-	} else {
-		strcat(templ->coinb2, "01");
+	else {
+		// plain coinbase: one pool output, or the miners paid directly (pplns.cpp)
+		pplns_coinbase(coind, templ, available, templ->has_segwit_txs? commitment: NULL);
+		coind->reward = (double)available/100000000*coind->reward_mul;
+		return;
 	}
 
 	job_pack_tx(coind, templ->coinb2, available, NULL);

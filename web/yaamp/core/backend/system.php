@@ -101,9 +101,13 @@ function consolidateOldShares()
 	$delay = time() - 24*60*60; // drop invalid shares not used anymore (24h graph only)
 	dborun("DELETE FROM shares WHERE time < $delay AND valid = 0");
 
+	// not the shares of coins paid in the coinbase (their PPLNS window, blocks.php prunes them),
+	// nor solo shares (merged, they would look like pool shares)
+	$keep = pplns_tables()? "AND solo = 0 AND coinid NOT IN (SELECT coinid FROM pplns_state WHERE switch_time IS NOT NULL) ": "";
+
 	$t1 = time() - 48*3600;
 	$list = dbolist("SELECT coinid, userid, workerid, algo, AVG(time) AS time, SUM(difficulty) AS difficulty, AVG(share_diff) AS share_diff ".
-		"FROM shares WHERE valid AND time < $t1 AND pid > 0 ".
+		"FROM shares WHERE valid AND time < $t1 AND pid > 0 $keep".
 		"GROUP BY coinid, userid, workerid, algo ORDER BY coinid, userid");
 	$pruned = 0;
 	foreach ($list as $row) {
@@ -119,7 +123,7 @@ function consolidateOldShares()
 		$share->valid = 1;
 		$share->pid = 0;
 		if ($share->save()) {
-			$pruned += dborun("DELETE FROM shares WHERE userid=:userid AND coinid=:coinid AND workerid=:worker AND pid > 0 AND time < $t1", array(
+			$pruned += dborun("DELETE FROM shares WHERE userid=:userid AND coinid=:coinid AND workerid=:worker AND pid > 0 AND time < $t1 $keep", array(
 				':userid' => $row['userid'],
 				':coinid' => $row['coinid'],
 				':worker' => $row['workerid'],
@@ -136,14 +140,14 @@ function BackendCleanDatabase()
 {
 	marketHistoryPrune();
 
-	$delay = time() - 60*24*60*60;
+	$delay = time() - 90*24*60*60;
 	dborun("DELETE from blocks where time<$delay");
 	dborun("delete from hashstats where time<$delay");
 	dborun("delete from payouts where time<$delay");
 	dborun("delete from rentertxs where time<$delay");
 	dborun("DELETE FROM shares WHERE time<$delay");
 
-	$delay = time() - 2*24*60*60;
+	$delay = time() - 1*24*60*60;
 	dborun("delete from stats where time<$delay");
 	dborun("delete from hashrate where time<$delay");
 	dborun("delete from hashuser where time<$delay");
@@ -154,7 +158,7 @@ function BackendCleanDatabase()
 
 	consolidateOldShares();
 
-	$delay = time() - 12*60*60;
+	$delay = time() - 30*24*60*60;
 	dborun("delete from earnings where status=2 and mature_time<$delay");
 }
 

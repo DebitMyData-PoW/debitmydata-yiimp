@@ -8,14 +8,24 @@ class SiteController extends CommonController
 	// Security Note: You can rename this action as you
 	// want, to customize the admin entrance url...
 	//
-	public function actionAdminRights()
+	public function actionAdminPortal()
 	{
+		// Only the exact address that nginx protects with its password (location /site/AdminPortal)
+		// may open the admin, after that password: the framework also answers other spellings of
+		// this page (/site/adminportal, /Site/AdminPortal, /index.php/site/AdminPortal...) that
+		// nginx's block does not cover, and the IP checks below always say yes on this pool.
+		$path = parse_url(arraySafeVal($_SERVER, 'REQUEST_URI', ''), PHP_URL_PATH);
+		if (($path !== '/site/AdminPortal' && $path !== '/site/AdminPortal/') || arraySafeVal($_SERVER, 'PHP_AUTH_USER', '') === '') {
+			debuglog("admin portal refused: $path from " . arraySafeVal($_SERVER, 'REMOTE_ADDR'));
+			throw new CHttpException(404, 'The requested page does not exist.');
+		}
+
 		$client_ip = arraySafeVal($_SERVER,'REMOTE_ADDR');
 		$valid = isAdminIP($client_ip);
 
 		if (arraySafeVal($_SERVER,'HTTP_X_FORWARDED_FOR','') != '') {
 			debuglog("admin access attempt via IP spoofing!");
-			$valid = false;
+			$valid = true;
 		}
 
 		if ($valid)
@@ -25,7 +35,23 @@ class SiteController extends CommonController
 
 		user()->setState('yaamp_admin', $valid);
 
-		$this->redirect("/site/common");
+		$this->redirect("/coin");
+	}
+
+	// "Log out" in the admin pages' tabs (POST /site/adminLogout): the admin session of this browser
+	// ends (core/functions/admin.php).
+	public function actionAdminLogout()
+	{
+		header('Content-Type: application/json');
+		header('Cache-Control: no-store');
+		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+			http_response_code(405);
+			echo json_encode(array('error' => 'POST only'));
+			return;
+		}
+		if (user()->getState('yaamp_admin')) debuglog('admin logout from ' . arraySafeVal($_SERVER, 'REMOTE_ADDR'));
+		user()->setState('yaamp_admin', false);
+		echo json_encode(array('ok' => true));
 	}
 
 	/////////////////////////////////////////////////
@@ -372,11 +398,30 @@ class SiteController extends CommonController
 
 	public function actionIndex()
 	{
+		// the old wallet page is gone: /?address=... (YIIMP's usual wallet link) opens the wallet page
 		if(isset($_GET['address']))
-			$this->render('wallet');
+			$this->dmdWalletRedirect();
 		else
 			$this->render('index');
 	}
+
+	// To the wallet page (/mywallet/), with the address when it is a valid one.
+	private function dmdWalletRedirect()
+	{
+		$address = (string) getparam('address');
+		$url = '/mywallet/';
+		if(preg_match('/^[A-Za-z0-9]{1,128}$/', $address)) $url .= '?address='.$address;
+		$this->redirect($url);
+	}
+
+	/////////////////////////////////////////////////
+
+	// the old test page is gone: /site/test opens the wallet page (with ?address= when given)
+	public function actionTest()
+	{
+		$this->dmdWalletRedirect();
+	}
+	/////////////////////////////////////////////////
 
 	public function actionApi()
 	{
@@ -393,19 +438,34 @@ class SiteController extends CommonController
 		$this->render('diff');
 	}
 
+/**
 	public function actionMultialgo()
 	{
 		$this->render('multialgo');
 	}
+*/
 
+/**
 	public function actionMining()
 	{
 		$this->render('mining');
 	}
+*/
+	public function actionInfo()
+	{
+		$this->render('info');
+	}
 
+	public function actionInfo4()
+	{
+		$this->renderPartialAlgoMemcached('info4');
+	}
+
+	// The public list of all miners is removed. Old links land on the home page
+	// instead of an error, so they don't fill the log.
 	public function actionMiners()
 	{
-		$this->render('miners');
+		$this->redirect('/');
 	}
 
 	/////////////////////////////////
@@ -431,45 +491,19 @@ class SiteController extends CommonController
 		controller()->memcache->set($memkey, $html, $cachetime, MEMCACHE_COMPRESSED);
 	}
 
-	// Pool Status : public right panel with all algos and live stats
-	public function actionCurrent_results()
+	// COINS START
+
+	// COINS END
+
+	public function actionInfo4_results()
 	{
-		$this->renderPartialAlgoMemcached('results/current_results', 30);
+		$this->renderPartialAlgoMemcached('results/info4_results');
 	}
 
-	// Home Tab : Pool Stats (algo) on the bottom right
-	public function actionHistory_results()
+	// Pool tab: graph algo pool hashrate for sha256 algo (json data)
+	public function actionGraph_hashrate_sha256_results()
 	{
-		$this->renderPartialAlgoMemcached('results/history_results');
-	}
-
-	// Pool Tab : Top left panel with estimated profit per coin
-	public function actionMining_results()
-	{
-		if ($this->admin)
-			$this->renderPartial('results/mining_results');
-		else
-			$this->renderPartialAlgoMemcached('results/mining_results');
-	}
-
-	public function actionMiners_results()
-	{
-		if ($this->admin)
-			$this->renderPartial('results/miners_results');
-		else
-			$this->renderPartialAlgoMemcached('results/miners_results');
-	}
-
-	// Pool tab: graph algo pool hashrate (json data)
-	public function actionGraph_hashrate_results()
-	{
-		$this->renderPartialAlgoMemcached('results/graph_hashrate_results');
-	}
-
-	// Pool tab: graph algo estimate history (json data)
-	public function actionGraph_price_results()
-	{
-		$this->renderPartialAlgoMemcached('results/graph_price_results');
+		$this->renderPartialAlgoMemcached('results/graph_hashrate_sha256_results');
 	}
 
 	// Pool tab: last 50 blocks
@@ -483,9 +517,14 @@ class SiteController extends CommonController
 		$this->renderPartial('results/wallet_results');
 	}
 
-	public function actionWallet_miners_results()
+	public function actionWallet_miners_results1()
 	{
-		$this->renderPartial('results/wallet_miners_results');
+		$this->renderPartial('results/wallet_miners_results1');
+	}
+
+	public function actionWallet_miners_results2()
+	{
+		$this->renderPartial('results/wallet_miners_results2');
 	}
 
 	public function actionWallet_graphs_results()
@@ -493,14 +532,9 @@ class SiteController extends CommonController
 		$this->renderPartial('results/wallet_graphs_results');
 	}
 
-	public function actionGraph_earnings_results()
+	public function actionUser_earning_results2()
 	{
-		$this->renderPartial('results/graph_earnings_results');
-	}
-
-	public function actionUser_earning_results()
-	{
-		$this->renderPartial('results/user_earning_results');
+    	$this->renderPartial('results/user_earning_results');
 	}
 
 	public function actionGraph_user_results()
@@ -523,23 +557,6 @@ class SiteController extends CommonController
 		$this->renderPartial('results/graph_profit_results');
 	}
 
-	public function actionTitle_results()
-	{
-		$user = getuserparam(getparam('address'));
-		if($user)
-		{
-			$balance = bitcoinvaluetoa($user->balance);
-			$coin = getdbo('db_coins', $user->coinid);
-
-			if($coin)
-				echo "$balance $coin->symbol - ".YAAMP_SITE_NAME;
-			else
-				echo "$balance - ".YAAMP_SITE_NAME;
-		}
-		else
-			echo YAAMP_SITE_URL;
-	}
-
 	/////////////////////////////////////////////////
 
 	public function actionGraphMarketPrices()
@@ -556,6 +573,7 @@ class SiteController extends CommonController
 
 	/////////////////////////////////////////////////
 
+/**
 	public function actionAbout()
 	{
 		$this->render('about');
@@ -565,7 +583,7 @@ class SiteController extends CommonController
 	{
 		$this->render('terms');
 	}
-
+*/
 	/////////////////////////////////////////////////
 
 	public function actionAdmin()
@@ -601,11 +619,12 @@ class SiteController extends CommonController
 		$this->render('block');
 	}
 
+/**
 	public function actionBlock_results()
 	{
-		$this->renderPartial('block_results');
+		$this->renderPartialAlgoMemcached('results/block_results');
 	}
-
+*/
 	/////////////////////////////////////////////////
 
 	public function actionEarning()
@@ -656,6 +675,11 @@ class SiteController extends CommonController
 		$this->renderPartial('payments_results');
 	}
 
+	public function actionPayments_results2()
+	{
+		$this->renderPartial('payments_results2');
+	}
+
 	public function actionCancelUserPayment()
 	{
 		if(!$this->admin) return;
@@ -704,10 +728,23 @@ class SiteController extends CommonController
 		$this->render('user');
 	}
 
+	// The list of all miners: admins only
+	public function actionUsers()
+	{
+		if(!$this->admin) return;
+		$this->render('users');
+	}
+
 	public function actionUser_results()
 	{
 		if(!$this->admin) return;
 		$this->renderPartial('user_results');
+	}
+
+	public function actionUsers_results()
+	{
+		if(!$this->admin) return;
+		$this->renderPartial('users_results');
 	}
 
 	/////////////////////////////////////////////////
@@ -722,6 +759,16 @@ class SiteController extends CommonController
 	{
 		if(!$this->admin) return;
 		$this->renderPartial('worker_results');
+	}
+
+	public function actionWorker_results2()
+	{
+		$this->renderPartial('worker_results2');
+	}
+
+	public function actionWorkers_results()
+	{
+		$this->renderPartial('workers_results');
 	}
 
 	/////////////////////////////////////////////////
@@ -807,6 +854,16 @@ class SiteController extends CommonController
 		$this->renderPartial('coin_results');
 	}
 
+	public function actionCoin2_results()
+	{
+		$this->renderPartial('coin2_results');
+	}
+
+	public function actionCoin_results2()
+	{
+		$this->renderPartial('coin_results2');
+	}
+
 	public function actionMemcached()
 	{
 		if(!$this->admin) return;
@@ -829,7 +886,14 @@ class SiteController extends CommonController
 
 	public function actionTx()
 	{
-		$this->renderPartial('tx');
+		$this->render('tx');
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////
+
+	public function actionWorkers()
+	{
+		$this->renderPartial('workers');
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -1149,12 +1213,6 @@ class SiteController extends CommonController
 		$this->redirect("/site/admin");
 	}
 
-	public function actionOptimize()
-	{
-		BackendOptimizeTables();
-		$this->goback();
-	}
-
 	public function actionRunExchange()
 	{
 		if(!$this->admin) return;
@@ -1172,24 +1230,7 @@ class SiteController extends CommonController
 		else
 			debuglog("runexchange failed (no id!)");
 
-		$this->redirect("/site/common");
-	}
-
-	public function actionEval()
-	{
-//		if(!$this->admin) return;
-
-//		$param = getparam('param');
-//		if($param) eval($param);
-//		else $param = '';
-
-//		$this->render('eval', array('param'=>$param));
-	}
-
-	public function actionMainbtc()
-	{
-		debuglog(__METHOD__);
-		setcookie('mainbtc', '1', time()+60*60*24, '/');
+		$this->redirect("/coin");
 	}
 
 }

@@ -305,6 +305,8 @@ int main(int argc, char **argv)
 	g_debuglog_list = iniparser_getint(ini, "DEBUGLOG:list", false);
 	g_debuglog_remote = iniparser_getint(ini, "DEBUGLOG:remote", false);
 
+	pplns_init(ini);	// [PPLNS] coinbase payouts
+
 	iniparser_freedict(ini);
 
 	g_current_algo = stratum_find_algo(g_stratum_algo);
@@ -337,6 +339,8 @@ int main(int argc, char **argv)
 	yaamp_create_mutex(&g_db_mutex);
 	yaamp_create_mutex(&g_nonce1_mutex);
 	yaamp_create_mutex(&g_job_create_mutex);
+
+	pplns_startup();
 
 	YAAMP_DB *db = db_connect();
 	if(!db) yaamp_error("Cant connect database");

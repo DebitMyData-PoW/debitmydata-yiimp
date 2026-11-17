@@ -4,14 +4,16 @@ $user = getuserparam(getparam('address'));
 if(!$user) return;
 
 echo <<<end
+<!--
 <div class="main-left-box">
-<div class="main-left-title">Last 24 Hours Hashrate: $user->username</div>
-<div class="main-left-inner"><br>
+<div class="main-left-title"></div>
+<div class="main-left-inner">
+-->
 end;
 
 foreach(yaamp_get_algos() as $algo)
 {
-	$delay = time()-24*60*60;
+	$delay = time()-3*60*60;
 	$user_shares = controller()->memcache->get_database_scalar("wallet_hashuser-$user->id-$algo",
 		"select count(*) from hashuser where userid=$user->id and time>$delay and algo=:algo limit 1", array(':algo'=>$algo));
 
@@ -20,11 +22,11 @@ foreach(yaamp_get_algos() as $algo)
 
 	echo <<<end
 <input type=hidden id=$algo class='graph_algo'>
-<div id='graph_results_$algo' style='height: 240px;'></div><br>
+<div id='graph_results_$algo' style='height: 240px;'></div>
 end;
 }
 
-echo "</div></div><br>";
+echo "</div></div>";
 
 
 

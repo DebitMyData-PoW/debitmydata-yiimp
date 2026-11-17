@@ -1,15 +1,57 @@
 
 #include "stratum.h"
 
+// A JSON number (integer or not), or a string holding one.
+static bool json_number(json_value *v, double *out)
+{
+	if(!v) return false;
+	if(v->type == json_integer) { *out = (double) v->u.integer; return true; }
+	if(v->type == json_double) { *out = v->u.dbl; return true; }
+	if(v->type == json_string && v->u.string.ptr) {
+		char *end = NULL;
+		double d = strtod(v->u.string.ptr, &end);
+		if(end && end != v->u.string.ptr) { *out = d; return true; }
+	}
+	return false;
+}
+
+// A string member of a JSON object, or NULL (also when it isn't a string).
+static const char *json_member_string(json_value *obj, const char *name)
+{
+	if(!obj || obj->type != json_object) return NULL;
+	json_value *v = json_get_object(obj, name);
+	if(!v || v->type != json_string) return NULL;
+	return v->u.string.ptr;
+}
+
+// A difficulty a miner asked for, kept within the port's limits. 0 if unusable.
+static double client_wanted_difficulty(double diff)
+{
+	if(diff <= 0) return 0;
+	diff = client_normalize_difficulty(diff);
+	uint64_t user_target = diff_to_target(diff);
+	if(!user_target || user_target > YAAMP_MAXDIFF) return 0;
+	return diff;
+}
+
+// mining.suggest_difficulty: the miner's preferred difficulty (ASICs and proxies send it, often as
+// an integer). It applies from the next job, and vardiff won't go below it.
 bool client_suggest_difficulty(YAAMP_CLIENT *client, json_value *json_params)
 {
-	if(json_params->u.array.length>0)
+	double diff = 0;
+	if(json_params->u.array.length > 0 && json_number(json_params->u.array.values[0], &diff))
 	{
-		double diff = client_normalize_difficulty(json_params->u.array.values[0]->u.dbl);
-		uint64_t user_target = diff_to_target(diff);
-
-		if(user_target >= YAAMP_MINDIFF && user_target <= YAAMP_MAXDIFF)
-			client->difficulty_actual = diff;
+		diff = client_wanted_difficulty(diff);
+		if(diff > 0 && !client->difficulty_fixed)
+		{
+			client->difficulty_floor = diff;
+			if(client->jobid_sent)
+				client_change_difficulty(client, diff);
+			else
+				client->difficulty_actual = diff;	// sent with mining.authorize
+		}
+		if(g_debuglog_client)
+			debuglog("%s suggests difficulty %g, using %g\n", client->sock->ip, diff, client->difficulty_actual);
 	}
 
 	client_send_result(client, "true");
@@ -21,33 +63,67 @@ bool client_suggest_target(YAAMP_CLIENT *client, json_value *json_params)
 	client_send_result(client, "true");
 	return true;
 }
-const uint32_t maxmask = 0x1fffe000;
 
+// Version bits a miner may roll (ASICBoost, BIP310); the miner's own mask is applied on top.
+static const uint32_t g_version_mask_pool = 0x1fffe000;
+
+// mining.configure (BIP310). Answers with the request's own id, and only with what is supported.
 bool client_configure(YAAMP_CLIENT *client, json_value *json_params)
 {
-        bool valid;
-        uint32_t mask;
+	json_value *names = json_params->u.array.length > 0? json_params->u.array.values[0]: NULL;
+	json_value *opts = json_params->u.array.length > 1? json_params->u.array.values[1]: NULL;
+	if(opts && opts->type != json_object) opts = NULL;
 
-        valid = false;
+	char result[1024] = "{";
+	if(names && names->type == json_array)
+	for(int i = 0; i < names->u.array.length && strlen(result) < 800; i++)
+	{
+		json_value *n = names->u.array.values[i];
+		if(!n || n->type != json_string || !n->u.string.ptr) continue;
+		const char *name = n->u.string.ptr;
+		if(strlen(result) > 1) strcat(result, ",");
 
-        if(json_params->u.array.length>1 && json_params->u.array.values[0]->u.array.values[0]->u.string.ptr)
-        {
-                if(!strcmp(json_params->u.array.values[0]->u.array.values[0]->u.string.ptr, "version-rolling"))
-                {
-                        if(!strcmp(json_params->u.array.values[1]->u.object.values[0].name, "version-rolling.mask"))
-                        {
-                                mask = strtol(json_params->u.array.values[1]->u.object.values[0].value->u.string.ptr, NULL, 16);
-                                valid = true;
-                        }
-                }
-        }
+		if(!strcmp(name, "version-rolling"))
+		{
+			uint32_t mask = 0xffffffff;
+			const char *m = json_member_string(opts, "version-rolling.mask");
+			if(m) mask = (uint32_t) strtoul(m, NULL, 16);
+			client->version_mask = mask & g_version_mask_pool;
+			if(client->version_mask)
+				sprintf(result+strlen(result), "\"version-rolling\":true,\"version-rolling.mask\":\"%08x\"", client->version_mask);
+			else
+				strcat(result, "\"version-rolling\":false");
+		}
+		else if(!strcmp(name, "minimum-difficulty"))
+		{
+			double d = 0;
+			json_value *v = opts? json_get_object(opts, "minimum-difficulty.value"): NULL;
+			if(json_number(v, &d) && (d = client_wanted_difficulty(d)) > 0) {
+				client->difficulty_floor = d;
+				if(!client->difficulty_fixed && client->difficulty_actual < d) {
+					if(client->jobid_sent) client_change_difficulty(client, d);
+					else client->difficulty_actual = d;
+				}
+				strcat(result, "\"minimum-difficulty\":true");
+			}
+			else
+				strcat(result, "\"minimum-difficulty\":false");
+		}
+		else
+		{
+			// subscribe-extranonce, info, ...: not supported
+			char clean[64] = { 0 };
+			for(int j = 0; name[j] && j < 63; j++)
+				clean[j] = (isalnum(name[j]) || name[j] == '-' || name[j] == '.' || name[j] == '_')? name[j]: '_';
+			sprintf(result+strlen(result), "\"%s\":false", clean);
+		}
+	}
+	strcat(result, "}");
 
-        if (!valid)
-        {
-                return socket_send(client->sock, "{\"error\": null, \"id\": 1, \"result\": {\"version-rolling\": false}}\n");
-        }
+	if(g_debuglog_client)
+		debuglog("%s mining.configure -> %s\n", client->sock->ip, result);
 
-        return socket_send(client->sock, "{\"id\":0,\"result\":{\"version-rolling\":true,\"version-rolling.mask\":\"%08x\"},\"error\":null}\n", maxmask);
+	return client_send_result(client, "%s", result);
 }
 
 
@@ -59,6 +135,9 @@ bool client_subscribe(YAAMP_CLIENT *client, json_value *json_params)
 
 	client->extranonce2size_default = YAAMP_EXTRANONCE2_SIZE;
 	client->difficulty_actual = g_stratum_difficulty;
+	// mining.configure may already have set a minimum
+	if(client->difficulty_floor > client->difficulty_actual)
+		client->difficulty_actual = client->difficulty_floor;
 
 	strcpy(client->extranonce1, client->extranonce1_default);
 	client->extranonce2size = client->extranonce2size_default;
@@ -77,7 +156,7 @@ bool client_subscribe(YAAMP_CLIENT *client, json_value *json_params)
 	{
 		if (json_params->u.array.values[0]->u.string.ptr)
 			strncpy(client->version, json_params->u.array.values[0]->u.string.ptr, 1023);
-		if (strstr(client->version, "NiceHash"))
+		if (strstr(client->version, "NiceHash") && client->difficulty_floor < g_stratum_nicehash_difficulty)
       client->difficulty_actual = g_stratum_nicehash_difficulty;
 
 		if(strstr(client->version, "proxy") || strstr(client->version, "/3."))
@@ -309,6 +388,10 @@ bool client_authorize(YAAMP_CLIENT *client, json_value *json_params)
 
 		return false;
 	}
+
+	// m=solo in the password: this miner is paid the whole blocks it finds (pplns.cpp)
+	if(client->coinid)
+		pplns_client_solo(client, (YAAMP_COIND *)object_find(&g_list_coind, client->coinid));
 
 	client_send_result(client, "true");
 	client_send_difficulty(client, client->difficulty_actual);

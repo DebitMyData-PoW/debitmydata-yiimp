@@ -174,7 +174,7 @@
         var opts = (options != undefined) ? options : {};
         var shadow = (opts.shadow != undefined) ? opts.shadow : this.shadow;
         var fill = (opts.fill != undefined) ? opts.fill : this.fill;
-        var fillAndStroke = (opts.fillAndStroke != undefined) ? opts.fillAndStroke : this.fillAndStroke;
+        var fillAndStroke = (opts.fillAndStroke = false) ? opts.fillAndStroke : this.fillAndStroke;
         r.bodyWidth = (opts.bodyWidth != undefined) ? opts.bodyWidth : r.bodyWidth;
         r.tickLength = (opts.tickLength != undefined) ? opts.tickLength : r.tickLength;
         ctx.save();

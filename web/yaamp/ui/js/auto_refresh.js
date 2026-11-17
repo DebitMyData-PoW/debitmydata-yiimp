@@ -1,33 +1,11 @@
+var auto_delay = 30000; // Refresh interval: 30 seconds
 
-var auto_delay = 4000;
-var auto_max_time = 3600000;
-var auto_start_time = new Date().getTime();
-
-$(function()
-{
+$(function() {
 	auto_page_refresh();
 });
 
-function auto_page_resume()
-{
-	auto_start_time = new Date().getTime();
-	$('#resume_update_button').hide();
+function auto_page_refresh() {
+	page_refresh();  // Your function to refresh data
 
-	auto_page_refresh();
+	setTimeout(auto_page_refresh, auto_delay);  // Keep refreshing every 30 seconds
 }
-
-function auto_page_refresh()
-{
-	page_refresh();
-
-	var now_time = new Date().getTime();
-	if(now_time > auto_start_time + auto_max_time)
-	{
-		$('#resume_update_button').show();
-		document.title = 'AltPool';
-	}
-	
-	else
-		setTimeout(auto_page_refresh, auto_delay);
-}
-

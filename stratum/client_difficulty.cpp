@@ -33,13 +33,33 @@ void client_change_difficulty(YAAMP_CLIENT *client, double difficulty)
 	if(difficulty <= 0) return;
 
 	difficulty = client_normalize_difficulty(difficulty);
+	// never below what the miner asked for (mining.suggest_difficulty, minimum-difficulty)
+	if(client->difficulty_floor > 0 && difficulty < client->difficulty_floor)
+		difficulty = client->difficulty_floor;
 	if(difficulty <= 0) return;
 
 //	debuglog("change diff to %f %f\n", difficulty, client->difficulty_actual);
 	if(difficulty == client->difficulty_actual) return;
 
+	// shares of the jobs already sent stay valid at the difficulty they were sent with
+	// (two changes before the next job: those jobs still had the first difficulty)
+	if(!client->diff_change_jobid || client->diff_change_jobid != client->jobid_sent)
+	{
+		client->difficulty_prev = client->difficulty_actual;
+		client->diff_change_jobid = client->jobid_sent;
+	}
+
 	client->difficulty_actual = difficulty;
 	client_send_difficulty(client, difficulty);
+}
+
+// The difficulty a share of this job is checked and credited at. For a job sent before the last
+// change, the lower of the two: some miners apply a new difficulty to the work they already have.
+double client_job_difficulty(YAAMP_CLIENT *client, int jobid)
+{
+	if(client->difficulty_prev > 0 && client->diff_change_jobid && jobid <= client->diff_change_jobid)
+		return client->difficulty_prev < client->difficulty_actual? client->difficulty_prev: client->difficulty_actual;
+	return client->difficulty_actual;
 }
 
 void client_adjust_difficulty(YAAMP_CLIENT *client)
@@ -93,7 +113,8 @@ void client_initialize_difficulty(YAAMP_CLIENT *client)
 	uint64_t user_target = diff_to_target(diff);
 
 //	debuglog("%016llx target\n", user_target);
-	if(user_target >= YAAMP_MINDIFF && user_target <= YAAMP_MAXDIFF)
+	// (no upper limit but the port's diff_max: SHA256 ASICs need more than 131070)
+	if(user_target > 0 && user_target <= YAAMP_MAXDIFF)
 	{
 		client->difficulty_actual = diff;
 		client->difficulty_fixed = true;

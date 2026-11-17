@@ -130,7 +130,9 @@ function BackendRentingPayout()
 		}
 
 		$delay = time() - 5*60;
-		dborun("delete from shares where algo=:algo and time<$delay", array(':algo'=>$algo));
+		// not the shares of coins paid in the coinbase (their PPLNS window)
+		$keep = pplns_tables()? " and coinid not in (select coinid from pplns_state where switch_time is not null)": "";
+		dborun("delete from shares where algo=:algo and time<$delay $keep", array(':algo'=>$algo));
 	}
 
 	if($total_cleared>0)

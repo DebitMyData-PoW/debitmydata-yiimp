@@ -12,7 +12,6 @@ bin/blocknotify-dcr
 stratum/config/
 log/
 *.log
-web/images/*
 web/yaamp/runtime/*
 cookies/
 bin/blocknotif
@@ -27,3 +26,25 @@ web/keys.sample.php
 web/yaamp/modules/site/coin_form.php
 web/yaamp/modules/site/index.php
 web/yaamp/modules/site/results/current_results.php
+
+# Settings and secrets of a running pool: on the server only, never in this public repository
+web/keys.php
+configuration/
+stratum/config/*.conf
+*.pem
+*.key
+
+# Licensed fonts and icons (Font Awesome Pro, commercial display fonts): on the server only,
+# their licenses don't allow publishing them. Mada (SIL Open Font License) is the exception.
+web/yaamp/ui/css/all.css
+web/yaamp/ui/js/all.js
+web/yaamp/ui/webfonts/
+web/yaamp/ui/menu/assets/fonts/
+web/yaamp/ui/fonts/*
+!web/yaamp/ui/fonts/mada-latin-*.woff2
+!web/yaamp/ui/fonts/OFL-Mada.txt
+
+# Backups and old copies
+*.bak
+*.old
+*-bak

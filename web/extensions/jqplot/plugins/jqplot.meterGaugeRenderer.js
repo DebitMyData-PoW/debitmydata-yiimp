@@ -130,7 +130,7 @@
         this.intervals = [];
         // prop: intervalColors
         // Array of colors to use for the intervals.
-        this.intervalColors = [ "#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc", "#c747a3", "#cddf54", "#FBD178", "#26B4E3", "#bd70c7"];
+        this.intervalColors = [ "#EAB102", "#FFC617", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc", "#c747a3", "#cddf54", "#FBD178", "#26B4E3", "#bd70c7"];
         // prop: intervalInnerRadius
         // Radius of the inner circle of the interval ring.
         this.intervalInnerRadius =  null;

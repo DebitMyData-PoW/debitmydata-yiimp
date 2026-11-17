@@ -1,221 +1,274 @@
 <?php
-
-require_once('serverconfig.php');
-require_once('yaamp/defaultconfig.php');
+require_once ('/home/crypto-data/yiimp/site/configuration/serverconfig.php');
+require_once ('yaamp/defaultconfig.php');
 
 class CronjobController extends CommonController
 {
-	private function monitorApache()
-	{
-		if(!YAAMP_PRODUCTION) return;
-		if(!YAAMP_USE_NGINX) return;
+    private function monitorApache()
+    {
+        if (!YAAMP_PRODUCTION) return;
+        if (!YAAMP_USE_NGINX) return;
 
-		$uptime = exec('uptime');
+        $uptime = exec('uptime');
 
-		$apache_locked = memcache_get($this->memcache->memcache, 'apache_locked');
-		if($apache_locked) return;
+        $apache_locked = memcache_get($this
+            ->memcache->memcache, 'apache_locked');
+        if ($apache_locked) return;
 
-		$b = preg_match('/load average: (.*)$/', $uptime, $m);
-		if(!$b) return;
+        $b = preg_match('/load average: (.*)$/', $uptime, $m);
+        if (!$b) return;
 
-		$e = explode(', ', $m[1]);
+        $e = explode(', ', $m[1]);
 
-		$webserver = 'nginx';
-		$res = exec("pgrep $webserver");
-		$webserver_running = !empty($res);
+        $webserver = 'nginx';
+        $res = exec("pgrep $webserver");
+        $webserver_running = !empty($res);
 
-		if($e[0] > 4 && $webserver_running)
-		{
-			debuglog('server overload!');
-	//		debuglog('stopping webserver');
-	//		system("service $webserver stop");
-			sleep(1);
-		}
+        if ($e[0] > 4 && $webserver_running)
+        {
+            debuglog('server overload!');
+            //		debuglog('stopping webserver');
+            //		system("service $webserver stop");
+            sleep(1);
+        }
 
-		else if(!$webserver_running)
-		{
-			debuglog('starting webserver');
-			system("service $webserver start");
-		}
-	}
+        else if (!$webserver_running)
+        {
+            debuglog('starting webserver');
+            system("sudo service $webserver start");
+        }
+    }
 
-	public function actionRunBlocks()
-	{
-//		screenlog(__FUNCTION__);
-		set_time_limit(0);
+    public function actionRunBlocks()
+    {
+        //		screenlog(__FUNCTION__);
+        set_time_limit(0);
 
-		$this->monitorApache();
+        $this->monitorApache();
 
-		$last_complete = memcache_get($this->memcache->memcache, "cronjob_block_time_start");
-		if($last_complete+(5*60) < time())
-			dborun("update jobs set active=false");
-		BackendBlockFind1();
-		if(!memcache_get($this->memcache->memcache, 'balances_locked')) {
-			BackendClearEarnings();
-		}
-		BackendRentingUpdate();
-		BackendProcessList();
-		BackendBlocksUpdate();
+        $last_complete = memcache_get($this
+            ->memcache->memcache, "cronjob_block_time_start");
+        if ($last_complete + (5 * 60) < time()) dborun("update jobs set active=false");
+        BackendBlockFind1();
+        if (!memcache_get($this
+            ->memcache->memcache, 'balances_locked'))
+        {
+            BackendClearEarnings();
+        }
+        BackendRentingUpdate();
+        BackendProcessList();
+        BackendBlocksUpdate();
 
-		memcache_set($this->memcache->memcache, "cronjob_block_time_start", time());
-//		screenlog(__FUNCTION__.' done');
-	}
+        // notifications of the pool app (new blocks, payouts): sent by the notifications service
+        // (actionRunPush) while it runs, else from here at most every 30 seconds; a problem there
+        // never stops the blocks job
+        try {
+            require_once('/home/crypto-data/yiimp/site/web/yaamp/core/backend/push.php');
+            if ((int) memcache_get($this->memcache->memcache, 'push_loop_alive') < time() - 30) BackendPushSend();
+        } catch (Throwable $e) {
+            debuglog('push: ' . $e->getMessage());
+        }
 
-	public function actionRunLoop2()
-	{
-//		screenlog(__FUNCTION__);
-		set_time_limit(0);
+        memcache_set($this
+            ->memcache->memcache, "cronjob_block_time_start", time());
+        //		screenlog(__FUNCTION__.' done');
 
-		$this->monitorApache();
+    }
 
-		BackendCoinsUpdate();
-		BackendStatsUpdate();
-		BackendUsersUpdate();
+    // The notifications of the pool app, every 2 seconds: the notifications service runs this
+    // (/etc/systemd/system/dmd-pool-push.service, as the user of the blocks job). A fresh process
+    // every hour, or after a database error: systemd starts it again.
+    public function actionRunPush()
+    {
+        set_time_limit(0);
+        require_once('/home/crypto-data/yiimp/site/web/yaamp/core/backend/push.php');
+        $until = time() + 3600;
+        while (time() < $until) {
+            memcache_set($this->memcache->memcache, 'push_loop_alive', time(), 0, 120);
+            try {
+                BackendPushSend(true);
+            } catch (Throwable $e) {
+                debuglog('push: ' . $e->getMessage());
+                sleep(5);
+                return;
+            }
+            sleep(2);
+        }
+    }
 
-		BackendUpdateServices();
-		BackendUpdateDeposit();
+    public function actionRunLoop2()
+    {
+        //		screenlog(__FUNCTION__);
+        set_time_limit(0);
 
-		MonitorBTC();
+        $this->monitorApache();
 
-		$last = memcache_get($this->memcache->memcache, 'last_renting_payout2');
-		if($last + 5*60 < time() && !memcache_get($this->memcache->memcache, 'balances_locked'))
-		{
-			memcache_set($this->memcache->memcache, 'last_renting_payout2', time());
-			BackendRentingPayout();
-		}
+        BackendCoinsUpdate();
+        BackendStatsUpdate();
+        BackendUsersUpdate();
 
-		$last = memcache_get($this->memcache->memcache, 'last_stats2');
-		if($last + 5*60 < time())
-		{
-			memcache_set($this->memcache->memcache, 'last_stats2', time());
-			BackendStatsUpdate2();
-		}
+        BackendUpdateServices();
+        BackendUpdateDeposit();
 
-		memcache_set($this->memcache->memcache, "cronjob_loop2_time_start", time());
-//		screenlog(__FUNCTION__.' done');
-	}
+        MonitorBTC();
 
-	public function actionRun()
-	{
-//		debuglog(__METHOD__);
-		set_time_limit(0);
+        $last = memcache_get($this
+            ->memcache->memcache, 'last_renting_payout2');
+        if ($last + 5 * 60 < time() && !memcache_get($this
+            ->memcache->memcache, 'balances_locked'))
+        {
+            memcache_set($this
+                ->memcache->memcache, 'last_renting_payout2', time());
+            BackendRentingPayout();
+        }
 
-//		BackendRunCoinActions();
+        $last = memcache_get($this
+            ->memcache->memcache, 'last_stats2');
+        if ($last + 5 * 60 < time())
+        {
+            memcache_set($this
+                ->memcache->memcache, 'last_stats2', time());
+            BackendStatsUpdate2();
+        }
 
-		$state = memcache_get($this->memcache->memcache, 'cronjob_main_state');
-		if(!$state) $state = 0;
+        memcache_set($this
+            ->memcache->memcache, "cronjob_loop2_time_start", time());
+        //		screenlog(__FUNCTION__.' done');
 
-		memcache_set($this->memcache->memcache, 'cronjob_main_state', $state+1);
-		memcache_set($this->memcache->memcache, "cronjob_main_state_$state", 1);
+    }
 
-		switch($state)
-		{
-			case 0:
-				updateRawcoins();
+    public function actionRun()
+    {
+        //		debuglog(__METHOD__);
+        set_time_limit(0);
 
-				$btcusd = bitstamp_btcusd();
-				if($btcusd) {
-					$mining = getdbosql('db_mining');
-					if (!$mining) $mining = new db_mining;
-					$mining->usdbtc = $btcusd;
-					$mining->save();
-				}
+        //		BackendRunCoinActions();
+        $state = memcache_get($this
+            ->memcache->memcache, 'cronjob_main_state');
+        if (!$state) $state = 0;
 
-				break;
+        memcache_set($this
+            ->memcache->memcache, 'cronjob_main_state', $state + 1);
+        memcache_set($this
+            ->memcache->memcache, "cronjob_main_state_$state", 1);
 
-			case 1:
-				if(!YAAMP_PRODUCTION) break;
+        switch ($state)
+        {
+            case 0:
+                updateRawcoins();
 
-				getBitstampBalances();
-				getCexIoBalances();
-				doBittrexTrading();
-				doCrex24Trading();
-				doCryptopiaTrading();
-				doKrakenTrading();
-				doLiveCoinTrading();
-				doPoloniexTrading();
-				break;
+                $btcusd = bitstamp_btcusd();
+                if ($btcusd)
+                {
+                    $mining = getdbosql('db_mining');
+                    if (!$mining) $mining = new db_mining;
+                    $mining->usdbtc = $btcusd;
+                    $mining->save();
+                }
 
-			case 2:
-				if(!YAAMP_PRODUCTION) break;
+                break;
 
-				doBinanceTrading();
-				doCCexTrading();
-				doBleutradeTrading();
-				doKuCoinTrading();
-				doNovaTrading();
-				doYobitTrading();
-				doCoinsMarketsTrading();
-				break;
+            case 1:
+                if (!YAAMP_PRODUCTION) break;
 
-			case 3:
-				BackendPricesUpdate();
-				BackendWatchMarkets();
-				break;
+                getBitstampBalances();
+                getCexIoBalances();
+                doBittrexTrading();
+                doCrex24Trading();
+                doCryptopiaTrading();
+                doKrakenTrading();
+                doLiveCoinTrading();
+                doPoloniexTrading();
+                break;
 
-			case 4:
-				BackendBlocksUpdate();
-				break;
+            case 2:
+                if (!YAAMP_PRODUCTION) break;
 
-			case 5:
-				TradingSellCoins();
-				break;
+                doBinanceTrading();
+                doCCexTrading();
+                doBleutradeTrading();
+                doCryptobridgeTrading();
+                doKuCoinTrading();
+                doNovaTrading();
+                doYobitTrading();
+                doCoinsMarketsTrading();
+                break;
 
-			case 6:
-				BackendBlockFind2();
-				BackendUpdatePoolBalances();
-				break;
+            case 3:
+                BackendPricesUpdate();
+                BackendWatchMarkets();
+                break;
 
-			case 7:
-				NotifyCheckRules();
-				BenchUpdateChips();
-				break;
+            case 4:
+                BackendBlocksUpdate();
+                break;
 
-			default:
-				memcache_set($this->memcache->memcache, 'cronjob_main_state', 0);
-				BackendQuickClean();
+            case 5:
+                TradingSellCoins();
+                break;
 
-				$t = memcache_get($this->memcache->memcache, "cronjob_main_start_time");
-				$n = time();
+            case 6:
+                BackendBlockFind2();
+                BackendUpdatePoolBalances();
+                break;
 
-				memcache_set($this->memcache->memcache, "cronjob_main_time", $n-$t);
-				memcache_set($this->memcache->memcache, "cronjob_main_start_time", $n);
-		}
+            case 7:
+                NotifyCheckRules();
+                BenchUpdateChips();
+                break;
 
-		debuglog(__METHOD__." $state");
-		memcache_set($this->memcache->memcache, "cronjob_main_state_$state", 0);
+            default:
+                memcache_set($this
+                    ->memcache->memcache, 'cronjob_main_state', 0);
+                BackendQuickClean();
 
-		memcache_set($this->memcache->memcache, "cronjob_main_time_start", time());
-		if(!YAAMP_PRODUCTION) return;
+                $t = memcache_get($this
+                    ->memcache->memcache, "cronjob_main_start_time");
+                $n = time();
 
-		///////////////////////////////////////////////////////////////////
+                memcache_set($this
+                    ->memcache->memcache, "cronjob_main_time", $n - $t);
+                memcache_set($this
+                    ->memcache->memcache, "cronjob_main_start_time", $n);
+            }
 
-		$mining = getdbosql('db_mining');
-		if($mining->last_payout + YAAMP_PAYMENTS_FREQ > time()) return;
+            debuglog(__METHOD__ . " $state");
+            memcache_set($this
+                ->memcache->memcache, "cronjob_main_state_$state", 0);
 
-		debuglog("--------------------------------------------------------");
+            memcache_set($this
+                ->memcache->memcache, "cronjob_main_time_start", time());
+            if (!YAAMP_PRODUCTION) return;
 
-		$mining->last_payout = time();
-		$mining->save();
+            ///////////////////////////////////////////////////////////////////
+            $mining = getdbosql('db_mining');
+            if ($mining->last_payout + YAAMP_PAYMENTS_FREQ > time()) return;
 
-//		memcache_set($this->memcache->memcache, 'apache_locked', true);
-//		if(YAAMP_USE_NGINX)
-//			system("service nginx stop");
+            debuglog("--------------------------------------------------------");
 
-		sleep(10);
-		BackendDoBackup();
-		memcache_set($this->memcache->memcache, 'apache_locked', false);
+            $mining->last_payout = time();
+            $mining->save();
 
-		// prevent user balances changes during payments (blocks thread)
-		memcache_set($this->memcache->memcache, 'balances_locked', true, 0, 300);
-		BackendPayments();
-		memcache_set($this->memcache->memcache, 'balances_locked', false);
+            memcache_set($this
+                ->memcache->memcache, 'apache_locked', true);
+            if (YAAMP_USE_NGINX) system("sudo service nginx restart");
 
-		BackendCleanDatabase();
+            sleep(10);
+            BackendDoBackup();
+            memcache_set($this
+                ->memcache->memcache, 'apache_locked', false);
 
-	//	BackendOptimizeTables();
-		debuglog('payments sequence done');
-	}
+            // prevent user balances changes during payments (blocks thread)
+            memcache_set($this
+                ->memcache->memcache, 'balances_locked', true, 0, 300);
+            BackendPayments();
+            memcache_set($this
+                ->memcache->memcache, 'balances_locked', false);
 
-}
+            BackendCleanDatabase();
 
+            //	BackendOptimizeTables();
+            debuglog('payments sequence done');
+        }
+
+    }

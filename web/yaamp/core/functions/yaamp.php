@@ -30,6 +30,8 @@ function yaamp_get_algos()
 		'groestl', // dmd-gr -m 256 (deprecated)
 		'geek',
 		'gr',
+		'fortune',
+		'mike',
 		'heavyhash',
 		'hex',
 		'hmq1725',
@@ -59,6 +61,7 @@ function yaamp_get_algos()
 		'qubit',
 		'rainforest',
 		'randomx',
+		'rinhash',
 		'scrypt',
 		'scryptn',
 		'sha256',
@@ -104,9 +107,9 @@ function yaamp_get_algos()
 		'yespowerR24',
 		'yespowerR32',
 		'yespowerTIDE',
+		'yespowerLTNCG',
 		'zr5',
 		'kawpow',
-		'randomx',
 	);
 }
 
@@ -122,6 +125,10 @@ function yaamp_algo_mBTC_factor($algo)
 	case 'script':
 		return 1000000000;
 	case 'gr':
+		return 0.001;
+	case 'fortune':
+		return 0.001;
+	case 'mike':
 		return 0.001;
 	case 'sha256q':
 	case 'blake':
@@ -155,7 +162,9 @@ function yaamp_get_algo_norm($algo)
 		'argon2d-uis'	=> 1.0,
 		'blake'		=> 1.0,
 		'curvehash'	=> 1.0,
-		'gr'	=> 0.001,
+		'gr'		=> 0.001,
+		'fortune'	=> 0.001,
+		'mike'		=> 0.001,
 		'keccak'	=> 1.0,
 		'lyra2'		=> 1.0,
 		'lyra2v2'	=> 1.0,
@@ -216,7 +225,9 @@ function getAlgoColors($algo)
 		'dmd-gr'	=> '#a0c0f0',
 		'exosis'	=> '#49CCFE',
 		'geek'		=> '#d0a0a0',
-		'gr'	=> '#80a0d0',
+		'gr'		=> '#80a0d0',
+		'fortune'	=> '#80a0d0',
+		'mike'		=> '#d0f0a0',
 		'groestl'	=> '#d0a0a0',
 		'heavyhash'	=> '#d0a0a0',
 		'hex'		=> '#c0f0c0',
@@ -248,6 +259,7 @@ function getAlgoColors($algo)
 		'rainforest'	=> '#d0f0a0',
 		'randomx'    	=> '#d0f0a0',
 		'renesis'	=> '#f0b0a0',
+		'rinhash'    	=> '#d0f0a0',
 		'scrypt'	=> '#c0c0e0',
 		'scryptn'	=> '#d0d0d0',
 		'sha256'	=> '#d0d0a0',
@@ -293,9 +305,9 @@ function getAlgoColors($algo)
 		'yespowerR24' 	=> '#e2d0d2',
 		'yespowerR32' 	=> '#e2d0d2',
 		'yespowerTIDE' 	=> '#e2d0d2',
+		'yespowerLTNCG' 	=> '#e2d0d2',
 		'zr5'		=> '#d0b0d0',
 		'kawpow'        => '#d0bd00',
-		'randomx' 	=> '#e2d0d2',
 
 		'MN'		=> '#ffffff', // MasterNode Earnings
 		'PoS'		=> '#ffffff'  // Stake
@@ -334,7 +346,9 @@ function getAlgoPort($algo)
 		'equihash' 	=> 8888,
 		'exosis'	=> 3557,
 		'geek'		=> 3692,
-		'gr'	=> 7070,
+		'gr'		=> 7070,
+		'fortune'	=> 3990,
+		'mike'		=> 7079,
 		'heavyhash'	=> 5136,
 		'hex'		=> 5135,
 		'hmq1725'	=> 3747,
@@ -366,6 +380,7 @@ function getAlgoPort($algo)
 		'renesis' 	=> 5252,
 		'rainforest'	=> 7443,
 		'randomx'  	=> 7444,
+		'rinhash'  	=> 9554,
 		'scrypt'	=> 3433,
 		'scryptn'	=> 4333,
 		'sha256'	=> 3333,
@@ -411,6 +426,7 @@ function getAlgoPort($algo)
 		'yespowerR24'	=> 6237,
 		'yespowerR32'	=> 6238,
 		'yespowerTIDE'	=> 6243,
+		'yespowerLTNCG'	=> 6241,
 		'zr5'		=> 5533,
 		'kawpow'        => 3635,
 		'randomx'	=> 8284,
@@ -710,6 +726,166 @@ function yaamp_coin_rate($coinid)
     }
 
 	return $rate;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+// Solo mining (m=solo in the miner's password): solo shares are marked in the shares table
+// (sql/2026-11-12-pplns-coinbase.sql) and each block records who it paid (coinbase_splits).
+
+// The solo column and the coinbase_splits table are there.
+function yaamp_has_solo_shares()
+{
+	static $ok = null;
+	if ($ok !== null) return $ok;
+	$v = controller()->memcache->get('yaamp_has_solo_shares');
+	if ($v === false) {
+		$v = (dboscalar("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() ".
+			"AND table_name='shares' AND column_name='solo'") &&
+			dboscalar("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() ".
+			"AND table_name='coinbase_splits'")) ? 1 : 0;
+		controller()->memcache->set('yaamp_has_solo_shares', $v, 300);
+	}
+	$ok = (bool) $v;
+	return $ok;
+}
+
+// Does this account still have money waiting for a balance payout (the payout job, every
+// YAAMP_PAYMENTS_FREQ)? Rewards paid in the block itself (PPLNS, solo) are cleared at once
+// (earnings status 2) and never wait. What waits: earnings paid the normal way that are maturing
+// or matured (status 0 or 1): blocks found with PROP before the switch, or a PPLNS part under the
+// stratum's min_output; and a balance big enough for the payout job (over its lowest minimum,
+// Sunday evening's: backend/payment.php). The wallet page shows the payout countdown and the
+// payouts link only then.
+function yaamp_user_payout_waiting($user)
+{
+	if (!$user || !$user->id) return false;
+
+	$coin = $user->coinid ? getdbo('db_coins', $user->coinid) : null;
+	$txfee = $coin ? floatval($coin->txfee) : 0;
+	$min = max(floatval(YAAMP_PAYMENTS_MINI), $coin ? floatval($coin->payout_min) : 0, $txfee);
+	if (floatval($user->balance) > max($min / 10, $txfee)) return true;
+
+	$waiting = controller()->memcache->get_database_scalar("wallet_payout_waiting-{$user->id}",
+		"SELECT COUNT(*) FROM earnings WHERE userid=".intval($user->id)." AND status IN (0,1)");
+	return intval($waiting) > 0;
+}
+
+// The network's hashrate and difficulty, asked to the coin's node (getnetworkhashps,
+// getdifficulty) at most every 30 seconds, for every page (the home page, the wallet pages):
+// array('hashrate'=>H/s or null, 'difficulty'=>number, array or null). A node that does not
+// answer gives nulls (kept 30 seconds too, so the pages never wait on it).
+function yaamp_network_stats($coin)
+{
+	if (!$coin || !$coin->id) return array('hashrate'=>null, 'difficulty'=>null);
+
+	$cache = controller()->memcache;
+	$cache_key = "wallet_network_stats-v1-".intval($coin->id);
+	$can_cache = isset($cache->memcache) && function_exists('memcache_get') && function_exists('memcache_set');
+	$network = $can_cache ? memcache_get($cache->memcache, $cache_key) : false;
+	if (!is_array($network)) {
+		$network = array('hashrate'=>null, 'difficulty'=>null);
+		$remote = new WalletRPC($coin);
+		try {
+			$network['hashrate'] = $remote->getnetworkhashps();
+		} catch (Exception $e) {
+			// an unavailable node should not stop the page
+		}
+		try {
+			$network['difficulty'] = $remote->getdifficulty();
+		} catch (Exception $e) {
+			// the pages fall back to the stored difficulty
+		}
+		if ($can_cache) memcache_set($cache->memcache, $cache_key, $network, 0, 30);
+	}
+	return $network;
+}
+
+// The hashrate that finds the pool's blocks: solo miners left out. The pool's TTF uses it.
+function yaamp_coin_rate_pool($coinid)
+{
+	$coinid = intval($coinid);
+	if (!yaamp_has_solo_shares()) return yaamp_coin_rate($coinid);
+
+	$coin = getdbo('db_coins', $coinid);
+	if(!$coin || !$coin->enable) return 0;
+
+	$rate = controller()->memcache->get("yaamp_coin_rate_pool-$coinid");
+	if($rate === false) {
+		$target = yaamp_hashrate_constant($coin->algo);
+		$interval = yaamp_hashrate_step();
+		$delay = time()-$interval;
+		$rate = dboscalar("SELECT sum(difficulty) FROM shares WHERE valid AND solo=0 AND time>$delay AND coinid=$coinid");
+		$rate = $rate * $target / $interval / 1000;
+		controller()->memcache->set("yaamp_coin_rate_pool-$coinid", $rate, 30);
+	}
+	return $rate;
+}
+
+// A miner's solo hashrate on a coin, 0 if it mines with the pool. Its own TTF uses it.
+function yaamp_user_rate_solo($userid, $coinid)
+{
+	$userid = intval($userid);
+	$coinid = intval($coinid);
+	if (!yaamp_has_solo_shares()) return 0;
+
+	$coin = getdbo('db_coins', $coinid);
+	if(!$coin) return 0;
+
+	$rate = controller()->memcache->get("yaamp_user_rate_solo-$userid-$coinid");
+	if($rate === false) {
+		$target = yaamp_hashrate_constant($coin->algo);
+		$interval = yaamp_hashrate_step();
+		$delay = time()-$interval;
+		$rate = dboscalar("SELECT sum(difficulty) FROM shares WHERE valid AND solo=1 AND time>$delay AND userid=$userid AND coinid=$coinid");
+		$rate = $rate * $target / $interval / 1000;
+		controller()->memcache->set("yaamp_user_rate_solo-$userid-$coinid", $rate, 30);
+	}
+	return $rate;
+}
+
+// Time to find a block at this hashrate, in seconds (0 if unknown).
+function yaamp_ttf_seconds($difficulty, $rate)
+{
+	return ($rate > 0 && $difficulty > 0) ? $difficulty * 0x100000000 / $rate : 0;
+}
+
+// How each block was mined and paid, by block hash:
+//   'solo'  found by a solo miner, paid to it in the block
+//   'pplns' a pool block paid in the block (PPLNS, or the block that closed the PROP round)
+//   'prop'  a pool block paid by the website (before coinbase payouts, or the normal way)
+function yaamp_block_kinds($coinid, $hashes)
+{
+	$kinds = array();
+	$hashes = array_values(array_filter(array_unique($hashes)));
+	if (empty($hashes) || !yaamp_has_solo_shares()) return $kinds;
+
+	$params = array(':coin' => intval($coinid));
+	$in = array();
+	foreach ($hashes as $i => $h) { $in[] = ":h$i"; $params[":h$i"] = $h; }
+	$rows = dbolist("SELECT blockhash, MAX(mode) AS mode, MAX(in_coinbase) AS paid FROM coinbase_splits ".
+		"WHERE coinid=:coin AND blockhash IN (".implode(',', $in).") GROUP BY blockhash", $params);
+	foreach ($rows as $row) {
+		if ($row['mode'] == 3) $kinds[$row['blockhash']] = 'solo';
+		else if ($row['mode'] > 0) $kinds[$row['blockhash']] = 'pplns';
+		else $kinds[$row['blockhash']] = 'prop';
+	}
+	return $kinds;
+}
+
+// Which of a miner's blocks were paid to it in the block itself, by block hash.
+function yaamp_user_coinbase_paid($userid, $coinid, $hashes)
+{
+	$paid = array();
+	$hashes = array_values(array_filter(array_unique($hashes)));
+	if (empty($hashes) || !yaamp_has_solo_shares()) return $paid;
+
+	$params = array(':user' => intval($userid), ':coin' => intval($coinid));
+	$in = array();
+	foreach ($hashes as $i => $h) { $in[] = ":h$i"; $params[":h$i"] = $h; }
+	$rows = dbolist("SELECT blockhash FROM coinbase_splits WHERE userid=:user AND coinid=:coin AND in_coinbase=1 ".
+		"AND blockhash IN (".implode(',', $in).")", $params);
+	foreach ($rows as $row) $paid[$row['blockhash']] = true;
+	return $paid;
 }
 
 function yaamp_rented_rate($algo=null)
