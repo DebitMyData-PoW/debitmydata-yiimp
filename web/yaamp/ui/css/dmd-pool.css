@@ -158,7 +158,7 @@ transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
 .dmd .dmd-kv .dmd-stratum{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
 .dmd .dmd-kv .dmd-stratum code{overflow-wrap:anywhere;font-size:.95em;color:var(--text)}
 .dmd .dmd-chart{display:flex;flex-direction:column}
-.dmd #pool_hashrate_sha256_results{flex:1 1 auto;min-height:220px;margin:35px 0px -8px -10px}
+.dmd #pool_hashrate_sha256_results{flex:1 1 auto;min-height:220px;margin:47px 0px -8px -10px}
 .dmd .dmd-chart-now{font-size:.9rem;color:var(--muted)}
 .dmd .dmd-chart-now b{color:var(--text);font-size:1.05rem}
 .dmd .apexcharts-tooltip{font-family:var(--sans)!important;border:1px solid var(--line)!important;box-shadow:var(--shadow)!important}
