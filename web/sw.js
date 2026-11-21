@@ -12,9 +12,9 @@ const BADGE = "/images/app/badge-96.png?v=1";
 
 const OFFLINE = `<!doctype html><html lang=en><head><meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1"><title>Offline · DebitMyData Pool</title>
-<style>body{margin:0;min-height:100vh;display:grid;place-items:center;font:16px/1.5 system-ui,sans-serif;background:#fff;color:#211f1f;text-align:center;padding:24px}
-@media (prefers-color-scheme:dark){body{background:#18181d;color:#ececf1}}img{width:96px;height:96px}h1{font-size:1.4rem;margin:12px 0 6px}
-p{margin:0 0 18px;color:#7d8797}button{font:700 1rem system-ui,sans-serif;color:#fff;background:#c80815;border:0;border-radius:999px;padding:12px 22px}</style></head>
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;font:16px/1.5 system-ui,sans-serif;background:#fff;color:#13111a;text-align:center;padding:24px}
+@media (prefers-color-scheme:dark){body{background:#0b0a0f;color:#f7f5fa}}img{width:96px;height:96px}h1{font-size:1.4rem;margin:12px 0 6px}
+p{margin:0 0 18px;color:#6e6a78}button{font:600 1rem system-ui,sans-serif;color:#fff;background:linear-gradient(135deg,#e0112b,#ff5a36);border:0;border-radius:999px;padding:12px 22px}</style></head>
 <body><div><img src="${ICON}" alt=""><h1>You're offline</h1><p>The pool's figures need an internet connection.</p>
 <button onclick="location.reload()">Try again</button></div></body></html>`;
 

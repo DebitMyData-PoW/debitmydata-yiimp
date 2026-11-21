@@ -174,9 +174,9 @@ function diff_graph_data(data)
 	var c = window.dmdChartTheme();
 	var options = {
 		series: [{ name: 'Difficulty', data: data1 }],
-		chart: { type: "area", height: 220, foreColor: c.fore, fontFamily: 'Mada, system-ui, sans-serif',
+		chart: { type: "area", height: 220, foreColor: c.fore, fontFamily: 'Inter, system-ui, sans-serif',
 			toolbar: { show: false }, zoom: { enabled: false }, background: 'transparent' },
-		colors: ['#c80815'],
+		colors: [c.red || '#e0112b'],
 		stroke: { curve: "smooth", width: 2 },
 		dataLabels: { enabled: false },
 		markers: { size: 0, hover: { size: 5 } },

@@ -183,8 +183,6 @@ autocapitalize="off" spellcheck="false" required pattern="[A-Za-z0-9]+" title="A
 <p class="dmd-small">Your hashrate, workers, balance and payouts.</p>
 </form>
 </div>
-<div class="dmd-hero-coin"><img src="/images/dmd-coin-512.png" srcset="/images/dmd-coin-256.png 256w, /images/dmd-coin-512.png 512w"
-sizes="(max-width: 760px) 170px, 250px" alt="The DebitMyData coin" width="512" height="512" fetchpriority="high"></div>
 </section>
 
 <h2 class="visually-hidden">The pool right now</h2>
@@ -298,11 +296,11 @@ function dmd_chart_update(data)
     dmd_chart = new ApexCharts(box, {
         series: [{ name: 'Pool hashrate', data: points }],
         chart: {
-            type: 'area', height: 230, fontFamily: 'Mada, system-ui, sans-serif', foreColor: look.fore,
+            type: 'area', height: 230, fontFamily: 'Inter, system-ui, sans-serif', foreColor: look.fore,
             toolbar: { show: false }, zoom: { enabled: false }, animations: { enabled: false },
             parentHeightOffset: 0
         },
-        colors: ['#c80815'],
+        colors: [look.red || '#e0112b'],
         stroke: { curve: 'smooth', width: 2 },
         fill: { type: 'gradient', gradient: { shadeIntensity: 0, opacityFrom: 0.28, opacityTo: 0.02, stops: [0, 100] } },
         dataLabels: { enabled: false },

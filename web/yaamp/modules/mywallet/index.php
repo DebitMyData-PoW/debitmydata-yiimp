@@ -303,10 +303,10 @@ function dmd_graph_draw(algo, data, named)
 	var options = {
 		series: list,
 		chart: {
-			type: 'area', height: 230, fontFamily: 'Mada, system-ui, sans-serif', foreColor: look.fore,
+			type: 'area', height: 230, fontFamily: 'Inter, system-ui, sans-serif', foreColor: look.fore,
 			toolbar: { show: false }, zoom: { enabled: false }, animations: { enabled: false }, parentHeightOffset: 0
 		},
-		colors: ['#c80815', '#9aa2ae', '#e08a00'],
+		colors: [look.red || '#e0112b', '#9aa2ae', '#e08a00'],
 		stroke: { curve: 'smooth', width: [2, 1.5, 1.5], dashArray: [0, 4, 0] },
 		fill: { type: 'gradient', gradient: { shadeIntensity: 0, opacityFrom: [0.28, 0, 0], opacityTo: [0.02, 0, 0], stops: [0, 100] } },
 		dataLabels: { enabled: false },
