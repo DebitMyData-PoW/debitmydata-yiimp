@@ -1,0 +1,135 @@
+/* The pool in DebitMyData's "Aurora" design, the same as debitmydata.io, the stats site and
+   id.debitmydata.io: Sora headlines, Inter text, a soft red glow at the top, a floating glass top
+   bar, rounded glass cards, gradient buttons. Loaded after dmd-pool.css (yaamp/ui/main.php), it
+   changes the colours, fonts and shapes only.
+   Fonts: SIL Open Font License (yaamp/ui/fonts/OFL-Sora.txt, OFL-Inter.txt, OFL-JetBrainsMono.txt). */
+@font-face{font-family:Sora;font-style:normal;font-weight:100 800;font-display:swap;src:url(/yaamp/ui/fonts/sora-wght.woff2) format("woff2")}
+@font-face{font-family:Inter;font-style:normal;font-weight:100 900;font-display:swap;src:url(/yaamp/ui/fonts/inter-wght.woff2) format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:100 800;font-display:swap;src:url(/yaamp/ui/fonts/jetbrains-mono-wght.woff2) format("woff2")}
+:root:root{--sans:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--display:Sora,Inter,system-ui,sans-serif;
+--mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--page:1180px;
+--red:#e0112b;--red2:#ff5a36;--red-hover:#c20d24;--red-deep:#13111a;--red-brand:#d10f28;--red-text:#d10f28;--pink:rgb(224 17 43 / .08);--pink-line:rgb(224 17 43 / .25);
+--pink-hover:rgb(224 17 43 / .12);--grey:rgb(19 17 26 / .05);--line:rgb(19 17 26 / .09);--text:#13111a;--muted:#6e6a78;--body:#4a4654;--green:#16a34a;--gold:#b7791f;
+--up:#16a34a;--down:#d10f28;--page-bg:#fff;--card:rgb(255 255 255 / .8);--topbar:rgb(255 255 255 / .78);--stat-hover-line:rgb(19 17 26 / .16);
+--input-bg:#fff;--input-line:rgb(19 17 26 / .16);--input-hover:rgb(19 17 26 / .26);--placeholder:#9a96a4;--row-line:rgb(19 17 26 / .06);--row-hover:rgb(224 17 43 / .03);
+--tooltip-head:#fbf7f7;--bar-bg:rgb(19 17 26 / .07);--glow1:rgb(255 90 54 / .22);--glow2:rgb(224 17 43 / .15);--glow3:rgb(255 170 160 / .26);
+--shadow:0 1px 2px rgb(40 10 20 / .04),0 24px 48px -28px rgb(80 10 20 / .28);--soft-shadow:none;--row-shadow:none;--bar-shadow:none;
+--pop-shadow:0 40px 90px -40px rgb(80 10 20 / .5)}
+html[data-theme="dark"]:root{--red:#ff3348;--red2:#ff7a45;--red-hover:#ff5a6b;--red-deep:#f7f5fa;--red-brand:#ff5a6b;--red-text:#ff5a6b;--pink:rgb(255 51 72 / .13);
+--pink-line:rgb(255 51 72 / .35);--pink-hover:rgb(255 51 72 / .18);--grey:rgb(255 255 255 / .06);--line:rgb(255 255 255 / .085);--text:#f7f5fa;--muted:#8f8a9b;
+--body:#bdb8c8;--green:#4ade80;--gold:#f0b429;--up:#4ade80;--down:#ff5a6b;--page-bg:#0b0a0f;--card:rgb(255 255 255 / .045);--topbar:rgb(21 19 27 / .72);
+--stat-hover-line:rgb(255 255 255 / .18);--input-bg:#15131b;--input-line:rgb(255 255 255 / .16);--input-hover:rgb(255 255 255 / .26);--placeholder:#6f6a7c;
+--row-line:rgb(255 255 255 / .06);--row-hover:rgb(255 51 72 / .05);--tooltip-head:#1b1822;--bar-bg:rgb(255 255 255 / .08);
+--glow1:rgb(255 51 72 / .24);--glow2:rgb(160 40 255 / .13);--glow3:rgb(255 122 69 / .12);
+--shadow:0 1px 2px rgb(0 0 0 / .3),0 24px 48px -28px rgb(0 0 0 / .8);--pop-shadow:0 40px 90px -40px #000}
+html:root{background:var(--page-bg)}
+body.dmd{position:relative;font:16px/1.65 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:clip}
+body.dmd::before{content:"";position:absolute;inset:-260px 0 auto;height:1150px;z-index:0;pointer-events:none;
+background:radial-gradient(38% 40% at 24% 30%,var(--glow1),transparent 70%),radial-gradient(34% 36% at 76% 22%,var(--glow2),transparent 70%),
+radial-gradient(30% 30% at 50% 62%,var(--glow3),transparent 70%);filter:blur(24px)}
+body.dmd>*{position:relative;z-index:1}
+body.dmd>.dmd-topbar{position:sticky;z-index:1000}
+.dmd h1,.dmd h2,.dmd h3{font-family:var(--display);letter-spacing:-.03em;text-wrap:balance}
+.dmd code{font-family:var(--mono);font-size:.84em}
+
+/* top bar: a floating glass pill */
+.dmd .dmd-topbar{background:transparent;border:0;box-shadow:none;padding:14px 16px 0}
+.dmd .dmd-topbar .dmd-in{max-width:1120px;padding:8px 10px 8px 22px;border:1px solid var(--line);border-radius:999px;background:var(--topbar);
+backdrop-filter:saturate(1.5) blur(18px);-webkit-backdrop-filter:saturate(1.5) blur(18px);box-shadow:0 10px 30px -18px rgb(20 10 20 / .35)}
+.dmd .dmd-brand{font:600 17px/1.2 var(--display);letter-spacing:-.02em}
+.dmd .dmd-brand img{width:28px;height:28px}
+.dmd .dmd-brand:hover{color:var(--text)}
+.dmd .dmd-tag{background:var(--pink);border:0;color:var(--red-text);border-radius:99px;font:700 10.5px/1 var(--sans);letter-spacing:.08em;padding:4px 7px}
+.dmd .dmd-nav a{color:var(--body);font-weight:500;border-radius:99px;padding:8px 13px}
+.dmd .dmd-nav a:hover{background:var(--grey);color:var(--text)}
+.dmd .dmd-nav a.on{background:var(--grey);color:var(--text);font-weight:600;box-shadow:none}
+.dmd .dmd-nav a.dmd-cta,.dmd .dmd-nav a.dmd-cta:hover{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;border-radius:99px;box-shadow:0 10px 22px -10px var(--red);font-weight:600}
+.dmd .dmd-theme-toggle,.dmd .dmd-bell{border-radius:50%;border-color:var(--input-line);background:transparent}
+.dmd .dmd-theme-toggle:hover,.dmd .dmd-bell:hover{background:var(--grey);border-color:var(--text);color:var(--text)}
+
+/* the page */
+.dmd .content-inner{padding:0 32px 100px}
+.dmd .dmd-eyebrow{display:inline-block;background:var(--pink);border:0;color:var(--red-text);border-radius:99px;padding:5px 13px;
+font:600 12.5px/1.2 var(--sans);letter-spacing:.02em;text-transform:none;margin:0 0 16px}
+.dmd .dmd-card,.dmd .dmd-stat{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);
+backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+@media (hover:hover){.dmd .dmd-stat:hover,.dmd .dmd-card:hover{border-color:var(--stat-hover-line);box-shadow:var(--shadow)}}
+.dmd .dmd-card-head h2{font:600 17px/1.3 var(--display);letter-spacing:-.02em;text-transform:none;color:var(--text)}
+.dmd .dmd-card-head h2 svg{color:var(--red-text)}
+.dmd .dmd-stat .dmd-label{font:500 12.5px/1.3 var(--sans);letter-spacing:0;text-transform:none;color:var(--muted)}
+.dmd .dmd-stat b{font-family:var(--display);font-weight:600;letter-spacing:-.03em}
+.dmd .dmd-button{border:0;border-radius:99px;font-weight:600;letter-spacing:0;text-transform:none;background:linear-gradient(135deg,var(--red),var(--red2));
+box-shadow:0 12px 26px -12px var(--red)}
+.dmd .dmd-button:hover{background:linear-gradient(135deg,var(--red-hover),var(--red))}
+.dmd .dmd-button.dmd-ghost{background:var(--card);color:var(--text);border:1px solid var(--input-line);box-shadow:none}
+.dmd .dmd-button.dmd-ghost:hover{border-color:var(--text);color:var(--text)}
+.dmd .dmd-input{border-radius:99px;padding-left:18px}
+.dmd .dmd-input:focus{box-shadow:0 0 0 3px var(--pink);border-color:var(--red)}
+.dmd .dmd-pill,.dmd .dmd-badge{border-radius:99px}
+
+/* hero: centred, over the glow */
+.dmd .dmd-hero{padding:64px 0 40px;text-align:center}
+.dmd .dmd-hero h1{font:600 60px/1.04 var(--display);text-transform:none;letter-spacing:-.045em}
+.dmd .dmd-hero h1 .dmd-accent,.dmd .dmd-hero h1 .dmd-h1-red{background:linear-gradient(115deg,var(--red) 5%,var(--red2) 65%,#ff9a62);-webkit-background-clip:text;
+background-clip:text;color:transparent}
+.dmd .dmd-perks{justify-content:center}
+.dmd .dmd-perks li{background:transparent;border:0;box-shadow:none;padding:0;font:500 14px/1.4 var(--sans);letter-spacing:0;text-transform:none;color:var(--muted)}
+.dmd .dmd-perks li::before{width:15px;height:15px;margin-right:8px;border-radius:0;background:linear-gradient(135deg,var(--red),var(--red2));
+-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat;
+mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat}
+.dmd .dmd-stats{gap:16px}
+
+/* footer */
+.dmd .dmd-footer{background:transparent;color:var(--muted);border-top:1px solid var(--line)}
+.dmd .dmd-footer .dmd-in{max-width:var(--page);padding:60px 32px 26px}
+.dmd .dmd-head{color:var(--text);font:600 14px/1.3 var(--display)}
+.dmd .dmd-col a{color:var(--muted);font-weight:500}
+.dmd .dmd-col a:hover{color:var(--red-text);text-decoration:none}
+.dmd .dmd-col a.dmd-get-app,.dmd .dmd-col a.dmd-api-link{background:transparent;color:var(--text);border:1px solid var(--input-line);border-radius:99px}
+.dmd .dmd-col a.dmd-get-app:hover,.dmd .dmd-col a.dmd-api-link:hover{background:var(--grey);color:var(--text)}
+.dmd .dmd-legal{border-top-color:var(--line);color:var(--muted)}
+.dmd .dmd-to-top{border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red2));box-shadow:0 12px 26px -10px var(--red)}
+
+@media (max-width:900px){.dmd .dmd-topbar{padding:10px 12px 0}.dmd .dmd-topbar .dmd-in{padding:6px 8px 6px 16px}
+.dmd .dmd-topbar .dmd-in:has(.dmd-menu-toggle:checked){border-radius:26px}.dmd .dmd-menu-button{border-radius:50%;box-shadow:none}}
+@media (max-width:760px){.dmd .content-inner{padding:0 18px 80px}.dmd .dmd-footer .dmd-in{padding:44px 20px 22px}}
+@media (max-width:600px){.dmd .dmd-hero{padding:40px 0 28px}.dmd .dmd-hero h1{font-size:36px}
+.dmd .dmd-topbar .dmd-in{gap:6px;padding:6px 6px 6px 14px}.dmd .dmd-brand{font-size:15.5px;gap:8px}.dmd .dmd-brand img{width:24px;height:24px}}
+@media (max-width:430px){.dmd .dmd-tag{display:none}}
+
+/* scrolled down, the page fades out under the floating bar instead of showing above it
+   (browsers with scroll-driven animations; the others keep the bar as it is) */
+.dmd .dmd-topbar::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:0;
+background:linear-gradient(var(--page-bg) 55%,transparent)}
+@supports (animation-timeline:scroll()){.dmd .dmd-topbar::before{animation:dmd-bar-fade linear both;animation-timeline:scroll(root);animation-range:0 60px}}
+@keyframes dmd-bar-fade{to{opacity:1}}
+
+/* the pool's pages: the home page's title centred, without the big coin */
+.dmd .dmd-hero{grid-template-columns:minmax(0,1fr);grid-template-areas:"text"}
+.dmd .dmd-hero-text{max-width:820px;margin:0 auto}
+.dmd .dmd-hero-text>p:not(.dmd-eyebrow){margin-left:auto;margin-right:auto}
+.dmd .dmd-lookup{max-width:600px;margin-left:auto;margin-right:auto}
+.dmd .dmd-stat .dmd-icon{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--red),var(--red2));
+color:#fff;margin:0 auto 12px;box-shadow:0 10px 22px -10px var(--red)}
+.dmd .dmd-stat .dmd-icon svg{width:22px;height:22px}
+.dmd .dmd-blocks-table th{font:600 11.5px/1.3 var(--sans);letter-spacing:.06em;color:var(--muted)}
+.dmd .dmd-blocks-table .dmd-height{font-family:var(--mono);font-weight:600}
+.dmd .dmd-blocks-table .dmd-cube{border-radius:12px;background:var(--pink)}
+.dmd .dmd-copy{border-radius:99px}
+.dmd .dmd-badge.done{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff}
+.dmd .dmd-wallet-intro{text-align:center}
+.dmd .dmd-wallet-intro .dmd-lookup{margin-left:auto;margin-right:auto}
+.dmd .dmd-wallet-intro h1{font:600 48px/1.06 var(--display);text-transform:none;letter-spacing:-.04em}
+.dmd .main-left-title,.dmd .main-right-title,.dmd .main-right2-title{font-family:var(--display)!important;text-transform:none!important;letter-spacing:-.02em!important}
+.dmd table.dataGrid5 th,.dmd table.dataGrid th{font-family:var(--sans)!important;letter-spacing:.05em}
+@media (max-width:600px){.dmd .dmd-wallet-intro h1{font-size:34px}}
+
+.dmd .dmd-wallet-who h1,.dmd #dmd-wallet-title{font:600 44px/1.06 var(--display);text-transform:none;letter-spacing:-.035em}
+.dmd #dmd-wallet-title .dmd-accent{background:linear-gradient(115deg,var(--red) 5%,var(--red2) 65%,#ff9a62);-webkit-background-clip:text;background-clip:text;color:transparent}
+@media (max-width:600px){.dmd #dmd-wallet-title{font-size:30px}}
+
+/* the hashrate chart: the design font */
+.dmd .apexcharts-text,.dmd .apexcharts-tooltip,.dmd .apexcharts-xaxistooltip{font-family:var(--sans)!important}
+
+/* phone: the latest blocks fit the card (mono numbers are wider) */
+@media (max-width:600px){.dmd .dmd-blocks-table .dmd-height{font-size:.9rem;letter-spacing:-.03em}.dmd .dmd-blocks-table td{white-space:nowrap;font-size:.86rem}.dmd .dmd-blocks-table th,.dmd .dmd-blocks-table td{padding-left:4px;padding-right:4px}.dmd .dmd-blocks-table th{font-size:10.5px;letter-spacing:.04em}}

@@ -34,7 +34,9 @@ echo '<!doctype html>
   window.dmdCharts = [];
   window.dmdChartTheme = function () {
     var dark = root.getAttribute("data-theme") === "dark";
-    return { fore: dark ? "#9a9ba6" : "#7d8797", grid: dark ? "#2c2c35" : "#f0f1f4", tooltip: dark ? "dark" : "light" };
+    // The Aurora design colours (css/dmd-aurora.css).
+    return { fore: dark ? "#8f8a9b" : "#6e6a78", grid: dark ? "#25222d" : "#f1eff4", tooltip: dark ? "dark" : "light",
+      red: dark ? "#ff3348" : "#e0112b", ring: dark ? "#15141a" : "#ffffff" };	// ring: around the live dot of the chart
   };
 })();
 </script>
@@ -42,7 +44,7 @@ echo '<!doctype html>
 /* The page colour from the very first frame: without it Firefox shows a blank white page for a
    moment on every load, while the stylesheets and scripts below are fetched. */
 html{background:#fff}
-html[data-theme="dark"]{background:#18181d}
+html[data-theme="dark"]{background:#0b0a0f}
 </style>
 <title>' . CHtml::encode($pageTitle) . '</title>
 ' . dmd_app_head() . '<meta name="description" content="The official mining pool of the DebitMyData Proof-of-Work chain: mine DMD with any SHA-256 ASIC, PPLNS payouts.">
@@ -56,7 +58,8 @@ html[data-theme="dark"]{background:#18181d}
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="DebitMyData PoW Mining Pool">
 <meta name="twitter:image" content="https://pool.debitmydata.io/images/banner_02.png">
-<link rel="preload" href="/yaamp/ui/fonts/mada-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/yaamp/ui/fonts/inter-wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/yaamp/ui/fonts/sora-wght.woff2" as="font" type="font/woff2" crossorigin>
 ';
 
 echo CHtml::cssFile("/extensions/jquery/themes/ui-lightness/jquery-ui.css");
@@ -68,7 +71,8 @@ echo CHtml::cssFile('/yaamp/ui/css/table.css');
 echo CHtml::cssFile('/yaamp/ui/css/bootstrap.css');
 echo CHtml::cssFile('/yaamp/ui/css/bootstrap-navbar-menu.css');
 echo CHtml::cssFile('/yaamp/ui/css/animate.css');
-echo CHtml::cssFile('/yaamp/ui/css/dmd-pool.css?v=20');
+echo CHtml::cssFile('/yaamp/ui/css/dmd-pool.css?v=21');
+echo CHtml::cssFile('/yaamp/ui/css/dmd-aurora.css?v=1');
 echo CHtml::scriptFile('https://cdn.jsdelivr.net/npm/apexcharts');
 echo CHtml::scriptFile('/yaamp/ui/js/all.js');
 echo CHtml::scriptFile('https://kit.fontawesome.com/9160e74506.js', array('crossorigin' => 'anonymous'));
@@ -123,7 +127,7 @@ function dmd_theme_script()
   function dark() { return root.getAttribute("data-theme") === "dark"; }
   function label() {
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", dark() ? "#1d1d23" : "#ffffff");
+    if (meta) meta.setAttribute("content", dark() ? "#0b0a0f" : "#ffffff");
     if (!button) return;
     button.setAttribute("aria-label", dark() ? "Switch to the light theme" : "Switch to the dark theme");
     button.title = dark() ? "Light theme" : "Dark theme";

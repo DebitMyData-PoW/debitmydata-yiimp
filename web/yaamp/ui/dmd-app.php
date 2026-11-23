@@ -48,7 +48,7 @@ function dmd_app_launch_screen()
 	return <<<HTML
 <style>
 html.dmd-launch::before{content:"";position:fixed;top:0;right:0;bottom:0;left:0;z-index:2147483646;
-background:#18181d url("/images/app/icon-512.png?v=$v") no-repeat center calc(50% - 30px)/136px 136px}
+background:#0b0a0f url("/images/app/icon-512.png?v=$v") no-repeat center calc(50% - 30px)/136px 136px}
 html.dmd-launch::after{content:"$name";position:fixed;left:0;right:0;top:calc(50% + 52px);z-index:2147483647;
 text-align:center;font:800 28px/1.2 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;letter-spacing:.01em;color:#ececf1}
 html.dmd-launch.dmd-launch-out::before,html.dmd-launch.dmd-launch-out::after{opacity:0;transition:opacity .35s ease}
