@@ -2,7 +2,7 @@
 
 /* The pool hashrate chart of a period, as JSON: {"range": "24h", "points": [[ms, H/s], ...]}.
  *
- *  1m, 15m  a point every 5 or 30 seconds, from the shares: each is the hashrate of the 5 minutes
+ *  5m, 15m  a point every 10 or 30 seconds, from the shares: each is the hashrate of the 5 minutes
  *           before it, the way the pool's "now" figure is worked out (yaamp_pool_rate)
  *  4h       the same every 2 minutes, from the shares counted minute by minute
  *  24h      the pool's 15-minute records (hashrate table, kept a day)
@@ -19,9 +19,9 @@ $window = yaamp_hashrate_step();	// 300 seconds
 $per_diff = yaamp_hashrate_constant($algo) / $window / 1000;	// H/s from the difficulty of a window's shares
 $points = array();
 
-if ($range == '1m' || $range == '15m' || $range == '4h') {
-	$spans = array('1m' => 60, '15m' => 900, '4h' => 4*3600);
-	$steps = array('1m' => 5, '15m' => 30, '4h' => 120);
+if ($range == '5m' || $range == '15m' || $range == '4h') {
+	$spans = array('5m' => 300, '15m' => 900, '4h' => 4*3600);
+	$steps = array('5m' => 10, '15m' => 30, '4h' => 120);
 	$span = $spans[$range];
 	$step = $steps[$range];
 	$group = $range == '4h' ? 60 : 1;	// the shares added up by second, or by minute

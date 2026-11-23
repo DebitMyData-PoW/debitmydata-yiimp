@@ -223,7 +223,7 @@ rented from NiceHash starts automatically at NiceHash's required difficulty.</p>
 <div class="dmd-card-head"><h2 id="dmd-chart-title"><?= dmd_home_icon('chart') ?><span>Pool hashrate, <span id="dmd-chart-period">24 hours</span></span></h2>
 <span class="dmd-chart-now" id="dmd-chart-now" hidden></span></div>
 <div class="dmd-periods" role="group" aria-label="Period" id="dmd-periods">
-<button type="button" data-range="1m" aria-pressed="false">1M</button>
+<button type="button" data-range="5m" aria-pressed="false">5M</button>
 <button type="button" data-range="15m" aria-pressed="false">15M</button>
 <button type="button" data-range="4h" aria-pressed="false">4H</button>
 <button type="button" data-range="24h" aria-pressed="true">24H</button>
@@ -259,10 +259,9 @@ function found_refresh()
     $.get('/site/found_results', '', function (data) { $('#found_results').html(data); });
 }
 
-// The chart's period (1m, 15m, 4h, 24h, 7d, 1y, all), kept in this browser
-var DMD_PERIODS = { '1m': 'last minute', '15m': '15 minutes', '4h': '4 hours', '24h': '24 hours', '7d': '7 days', '1y': 'a year', 'all': 'all time' };
+// The chart's period (5m, 15m, 4h, 24h, 7d, 1y, all): 24 hours on every visit
+var DMD_PERIODS = { '5m': '5 minutes', '15m': '15 minutes', '4h': '4 hours', '24h': '24 hours', '7d': '7 days', '1y': 'a year', 'all': 'all time' };
 var dmd_range = '24h';
-try { var kept = localStorage.getItem('dmd-pool-chart-range'); if (DMD_PERIODS[kept]) dmd_range = kept; } catch (e) {}
 function pool_hashrate_sha256_refresh()
 {
     var range = dmd_range;
@@ -272,7 +271,6 @@ $(document).on('click', '#dmd-periods button', function () {
     var range = this.getAttribute('data-range');
     if (!DMD_PERIODS[range] || range === dmd_range) return;
     dmd_range = range;
-    try { localStorage.setItem('dmd-pool-chart-range', range); } catch (e) {}
     dmd_periods();
     if (dmd_chart) { dmd_chart.destroy(); dmd_chart = null; }
     document.getElementById('pool_hashrate_sha256_results').innerHTML = '<p class="dmd-empty">Loading the chart…</p>';
@@ -324,7 +322,7 @@ function dmd_chart_update(data)
     }
     box.innerHTML = '';
     var look = dmd_look();
-    var seconds = dmd_range === '1m' || dmd_range === '15m', days = dmd_range === '1y' || dmd_range === 'all';
+    var seconds = dmd_range === '5m' || dmd_range === '15m', days = dmd_range === '1y' || dmd_range === 'all';
     dmd_chart = new ApexCharts(box, {
         series: [{ name: 'Pool hashrate', data: points }],
         chart: {
