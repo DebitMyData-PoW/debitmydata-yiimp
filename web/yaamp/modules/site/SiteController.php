@@ -506,6 +506,25 @@ class SiteController extends CommonController
 		$this->renderPartialAlgoMemcached('results/graph_hashrate_sha256_results');
 	}
 
+	// Home page: the pool hashrate chart of a period (json): 1m, 15m, 4h, 24h, 7d, 1y or all
+	public function actionGraph_pool_hashrate()
+	{
+		$range = getparam('range', '24h');
+		if (!in_array($range, array('1m', '15m', '4h', '24h', '7d', '1y', 'all'), true)) $range = '24h';
+		$memkey = 'sha256_graph_pool_hashrate_'.$range;
+		$json = controller()->memcache->get($memkey);
+		if (empty($json)) {
+			ob_start();
+			ob_implicit_flush(false);
+			$this->renderPartial('results/graph_pool_hashrate_results', array('range' => $range));
+			$json = ob_get_clean();
+			controller()->memcache->set($memkey, $json, $range == '1m' ? 5 : 15, MEMCACHE_COMPRESSED);
+		}
+		header('Content-Type: application/json');
+		header('Cache-Control: no-cache');
+		echo $json;
+	}
+
 	// Pool tab: last 50 blocks
 	public function actionFound_results()
 	{

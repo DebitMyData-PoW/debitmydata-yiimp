@@ -36,7 +36,7 @@ echo '<!doctype html>
     var dark = root.getAttribute("data-theme") === "dark";
     // The Aurora design colours (css/dmd-aurora.css).
     return { fore: dark ? "#8f8a9b" : "#6e6a78", grid: dark ? "#25222d" : "#f1eff4", tooltip: dark ? "dark" : "light",
-      red: dark ? "#ff3348" : "#e0112b" };
+      red: dark ? "#ff3348" : "#e0112b", ring: dark ? "#15141a" : "#ffffff" };	// ring: around the live dot of the chart
   };
 })();
 </script>
@@ -71,7 +71,7 @@ echo CHtml::cssFile('/yaamp/ui/css/table.css');
 echo CHtml::cssFile('/yaamp/ui/css/bootstrap.css');
 echo CHtml::cssFile('/yaamp/ui/css/bootstrap-navbar-menu.css');
 echo CHtml::cssFile('/yaamp/ui/css/animate.css');
-echo CHtml::cssFile('/yaamp/ui/css/dmd-pool.css?v=20');
+echo CHtml::cssFile('/yaamp/ui/css/dmd-pool.css?v=21');
 echo CHtml::cssFile('/yaamp/ui/css/dmd-aurora.css?v=1');
 echo CHtml::scriptFile('https://cdn.jsdelivr.net/npm/apexcharts');
 echo CHtml::scriptFile('/yaamp/ui/js/all.js');

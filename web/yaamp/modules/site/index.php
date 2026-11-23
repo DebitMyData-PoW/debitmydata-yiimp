@@ -220,8 +220,17 @@ rented from NiceHash starts automatically at NiceHash's required difficulty.</p>
 </section>
 
 <section class="dmd-card dmd-chart" aria-labelledby="dmd-chart-title">
-<div class="dmd-card-head"><h2 id="dmd-chart-title"><?= dmd_home_icon('chart') ?>Pool hashrate, 24 hours</h2>
+<div class="dmd-card-head"><h2 id="dmd-chart-title"><?= dmd_home_icon('chart') ?><span>Pool hashrate, <span id="dmd-chart-period">24 hours</span></span></h2>
 <span class="dmd-chart-now" id="dmd-chart-now" hidden></span></div>
+<div class="dmd-periods" role="group" aria-label="Period" id="dmd-periods">
+<button type="button" data-range="1m" aria-pressed="false">1M</button>
+<button type="button" data-range="15m" aria-pressed="false">15M</button>
+<button type="button" data-range="4h" aria-pressed="false">4H</button>
+<button type="button" data-range="24h" aria-pressed="true">24H</button>
+<button type="button" data-range="7d" aria-pressed="false">7D</button>
+<button type="button" data-range="1y" aria-pressed="false">1Y</button>
+<button type="button" data-range="all" aria-pressed="false">ALL</button>
+</div>
 <div id="pool_hashrate_sha256_results"><p class="dmd-empty">Loading the chart…</p></div>
 </section>
 </div>
@@ -250,10 +259,31 @@ function found_refresh()
     $.get('/site/found_results', '', function (data) { $('#found_results').html(data); });
 }
 
+// The chart's period (1m, 15m, 4h, 24h, 7d, 1y, all), kept in this browser
+var DMD_PERIODS = { '1m': 'last minute', '15m': '15 minutes', '4h': '4 hours', '24h': '24 hours', '7d': '7 days', '1y': 'a year', 'all': 'all time' };
+var dmd_range = '24h';
+try { var kept = localStorage.getItem('dmd-pool-chart-range'); if (DMD_PERIODS[kept]) dmd_range = kept; } catch (e) {}
 function pool_hashrate_sha256_refresh()
 {
-    $.get('/site/graph_hashrate_sha256_results', '', dmd_chart_update);
+    var range = dmd_range;
+    $.get('/site/graph_pool_hashrate', { range: range }, function (data) { if (range === dmd_range) dmd_chart_update(data); });
 }
+$(document).on('click', '#dmd-periods button', function () {
+    var range = this.getAttribute('data-range');
+    if (!DMD_PERIODS[range] || range === dmd_range) return;
+    dmd_range = range;
+    try { localStorage.setItem('dmd-pool-chart-range', range); } catch (e) {}
+    dmd_periods();
+    if (dmd_chart) { dmd_chart.destroy(); dmd_chart = null; }
+    document.getElementById('pool_hashrate_sha256_results').innerHTML = '<p class="dmd-empty">Loading the chart…</p>';
+    pool_hashrate_sha256_refresh();
+});
+function dmd_periods()
+{
+    $('#dmd-periods button').each(function () { this.setAttribute('aria-pressed', this.getAttribute('data-range') === dmd_range ? 'true' : 'false'); });
+    document.getElementById('dmd-chart-period').textContent = DMD_PERIODS[dmd_range];
+}
+dmd_periods();
 
 // "88.9 TH/s" from hashes per second.
 function dmd_rate(h)
@@ -264,22 +294,23 @@ function dmd_rate(h)
     return (h >= 100 ? h.toFixed(0) : h.toFixed(h >= 10 ? 1 : 2)) + ' ' + units[i];
 }
 
-// The chart's points: [["2026/11/10 03:30:00", MH/s], ...], first series of the answer.
+// The chart's points: {"range": "24h", "points": [[ms, H/s], ...]}, the last one now.
 var dmd_chart = null;
+var dmd_points = [];
 function dmd_chart_update(data)
 {
     var box = document.getElementById('pool_hashrate_sha256_results');
     var points = [];
     try {
-        var rows = (typeof data === 'string' ? JSON.parse(data) : data)[0] || [];
+        var rows = (typeof data === 'string' ? JSON.parse(data) : data).points || [];
         for (var i = 0; i < rows.length; i++) {
-            var t = new Date(String(rows[i][0]).replace(/-/g, '/')).getTime();
-            var v = Number(rows[i][1]) * 1e6;
-            if (!isNaN(t) && isFinite(v)) points.push([t, v]);
+            var t = Number(rows[i][0]), v = Number(rows[i][1]);
+            if (isFinite(t) && isFinite(v)) points.push([t, v]);
         }
     } catch (err) {
         points = [];
     }
+    dmd_points = points;
     if (!points.length || typeof ApexCharts === 'undefined') {
         if (!dmd_chart) box.innerHTML = '<p class="dmd-empty">The chart is not available right now.</p>';
         return;
@@ -288,11 +319,12 @@ function dmd_chart_update(data)
     now.innerHTML = 'Now <b>' + dmd_rate(points[points.length - 1][1]) + '</b>';
     now.hidden = false;
     if (dmd_chart) {
-        dmd_chart.updateSeries([{ name: 'Pool hashrate', data: points }]);
+        dmd_chart.updateOptions({ series: [{ name: 'Pool hashrate', data: points }], annotations: dmd_live(points, dmd_look()) }, false, false);
         return;
     }
     box.innerHTML = '';
-    var look = window.dmdChartTheme ? window.dmdChartTheme() : { fore: '#7d8797', grid: '#f0f1f4', tooltip: 'light' };
+    var look = dmd_look();
+    var seconds = dmd_range === '1m' || dmd_range === '15m', days = dmd_range === '1y' || dmd_range === 'all';
     dmd_chart = new ApexCharts(box, {
         series: [{ name: 'Pool hashrate', data: points }],
         chart: {
@@ -305,18 +337,41 @@ function dmd_chart_update(data)
         fill: { type: 'gradient', gradient: { shadeIntensity: 0, opacityFrom: 0.28, opacityTo: 0.02, stops: [0, 100] } },
         dataLabels: { enabled: false },
         markers: { size: 0, hover: { size: 5 } },
-        grid: { borderColor: look.grid, strokeDashArray: 4, padding: { left: 8, right: 8 } },
+        grid: { borderColor: look.grid, strokeDashArray: 4, padding: { left: 8, right: 22 } },	// room for the live dot
         xaxis: {
-            type: 'datetime', labels: { datetimeUTC: false, format: 'HH:mm' },
+            type: 'datetime', labels: { datetimeUTC: false, format: seconds ? 'HH:mm:ss' : dmd_range === '7d' ? 'dd MMM' : days ? "MMM 'yy" : 'HH:mm' },
             axisBorder: { show: false }, axisTicks: { show: false }, tooltip: { enabled: false }
         },
         yaxis: { tickAmount: 4, min: 0, labels: { formatter: dmd_rate } },
-        tooltip: { x: { format: 'dd MMM HH:mm' }, y: { formatter: dmd_rate }, theme: look.tooltip },
+        tooltip: { x: { format: seconds ? 'HH:mm:ss' : days ? 'dd MMM yyyy' : 'dd MMM HH:mm' }, y: { formatter: dmd_rate }, theme: look.tooltip },
+        annotations: dmd_live(points, look),
         legend: { show: false }
     });
     dmd_chart.render();
     if (window.dmdCharts) window.dmdCharts.push(dmd_chart);
 }
+function dmd_look()
+{
+    return window.dmdChartTheme ? window.dmdChartTheme() : { fore: '#7d8797', grid: '#f0f1f4', tooltip: 'light', red: '#e0112b', ring: '#ffffff' };
+}
+// The live dot: a big red dot on the newest point (now), as on DMD Stats and the Analytics Oracle
+function dmd_live(points, look)
+{
+    var last = points[points.length - 1];
+    if (!last) return { points: [] };
+    var red = look.red || '#e0112b';
+    return { points: [
+        { x: last[0], y: last[1], marker: { size: 13, fillColor: red, strokeWidth: 0, cssClass: 'dmd-live-halo' } },
+        { x: last[0], y: last[1], marker: { size: 6.5, fillColor: red, strokeColor: look.ring || '#ffffff', strokeWidth: 2, cssClass: 'dmd-live-dot' } }
+    ] };
+}
+// The theme switch: the chart drawn again in the other theme's colours (the dot's too)
+new MutationObserver(function () {
+    if (!dmd_chart || !dmd_points.length) return;
+    dmd_chart.destroy();
+    dmd_chart = null;
+    dmd_chart_update({ points: dmd_points });
+}).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
 // Copy the pool URL.
 $(document).on('click', '.dmd-copy', function () {

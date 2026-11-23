@@ -161,6 +161,16 @@ transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
 .dmd #pool_hashrate_sha256_results{flex:1 1 auto;min-height:220px;margin:0 -8px -10px}
 .dmd .dmd-chart-now{font-size:.9rem;color:var(--muted)}
 .dmd .dmd-chart-now b{color:var(--text);font-size:1.05rem}
+/* The chart's periods (as on DMD Stats), and its live dot on the newest point */
+.dmd .dmd-periods{display:flex;flex-wrap:wrap;gap:2px;align-self:flex-start;margin:0 0 8px;padding:4px;border-radius:999px;background:var(--grey)}
+.dmd .dmd-periods button{margin:0;padding:7px 11px;border:0;border-radius:999px;background:transparent;color:var(--body);font:600 12.5px/1 var(--sans);letter-spacing:.02em;cursor:pointer}
+.dmd .dmd-periods button:hover{background:var(--card);color:var(--text)}
+.dmd .dmd-periods button[aria-pressed="true"]{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;box-shadow:0 8px 18px -10px var(--red)}
+.dmd .dmd-live-halo{opacity:.25;transform-box:fill-box;transform-origin:center;animation:dmd-live 1.8s ease-out infinite;pointer-events:none}
+.dmd .dmd-live-dot{pointer-events:none}
+@keyframes dmd-live{0%{transform:scale(.5);opacity:.45}100%{transform:scale(1.45);opacity:0}}
+@media (prefers-reduced-motion:reduce){.dmd .dmd-live-halo{animation:none}}
+@media (max-width:480px){.dmd .dmd-periods{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));align-self:stretch}.dmd .dmd-periods button{padding:7px 0;text-align:center}}
 .dmd .apexcharts-tooltip{font-family:var(--sans)!important;border:1px solid var(--line)!important;box-shadow:var(--shadow)!important}
 .dmd .apexcharts-tooltip-title{font-family:var(--sans)!important;background:var(--tooltip-head)!important;border-bottom:1px solid var(--line)!important}
 .dmd .dmd-empty{display:grid;place-items:center;min-height:180px;color:var(--muted);font-size:.95rem;text-align:center}

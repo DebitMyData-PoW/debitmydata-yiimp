@@ -142,7 +142,7 @@ function BackendCleanDatabase()
 
 	$delay = time() - 90*24*60*60;
 	dborun("DELETE from blocks where time<$delay");
-	dborun("delete from hashstats where time<$delay");
+	// hashstats (one row an hour) is kept for good: the home page's chart shows a year and all time
 	dborun("delete from payouts where time<$delay");
 	dborun("delete from rentertxs where time<$delay");
 	dborun("DELETE FROM shares WHERE time<$delay");
