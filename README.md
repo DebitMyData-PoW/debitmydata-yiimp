@@ -46,11 +46,9 @@ a launch screen, and no browser bars. There is nothing to download from a store.
   in the app added to the Home Screen.
 - **Light and dark**, remembered on each device.
 
-**The Google Play version** (a Bubblewrap app, package `io.debitmydata.pool`) is listed in
-`web/manifest.json`: in Chrome and Edge on Android, the page sees it once it is installed and
-does not offer the browser version. To publish it, the app's signing key goes in
-`web/.well-known/assetlinks.json` (the package name and the SHA-256 fingerprint of the Play app
-signing key, from Play Console, App integrity), so that it opens without the browser's bar.
+**A Google Play version** (a Bubblewrap app) can be listed in `web/manifest.json`: in Chrome and
+Edge on Android, the page then sees it once it is installed and does not offer the browser
+version.
 
 <p align="center">
   <img src="docs/images/pool-phone-light.jpg" alt="The pool on a phone, in the light theme" width="260">
@@ -61,36 +59,12 @@ signing key, from Play Console, App integrity), so that it opens without the bro
 The service worker (`web/sw.js`) also shows a short page when there is no network, and the
 notifications themselves.
 
-## Running it
+## Installation
 
-It runs on **Ubuntu 24.04 with PHP 8.3** (Ubuntu's own), MariaDB 10.11 and nginx, in the
-multipool installer's layout (`/home/crypto-data/yiimp/site`). The installer,
-[DebitMyData-PoW/Multi-Pool-Installer](https://github.com/DebitMyData-PoW/Multi-Pool-Installer),
-sets it all up on a fresh server: the website, the database, the stratum with the DMD port, and
-the notifications.
-
-The website runs on Yii 1.1.32 (`web/framework`), with YiiMP's few changes to it.
-
-DebitMyData's database changes in `sql/` run once each, in this order (the second one makes the
-table that the third one changes), after YiiMP's own:
-
-```
-sudo mysql yiimpfrontend < sql/2026-11-12-pplns-coinbase.sql
-sudo mysql yiimpfrontend < sql/2026-11-13-push.sql
-sudo mysql yiimpfrontend < sql/2026-11-12-push-test.sql
-```
-
-## Not in this repository
-
-This repository is public. These stay on the server only:
-
-- **Settings and secrets**: the installer's `configuration/` folder next to `web/`
-  (`serverconfig.php`, and `push.php` with the path of the web push private key), `keys.php`,
-  and the stratum's `config/*.conf` (database password). The `.gitignore` keeps them out.
-- **Licensed fonts and icons**: Font Awesome Pro (`web/yaamp/ui/css/all.css`,
-  `web/yaamp/ui/js/all.js`, `web/yaamp/ui/webfonts/`) and the commercial display fonts in
-  `web/yaamp/ui/fonts/`. Their licenses don't allow publishing them. Mada, under the SIL Open
-  Font License, is included.
+The pool runs on **Ubuntu 24.04 with PHP 8.3**, MariaDB 10.11 and nginx. The
+[DebitMyData pool installer](https://github.com/DebitMyData-PoW/Multi-Pool-Installer) sets it all
+up on a fresh server. See **[INSTALL.md](INSTALL.md)** for how, the database changes, and what this
+repository leaves out (settings, secrets and licensed fonts stay on the server).
 
 ## Security
 
